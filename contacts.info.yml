@@ -1,0 +1,11 @@
+name: Contacts
+description: "Creates a contacts list usering decoupled users."
+package: Tool
+
+type: module
+core: 8.x
+
+dependencies:
+  - decoupled_auth
+  - profile
+  - panels
