@@ -1,0 +1,32 @@
+.panel-layout-dashboard > .panel-left {
+  float: left; 
+  width: 30%;
+}
+* html .panel-layout-dashboard > .panel-left {
+  width: 29.9%;
+}
+
+.panel-layout-dashboard > .panel-left > div {
+  margin: 0 .5em 1em 0;
+}
+
+.panel-layout-dashboard > .panel-right {
+  float: left; 
+  width: 70%;
+}
+* html .panel-layout-dashboard > .panel-right {
+  width: 79.9%;
+}
+
+.panel-layout-dashboard > .panel-right > div {
+  margin: 0 0 1em .5em;
+}
+
+#panels-edit-display .panel-pane,
+#panels-edit-display .helperclass {
+  margin: .5em;
+}
+
+.panel-layout-dashboard .panel-separator {
+  margin: 0 0 1em 0;
+}
