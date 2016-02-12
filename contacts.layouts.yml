@@ -1,0 +1,12 @@
+dashboard:
+  label: Contacts Dashboard
+  category: Columns: 2
+  path: plugins/layouts/dashboard
+  icon: dashboard.png
+  css: dashboard.css
+  template: contacts-dashboard
+  regions:
+    left:
+      label: Search
+    right:
+      label: View

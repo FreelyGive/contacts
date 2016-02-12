@@ -1,0 +1,30 @@
+{
+  "name": "drupal/contacts",
+  "description": "Creates a contacts list using decoupled users.",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packagist.drupal-composer.org"
+    }
+  ],
+  "require": {
+    "drupal/profile": "8.1.*",
+    "drupal/address": "8.1.*",
+    "drupal/ctools": "8.3.*",
+    "drupal/layout_plugin": "8.1.*",
+    "drupal/page_manager": "8.1.*",
+    "drupal/panels": "8.3.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Drupal\\contacts\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Drupal\\Tests\\contacts\\": "tests/src"
+    }
+  }
+}
