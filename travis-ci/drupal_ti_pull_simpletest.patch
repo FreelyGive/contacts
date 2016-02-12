@@ -1,0 +1,21 @@
+diff --git a/runners/simpletest/script.sh b/runners/simpletest/script.sh
+index a9f0bf9..2f5c240 100755
+--- a/runners/simpletest/script.sh
++++ b/runners/simpletest/script.sh
+@@ -11,6 +11,16 @@ then
+         ARGS=( "${ARGS[@]}" "$DRUPAL_TI_SIMPLETEST_GROUP" )
+ fi
+
++# Hack by yanniboi to allow different filters on pull request.
++if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
++        echo 'Scheduling all simpletests to be run.'
++        ARGS=( "${ARGS[@]}" "$DRUPAL_TI_NON_PULL_SIMPLETEST_GROUP" )
++else
++        echo 'Scheduling decoupled_auth simpletests to be run.'
++        ARGS=( "${ARGS[@]}" "$DRUPAL_TI_PULL_SIMPLETEST_GROUP" )
++fi
++
++echo ${ARGS[@]}
+
+ cd "$DRUPAL_TI_DRUPAL_DIR"
+ { php "$DRUPAL_TI_SIMPLETEST_FILE" --php $(which php) "${ARGS[@]}" || echo "1 fails"; } | tee /tmp/simpletest-result.txt
