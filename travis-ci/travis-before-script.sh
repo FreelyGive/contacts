@@ -25,9 +25,9 @@ composer update -n --lock --verbose
 #TEMP: Delete broken test from address module.
 rm modules/address/tests/src/Unit/Plugin/Validation/Constraint/CountryConstraintValidatorTest.php
 
-# Require that decoupled_auth is always enabled when the user module is enabled.
-git apply -v $DRUPAL_TI_DRUPAL_DIR/modules/decoupled_auth/travis-ci/contacts_user_modules_installed.patch
+# Require that contacts is always enabled when the user module is enabled.
+git apply -v $DRUPAL_TI_DRUPAL_DIR/modules/contacts/travis-ci/contacts_user_modules_installed.patch
 
 # Allow different simpletests to be run for pull requests by drupal_ti
 cd ~/.composer/vendor/lionsad/drupal_ti
-git apply -v $DRUPAL_TI_DRUPAL_DIR/modules/decoupled_auth/travis-ci/drupal_ti_pull_simpletest.patch
+git apply -v $DRUPAL_TI_DRUPAL_DIR/modules/contacts/travis-ci/drupal_ti_pull_simpletest.patch
