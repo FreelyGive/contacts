@@ -1,11 +1,18 @@
 name: Contacts
-description: "Creates a contacts list usering decoupled users."
+description: "Creates a contacts list using decoupled users."
 package: Tool
-
 type: module
 core: 8.x
 
 dependencies:
   - decoupled_auth
   - profile
+  - page_manager
   - panels
+  - ctools_views
+
+features:
+  required:
+    - page_manager.page.contacts_dashboard
+    - page_manager.page_variant.contacts_dashboard
+    - views.view.contacts_dashboard
