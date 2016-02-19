@@ -1,0 +1,15 @@
+{% if content -%}
+  <div {{ attributes }}>
+  <div class="dash-block-2 clearfix">
+    <div class="dash-left">
+      {{ content.left | raw }}
+    </div>
+
+    <div class="dash-right">
+      {{ content.right | raw }}
+    </div>
+  </div>
+  </div>
+{%- endif %}
+
+

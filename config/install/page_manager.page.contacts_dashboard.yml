@@ -4,7 +4,7 @@ dependencies:
   module:
     - user
 _core:
-  default_config_hash: xark83EdwLj3O8F8MUCFkcd_vioZbpc1M4To261UrTE
+  default_config_hash: 9gvwrgxDipppvZTVWHNZI50fzUmZr9PaUCVBT3QOpEo
 id: contacts_dashboard
 label: 'Contacts Dashboard'
 use_admin_theme: true

@@ -1,0 +1,17 @@
+.dash-block-2 > .dash-left {
+  float: left;
+  width: 50%;
+}
+
+.dash-block-2 > .dash-left > div {
+  margin: 0 .5em 1em 0;
+}
+
+.dash-block-2 > .dash-right {
+  float: left;
+  width: 50%;
+}
+
+.dash-block-2 > .dash-right > div {
+  margin: 0 0 1em .5em;
+}
