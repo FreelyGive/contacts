@@ -8,7 +8,7 @@ dependencies:
     - panels
     - views
 _core:
-  default_config_hash: DPSZCe8DEUQahHDfpxTlTZkWlN_ZJ_S9ER622qiCEEU
+  default_config_hash: wEUprWHXcMw_nDmFGevi1d5xhwj9kfOWbADWFpYoC7A
 id: contacts_dashboard
 label: 'Contacts Dashboard'
 variant: panels_variant

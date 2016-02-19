@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies: {  }
+id: contacts_dashboard_contact
+label: 'Contacts Dashboard - Contact'
+use_admin_theme: true
+path: '/admin/contacts/{user}/{subpage}'
+access_logic: and
+access_conditions: {  }
+parameters:
+  user:
+    machine_name: user
+    type: 'entity:user'
+    label: User
+  subpage:
+    machine_name: subpage
+    type: string
+    label: Subpage

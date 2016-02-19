@@ -1,0 +1,16 @@
+contacts-ajax-tabs:
+  version: 1.x
+  css:
+    theme:
+      css/dashboard-tabs.css: {}
+  js:
+    js/contacts-ajax-tabs.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+
+contacts-dashboard:
+  version: 1.x
+  css:
+    theme:
+      css/dashboard-blocks.css: {}

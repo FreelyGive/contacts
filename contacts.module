@@ -1,6 +1,127 @@
 <?php
 
+use Drupal\Core\Render\Element;
+use Drupal\Core\Template\Attribute;
+
 /**
  * @file
  * Module related hook implementations for the contacts module.
  */
+
+/**
+ * Implements hook_theme().
+ */
+function contacts_theme() {
+  return [
+    'contacts_dash_tabs' => [
+      'variables' => ['tabs' => []],
+      'template' => 'contacts-dash-tabs',
+    ],
+    'contacts_indiv' => [
+      'variables' => ['content' => []],
+      'template' => 'contacts-indiv',
+    ],
+    'contacts_summary' => [
+      'variables' => ['content' => []],
+      'template' => 'contacts-summary',
+    ],
+    'contacts_notes' => [
+      'variables' => ['content' => []],
+      'template' => 'contacts-notes',
+    ],
+    'contacts_dash_summary' => [
+      'variables' => ['user' => NULL],
+      'template' => 'contacts-dash-summary',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for contact dashboard individual contact tab templates.
+ *
+ * Default template: contacts-indiv.html.twig.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - content: Default markup content for this tab.
+ */
+function template_preprocess_contacts_indiv(&$variables) {
+  $variables['attributes']['id'] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'contacts-tabs-content';
+}
+
+/**
+ * Prepares variables for contact dashboard summary tab templates.
+ *
+ * Default template: contacts-summary.html.twig.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - content: Default markup content for this tab.
+ */
+function template_preprocess_contacts_summary(&$variables) {
+  $variables['attributes']['id'] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'contacts-tabs-content';
+
+}
+
+/**
+ * Prepares variables for contact dashboard notes tab templates.
+ *
+ * Default template: contacts-notes.html.twig.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - content: Default markup content for this tab.
+ */
+function template_preprocess_contacts_notes(&$variables) {
+  $variables['attributes']['id'] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'contacts-tabs-content';
+
+}
+
+/**
+ * Prepares variables for contact dashboard tabs.
+ *
+ * Default template: contacts-dash-tabs.html.twig.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - tabs: Associative array of tabs and tab properties.
+ */
+function template_preprocess_contacts_dash_tabs(&$variables) {
+  $variables['attributes'] = ['class' => [
+    'contacts-ajax-tabs',
+    'tabs',
+  ]];
+
+  foreach ($variables['tabs'] as &$tab) {
+    $tab['attributes'] = !empty($tab['attributes']) ? new Attribute($tab['attributes']) : new Attribute();
+    $tab['link_attributes'] = !empty($tab['link_attributes']) ? new Attribute($tab['link_attributes']) : new Attribute();
+  }
+}
+
+/**
+ * Prepares variables for contact dashboard summary block.
+ *
+ * Default template: contacts-dash-summary.html.twig.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - user: Fully loaded drupal User object.
+ *   - crm_indiv: Boolean whether contact has an indiv profile.
+ *   - crm_org: Boolean whether contact has an org profile.
+ */
+function template_preprocess_contacts_dash_summary(&$variables) {
+  if (!empty($variables['user']->profile_crm_indiv)) {
+    $variables['crm_indiv'] = TRUE;
+  }
+  if (!empty($variables['user']->profile_crm_org)) {
+    $variables['crm_org'] = TRUE;
+  }
+}

@@ -1,0 +1,18 @@
+{% if user -%}
+  <div class="dash-block-2 clearfix">
+    <div class="dash-top">
+      <h2>{{ user.getDisplayName() }}</h2>
+    </div>
+
+    <div class="dash-left">
+      {{ user.email }}
+
+    </div>
+    <div class="dash-right">
+      <div>{{ user.profile_crm_indiv.entity.crm_name[0].value }}</div>
+      <div>{{ user.profile_crm_indiv.entity.crm_dob[0].value }}</div>
+    </div>
+  </div>
+{%- endif %}
+
+
