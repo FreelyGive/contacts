@@ -1,0 +1,6 @@
+page_manager.page_view_contacts_dashboard:
+  title: Contacts
+  route_name: page_manager.page_view_contacts_dashboard
+  description: 'Manage user accounts, including decoupled users.'
+  parent: system.admin
+  weight: 5
