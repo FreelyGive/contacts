@@ -14,3 +14,9 @@ contacts-dashboard:
   css:
     theme:
       css/dashboard-blocks.css: {}
+
+contacts.icons:
+  version: 1.x
+  css:
+    theme:
+      css/contacts.icons.css: {}

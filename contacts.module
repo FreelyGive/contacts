@@ -125,3 +125,13 @@ function template_preprocess_contacts_dash_summary(&$variables) {
     $variables['crm_org'] = TRUE;
   }
 }
+
+/**
+ * Implements hook_toolbar_alter().
+ *
+ * Add contacts icon css to toolbar.
+ */
+function contacts_toolbar_alter(&$items) {
+  // Move the User tab to the right.
+  $items['administration']['#attached']['library'][] = 'contacts/contacts.icons';
+}
