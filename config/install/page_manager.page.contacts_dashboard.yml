@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+_core:
+  default_config_hash: 9gvwrgxDipppvZTVWHNZI50fzUmZr9PaUCVBT3QOpEo
+id: contacts_dashboard
+label: 'Contacts Dashboard'
+use_admin_theme: true
+path: /admin/contacts
+access_logic: and
+access_conditions:
+  admin_user_condition:
+    id: user_role
+    roles:
+      administrator: administrator
+    negate: false
+    context_mapping:
+      user: current_user
+parameters: {  }

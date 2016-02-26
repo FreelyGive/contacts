@@ -1,0 +1,79 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - page_manager.page.contacts_dashboard_contact
+    - views.view.contacts_dashboard
+  module:
+    - contacts
+    - panels
+    - views
+id: contacts_dashboard_contact
+label: 'Contacts Dashboard - Contact'
+variant: panels_variant
+variant_settings:
+  blocks:
+    back_to_search:
+      id: custom_text
+      label: 'Back to search'
+      provider: contacts
+      label_display: '0'
+      text: '<a href="/b/admin/contacts">Back to search</a>'
+      region: left
+      weight: -10
+      uuid: 'back_to_search'
+      context_mapping: {  }
+    contact_dashboard_view:
+      id: 'views_block:contacts_dashboard-block_2'
+      label: ''
+      provider: views
+      label_display: visible
+      views_label: ''
+      items_per_page: none
+      exposed:
+        filter-combine:
+          combine: ''
+        filter-decoupled:
+          decoupled: All
+      region: left
+      weight: -9
+      uuid: 'contact_dashboard_view'
+      context_mapping: {  }
+    contact_dashboard_tabs:
+      id: 'summary:contacts_dashboard'
+      label: 'Contacts Dashboard User Summary'
+      provider: contacts
+      label_display: '0'
+      text: summary
+      region: right
+      weight: -10
+      uuid: 'contact_dashboard_tabs'
+      context_mapping:
+        user: user
+    contact_dashboard_content:
+      id: 'tabs:contacts_dashboard'
+      label: 'Contacts Dashboard Tabs'
+      provider: contacts
+      label_display: '0'
+      text: summary
+      region: right
+      weight: -9
+      uuid: 'contact_dashboard_content'
+      context_mapping:
+        subpage: subpage
+        user: user
+  id: panels_variant
+  uuid: 1b3702e1-e046-4560-b148-726eeb34f497
+  label: null
+  weight: 0
+  layout: dashboard
+  layout_settings: {  }
+  page_title: Contact
+  storage_type: page_manager
+  storage_id: contacts_dashboard_contact
+  builder: standard
+page: contacts_dashboard_contact
+weight: 0
+selection_criteria: {  }
+selection_logic: and
+static_context: {  }

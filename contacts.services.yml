@@ -1,0 +1,5 @@
+services:
+  theme.negotiator.contacts:
+    class: Drupal\contacts\Theme\DashboardNegotiator
+    tags:
+      - { name: theme_negotiator, priority: 0 }
