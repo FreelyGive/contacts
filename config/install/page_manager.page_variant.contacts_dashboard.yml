@@ -7,14 +7,12 @@ dependencies:
   module:
     - panels
     - views
-_core:
-  default_config_hash: wEUprWHXcMw_nDmFGevi1d5xhwj9kfOWbADWFpYoC7A
-id: contacts_dashboard
+id: contacts_dashboard-panels_variant-0
 label: 'Contacts Dashboard'
 variant: panels_variant
 variant_settings:
   blocks:
-    contact_dashboard_view:
+    201c617e-e388-4f14-ab48-ada1b368938e:
       id: 'views_block:contacts_dashboard-block_1'
       label: ''
       provider: views
@@ -23,9 +21,9 @@ variant_settings:
       items_per_page: none
       region: right
       weight: 0
-      uuid: contact_dashboard_view
+      uuid: 201c617e-e388-4f14-ab48-ada1b368938e
       context_mapping: {  }
-    contact_dashboard_view_filters:
+    201c617e-e388-4f14-ab48-ada1b368938f:
       id: 'views_exposed_filter_block:contacts_dashboard-block_1'
       label: ''
       provider: views
@@ -33,7 +31,7 @@ variant_settings:
       views_label: Search
       region: left
       weight: 0
-      uuid: contact_dashboard_view_filters
+      uuid: 201c617e-e388-4f14-ab48-ada1b368938f
       context_mapping: {  }
   id: panels_variant
   label: null
@@ -42,9 +40,8 @@ variant_settings:
   layout_settings: {  }
   page_title: Dashboard
   storage_type: page_manager
-  storage_id: contacts_dashboard
+  storage_id: contacts_dashboard-panels_variant-0
   builder: standard
-  uuid: 394dfcf7-63f7-473b-9a00-e173ae48cbc8
 page: contacts_dashboard
 weight: 0
 selection_criteria: {  }

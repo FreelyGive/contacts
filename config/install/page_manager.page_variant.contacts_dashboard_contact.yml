@@ -8,57 +8,57 @@ dependencies:
     - contacts
     - panels
     - views
-id: contacts_dashboard_contact
+id: contacts_dashboard_contact-panels_variant-0
 label: 'Contacts Dashboard - Contact'
 variant: panels_variant
 variant_settings:
   blocks:
-    back_to_search:
+    7c36ff39-3877-4db4-bc62-c6fb1388044e:
       id: custom_text
       label: 'Back to search'
       provider: contacts
       label_display: '0'
-      text: '<a href="/b/admin/contacts">Back to search</a>'
+      text: '<a href="/b/admin/contacts" class="button">Back to search</a>'
       region: left
       weight: -10
-      uuid: 'back_to_search'
+      uuid: 7c36ff39-3877-4db4-bc62-c6fb1388044e
       context_mapping: {  }
-    contact_dashboard_view:
+    ecd0d505-c665-4e76-830e-a6bb9ff91afc:
       id: 'views_block:contacts_dashboard-block_2'
       label: ''
       provider: views
       label_display: visible
       views_label: ''
       items_per_page: none
-      exposed:
-        filter-combine:
-          combine: ''
-        filter-decoupled:
-          decoupled: All
+#      exposed:
+#        filter-combine:
+#          combine: ''
+#        filter-decoupled:
+#          decoupled: All
       region: left
       weight: -9
-      uuid: 'contact_dashboard_view'
+      uuid: ecd0d505-c665-4e76-830e-a6bb9ff91afc
       context_mapping: {  }
-    contact_dashboard_tabs:
+    659d4b6a-ca77-4e4a-a742-69fb23276995:
       id: 'summary:contacts_dashboard'
       label: 'Contacts Dashboard User Summary'
       provider: contacts
       label_display: '0'
-      text: summary
+#      text: summary
       region: right
       weight: -10
-      uuid: 'contact_dashboard_tabs'
+      uuid: 659d4b6a-ca77-4e4a-a742-69fb23276995
       context_mapping:
         user: user
-    contact_dashboard_content:
+    a1fe7eb4-7f8c-4397-a3c7-17702ac4b68f:
       id: 'tabs:contacts_dashboard'
       label: 'Contacts Dashboard Tabs'
       provider: contacts
       label_display: '0'
-      text: summary
+#      text: summary
       region: right
       weight: -9
-      uuid: 'contact_dashboard_content'
+      uuid: a1fe7eb4-7f8c-4397-a3c7-17702ac4b68f
       context_mapping:
         subpage: subpage
         user: user
@@ -70,7 +70,7 @@ variant_settings:
   layout_settings: {  }
   page_title: Contact
   storage_type: page_manager
-  storage_id: contacts_dashboard_contact
+  storage_id: contacts_dashboard_contact-panels_variant-0
   builder: standard
 page: contacts_dashboard_contact
 weight: 0

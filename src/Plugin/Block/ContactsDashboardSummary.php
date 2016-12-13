@@ -45,7 +45,4 @@ class ContactsDashboardSummary extends BlockBase {
     return $build;
   }
 
-
-
-
 }

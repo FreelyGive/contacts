@@ -4,8 +4,6 @@ dependencies:
   module:
     - decoupled_auth
     - user
-_core:
-  default_config_hash: TAnUCMsRBhizJlwFA4VlI4vgASxBGURByp2vRZM6N6E
 id: contacts_dashboard
 label: 'Contacts Dashboard'
 module: views
@@ -771,6 +769,7 @@ display:
         operator: AND
         groups:
           1: AND
+      css_class: party-selection-vbo
     cache_metadata:
       max-age: 0
       contexts:
@@ -1025,6 +1024,12 @@ display:
           plugin_id: field
       defaults:
         fields: false
+        header: false
+        title: false
+        css_class: false
+      header: {  }
+      title: ''
+      css_class: party-selection
     cache_metadata:
       max-age: 0
       contexts:
