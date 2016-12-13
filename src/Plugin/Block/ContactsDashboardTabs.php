@@ -10,6 +10,7 @@ namespace Drupal\contacts\Plugin\Block;
 use Drupal\contacts\Controller\DashboardController;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
 
@@ -118,17 +119,23 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     foreach ($tabs as $machine => $label) {
       $content['#tabs'][$machine] = [
         'text' => $label,
-        'link' => $base_path . 'admin/contacts/'. $this->user->id() .'/' . $machine,
+        'link' => Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
+          'user' => $this->user->id(),
+          'subpage' => $machine,
+        ]),
       ];
 
       // Swap links for AJAX request links.
       if ($this->ajax) {
-        $content['#tabs'][$machine]['link'] = $base_path . 'admin/contacts/'. $this->user->id() .'/nojs/' . $machine;
+        $content['#tabs'][$machine]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
+          'user' => $this->user->id(),
+          'subpage' => $machine,
+        ])->toString();
         $content['#tabs'][$machine]['link_attributes']['class'][] = 'use-ajax';
       }
     }
 
-    // Add active class to current tab.
+    // Add subpage class to current tab.
     $content['#tabs'][$this->subpage]['attributes']['class'][] = 'is-active';
     $content['#tabs'][$this->subpage]['link_attributes']['class'][] = 'is-active';
 
@@ -143,19 +150,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    */
   public function buildContent(&$build) {
     if (in_array($this->subpage, ['summary', 'indiv', 'notes'])) {
-
-      switch ($this->subpage) {
-        case 'summary':
-          $content = $this->blockController->renderSummaryBlock($this->user);
-          break;
-        case 'indiv':
-          $content = $this->blockController->renderIndividualBlock($this->user);
-          break;
-        case 'notes':
-          $content = $this->blockController->renderNotesBlock($this->user);
-          break;
-      }
-
+      $content = $this->blockController->renderBlock($this->user, $this->subpage);
       $build['content'] = $content + ['#weight' => 2];
     }
   }
