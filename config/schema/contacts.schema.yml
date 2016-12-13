@@ -1,0 +1,7 @@
+block.settings.custom_text:
+  type: block_settings
+  label: 'Custom text settings'
+  mapping:
+    text:
+      type: string
+      label: 'Custom text'
