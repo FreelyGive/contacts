@@ -6,9 +6,10 @@ $plugin = array(
   'category' => t('Columns: 2'),
   'icon' => 'dashboard.png',
   'theme' => 'contacts_dashboard',
+  'admin css' => 'dashboard.css',
   'css' => 'dashboard.css',
   'regions' => array(
-    'left' => t('Search'),
-    'right' => t('View')
+    'left' => t('Sidebar'),
+    'right' => t('Content')
   ),
 );

@@ -135,3 +135,13 @@ function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
   $items['administration']['#attached']['library'][] = 'contacts/contacts.icons';
 }
+
+/**
+ * Implements hook_page_attachments().
+ */
+function contacts_page_attachments(array &$attachments) {
+  $current_path = \Drupal::service('path.current')->getPath();
+  if (substr($current_path, 0, 15) == '/admin/contacts') {
+    $attachments['#attached']['library'][] = 'contacts/contacts-dashboard';
+  }
+}
