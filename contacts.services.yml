@@ -1,5 +1,14 @@
 services:
-  theme.negotiator.contacts:
+  contacts.theme.negotiator:
     class: Drupal\contacts\Theme\DashboardNegotiator
     tags:
       - { name: theme_negotiator, priority: 0 }
+  contacts.route_subscriber:
+    class: Drupal\contacts\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+  contacts.access_denied_subscriber:
+    class: Drupal\contacts\EventSubscriber\AccessDeniedSubscriber
+    arguments: ['@current_user', '@url_generator']
+    tags:
+      - { name: event_subscriber }
