@@ -68,7 +68,25 @@
     ],
     "changed": [
         {
-            "value": "1480685930"
+            "value": "1481641126"
+        }
+    ],
+    "crm_address": [
+        {
+            "langcode": null,
+            "country_code": "GB",
+            "administrative_area": null,
+            "locality": "London",
+            "dependent_locality": null,
+            "postal_code": "W12 7JT",
+            "sorting_code": null,
+            "address_line1": "1 Oxford Street",
+            "address_line2": "",
+            "organization": "",
+            "given_name": "",
+            "additional_name": null,
+            "family_name": "",
+            "lang": "en"
         }
     ],
     "crm_dob": [
