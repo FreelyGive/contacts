@@ -1,8 +1,5 @@
 contacts-ajax-tabs:
   version: 1.x
-  css:
-    theme:
-      css/tabs.css: {}
   js:
     js/tabs.js: {}
   dependencies:
