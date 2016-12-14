@@ -7,6 +7,7 @@ dependencies:
   module:
     - contacts
     - panels
+    - system
     - views
 id: contacts_dashboard_contact-panels_variant-0
 label: 'Contacts Dashboard - Contact'
@@ -23,30 +24,13 @@ variant_settings:
       weight: -10
       uuid: 7c36ff39-3877-4db4-bc62-c6fb1388044e
       context_mapping: {  }
-    ecd0d505-c665-4e76-830e-a6bb9ff91afc:
-      id: 'views_block:contacts_dashboard-block_2'
-      label: ''
-      provider: views
-      label_display: visible
-      views_label: ''
-      items_per_page: none
-#      exposed:
-#        filter-combine:
-#          combine: ''
-#        filter-decoupled:
-#          decoupled: All
-      region: left
-      weight: -9
-      uuid: ecd0d505-c665-4e76-830e-a6bb9ff91afc
-      context_mapping: {  }
     659d4b6a-ca77-4e4a-a742-69fb23276995:
       id: 'summary:contacts_dashboard'
       label: 'Contacts Dashboard User Summary'
       provider: contacts
       label_display: '0'
-#      text: summary
       region: right
-      weight: -10
+      weight: -2
       uuid: 659d4b6a-ca77-4e4a-a742-69fb23276995
       context_mapping:
         user: user
@@ -55,20 +39,73 @@ variant_settings:
       label: 'Contacts Dashboard Tabs'
       provider: contacts
       label_display: '0'
-#      text: summary
       region: right
-      weight: -9
+      weight: 0
       uuid: a1fe7eb4-7f8c-4397-a3c7-17702ac4b68f
       context_mapping:
         subpage: subpage
         user: user
+    b4b3bba7-c59a-4277-8862-a3a6889e4433:
+      id: custom_text
+      label: Logo
+      provider: contacts
+      label_display: '0'
+      text: Logo
+      region: logo
+      weight: 0
+      uuid: b4b3bba7-c59a-4277-8862-a3a6889e4433
+      context_mapping: {  }
+    b1606cd6-76f3-4299-910d-79ad68b08223:
+      id: custom_page_title_block
+      label: 'Page title'
+      provider: contacts
+      label_display: '0'
+      title: '[user:display-name]'
+      region: header
+      weight: 0
+      uuid: b1606cd6-76f3-4299-910d-79ad68b08223
+      context_mapping: {  }
+    d0612f8c-f829-405e-96b8-8e0bcc03018d:
+      id: system_breadcrumb_block
+      label: Breadcrumbs
+      provider: system
+      label_display: '0'
+      region: right
+      weight: -3
+      uuid: d0612f8c-f829-405e-96b8-8e0bcc03018d
+      context_mapping: {  }
+    4ffd41af-55d0-447e-8f50-19de97be6051:
+      id: system_messages_block
+      label: Messages
+      provider: system
+      label_display: '0'
+      region: right
+      weight: -1
+      uuid: 4ffd41af-55d0-447e-8f50-19de97be6051
+      context_mapping: {  }
+    95683249-1279-40c3-97c5-f0232af2149a:
+      id: 'views_block:contacts_dashboard-simple'
+      label: ''
+      provider: views
+      label_display: visible
+      views_label: ''
+      items_per_page: none
+      exposed:
+        filter-combine:
+          combine: ''
+        filter-decoupled:
+          decoupled: All
+      region: left
+      weight: 0
+      uuid: 95683249-1279-40c3-97c5-f0232af2149a
+      context_mapping: {  }
   id: panels_variant
   uuid: 1b3702e1-e046-4560-b148-726eeb34f497
   label: null
   weight: 0
   layout: dashboard
   layout_settings: {  }
-  page_title: Contact
+  page_title: '[user:display-name]'
   storage_type: page_manager
   storage_id: contacts_dashboard_contact-panels_variant-0
   builder: standard
