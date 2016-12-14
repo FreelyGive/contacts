@@ -49,6 +49,7 @@ function contacts_theme() {
 function template_preprocess_contacts_indiv(&$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'flex-fill';
 }
 
 /**
@@ -64,6 +65,7 @@ function template_preprocess_contacts_indiv(&$variables) {
 function template_preprocess_contacts_summary(&$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'flex-fill';
 
 }
 
@@ -80,6 +82,7 @@ function template_preprocess_contacts_summary(&$variables) {
 function template_preprocess_contacts_notes(&$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
+  $variables['attributes']['class'][] = 'flex-fill';
 
 }
 
