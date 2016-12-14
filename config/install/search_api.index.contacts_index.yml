@@ -1,0 +1,199 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - profile
+    - search_api
+    - user
+  config:
+    - field.storage.profile.crm_dob
+    - field.storage.profile.crm_email
+    - field.storage.profile.crm_gender
+    - field.storage.profile.crm_name
+    - field.storage.profile.crm_photo
+    - field.storage.profile.crm_address
+    - search_api.server.database_server
+id: contacts_index
+name: 'Contacts Index'
+description: ''
+read_only: false
+field_settings:
+  uid:
+    label: 'User ID'
+    datasource_id: 'entity:user'
+    property_path: uid
+    type: integer
+  mail:
+    label: Email
+    datasource_id: 'entity:user'
+    property_path: mail
+    type: text
+  roles:
+    label: Roles
+    datasource_id: 'entity:user'
+    property_path: roles
+    type: string
+  crm_dob:
+    label: 'Individual » Profile » Date of Birth'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_dob'
+    type: date
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_dob
+  crm_email:
+    label: 'Individual » Profile » Email'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_email'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_email
+  crm_gender:
+    label: 'Individual » Profile » Gender'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_gender'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_gender
+  crm_name:
+    label: 'Individual » Profile » Name'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_name'
+    type: text
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_name
+  crm_photo:
+    label: 'Individual » Profile » Photo'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_photo'
+    type: integer
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_photo
+  postal_code:
+    label: 'Individual » Profile » Address » The postal code.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:postal_code'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  address_line1:
+    label: 'Individual » Profile » Address » The first line of the address block.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:address_line1'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  address_line2:
+    label: 'Individual » Profile » Address » The second line of the address block.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:address_line2'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  locality:
+    label: 'Individual » Profile » Address » The locality (i.e. city).'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:locality'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  dependent_locality:
+    label: 'Individual » Profile » Address » The dependent locality (i.e. neighbourhood).'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:dependent_locality'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  country_code:
+    label: 'Individual » Profile » Address » The two-letter country code.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:country_code'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+  administrative_area:
+    label: 'Individual » Profile » Address » The top-level administrative subdivision of the country.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_address:administrative_area'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_address
+processor_settings:
+  rendered_item:
+    plugin_id: rendered_item
+    settings: {  }
+  add_url:
+    plugin_id: add_url
+    settings: {  }
+  aggregated_field:
+    plugin_id: aggregated_field
+    settings: {  }
+  ignorecase:
+    plugin_id: ignorecase
+    settings:
+      fields:
+        - mail
+        - roles
+        - crm_email
+        - crm_gender
+        - crm_name
+        - postal_code
+        - address_line1
+        - address_line2
+        - locality
+        - dependent_locality
+        - country_code
+        - administrative_area
+      weights:
+        preprocess_index: -10
+        preprocess_query: -10
+options:
+  index_directly: true
+  cron_limit: 50
+datasource_settings:
+  'entity:user':
+    plugin_id: 'entity:user'
+    settings:
+      languages:
+        default: true
+        selected: {  }
+tracker_settings:
+  default:
+    plugin_id: default
+    settings: {  }
+server: database_server
