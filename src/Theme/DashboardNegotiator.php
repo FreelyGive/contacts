@@ -18,12 +18,13 @@ class DashboardNegotiator implements ThemeNegotiatorInterface {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
-    if (is_null($route_match->getRouteObject())) {
+    $route = $route_match->getRouteObject();
+    if (is_null($route)) {
       return FALSE;
     }
 
     // Use this theme on a certain route.
-    return substr($route_match->getRouteObject()->getPath(), 0, 15) == '/admin/contacts';
+    return substr($route->getPath(), 0, 15) == '/admin/contacts';
   }
 
   /**
