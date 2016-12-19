@@ -456,7 +456,7 @@ display:
           plugin_id: search_api
       arguments: {  }
       display_extenders: {  }
-      css_class: 'party-selection party-selection-simple flex-fill flex-container-views'
+      css_class: 'flex-container flex-fill flex-content-fill'
     cache_metadata:
       max-age: 0
       contexts:
@@ -465,9 +465,9 @@ display:
         - url.query_args
       tags:
         - 'config:field.storage.profile.crm_name'
-  search:
+  simple:
     display_plugin: block
-    id: search
+    id: simple
     display_title: Search
     position: 1
     display_options:
@@ -482,15 +482,15 @@ display:
         - url.query_args
       tags:
         - 'config:field.storage.profile.crm_name'
-  vbo:
+  full:
     display_plugin: block
-    id: vbo
+    id: full
     display_title: Operations
     position: 2
     display_options:
       display_extenders: {  }
       display_description: ''
-      css_class: 'party-selection party-selection-vbo flex-fill flex-container-views-vbo'
+      css_class: 'flex-container flex-fill flex-content-fill'
       defaults:
         css_class: false
         fields: false
