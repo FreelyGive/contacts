@@ -19,13 +19,13 @@ variant_settings:
       label: 'Back to search'
       provider: contacts
       label_display: '0'
-      text: '<a href="/b/admin/contacts" class="button">Back to search</a>'
+      text: '<a href="/admin/contacts" class="button">Back to search</a>'
       region: left
       weight: -10
       uuid: 7c36ff39-3877-4db4-bc62-c6fb1388044e
       context_mapping: {  }
     ecd0d505-c665-4e76-830e-a6bb9ff91afc:
-      id: 'views_block:contacts_dashboard_indexed-search'
+      id: 'views_block:contacts_dashboard_indexed-simple'
       label: ''
       provider: views
       label_display: visible

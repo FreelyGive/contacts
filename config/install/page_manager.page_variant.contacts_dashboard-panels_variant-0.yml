@@ -53,7 +53,7 @@ variant_settings:
       uuid: e16d290c-2d5c-489a-8eb9-36066ba4c096
       context_mapping: {  }
     17b4e88c-1140-48c6-ab57-baf30e918348:
-      id: 'views_block:contacts_dashboard_indexed-vbo'
+      id: 'views_block:contacts_dashboard_indexed-full'
       label: ''
       provider: views
       label_display: '0'
@@ -69,7 +69,7 @@ variant_settings:
       uuid: 17b4e88c-1140-48c6-ab57-baf30e918348
       context_mapping: {  }
     612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d:
-      id: 'views_exposed_filter_block:contacts_dashboard_indexed-vbo'
+      id: 'views_exposed_filter_block:contacts_dashboard_indexed-full'
       label: ''
       provider: views
       label_display: '0'
