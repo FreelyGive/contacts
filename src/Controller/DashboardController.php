@@ -1,13 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Controller\DashboardController.
- */
-
 namespace Drupal\contacts\Controller;
 
 use Drupal\contacts\Ajax\ContactsTab;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -16,7 +12,6 @@ use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\Context;
-use Drupal\Core\Plugin\ContextAwarePluginInterface;
 
 /**
  * Controller routines for contact dashboard tabs and ajax.
@@ -28,7 +23,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user we are viewing.
-   * @param $subpage
+   * @param string $subpage
    *   The subpage we want to view.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
@@ -54,7 +49,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user we are viewing.
-   * @param $subpage
+   * @param string $subpage
    *   The subpage we are viewing.
    *
    * @return array
@@ -107,7 +102,7 @@ class DashboardController extends ControllerBase {
         // @todo Load configuration from somewhere.
         $config = [
           'label_display' => 'visible',
-          'label' => 'Individual Summary',
+          'label' => 'Contact Notes',
         ];
         /* @var $plugin_block \Drupal\Core\Block\BlockBase */
         $plugin_block = $block_manager->createInstance('crm_notes', $config);
@@ -145,11 +140,13 @@ class DashboardController extends ControllerBase {
   /**
    * Build a render array from a block entity.
    *
-   * @param $block \Drupal\Core\Block\BlockBase
+   * @param \Drupal\Core\Block\BlockPluginInterface $block
+   *   Block entity being rendered.
    *
    * @return array
+   *   Render array for the block.
    */
-  function buildBlockRenderArray($block) {
+  private function buildBlockRenderArray(BlockPluginInterface $block) {
     if ($block->access(\Drupal::currentUser())) {
       $block_render_array = [
         '#theme' => 'block',
@@ -187,7 +184,9 @@ class DashboardController extends ControllerBase {
         }
       }
 
-      return $content;
+      $block_render_array['content'] = $content;
+      return $block_render_array;
     }
   }
+
 }
