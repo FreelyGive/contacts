@@ -13,7 +13,7 @@ class NotesForm extends FormBase {
   /**
    * The profile entity being rendered.
    *
-   * @var $entity \Drupal\Core\Entity\EntityInterface
+   * @var \Drupal\Core\Entity\EntityInterface
    */
   private $entity;
 

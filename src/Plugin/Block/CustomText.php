@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Plugin\Block\CustomText.
- */
-
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;

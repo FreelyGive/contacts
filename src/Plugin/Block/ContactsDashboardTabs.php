@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Plugin\Block\ContactsDashboardTabs.
- */
-
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\contacts\Controller\DashboardController;
@@ -28,28 +23,28 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   /**
    * The block controller.
    *
-   * @var \Drupal\contacts\Controller\DashboardController.
+   * @var \Drupal\contacts\Controller\DashboardController
    */
   protected $blockController;
 
   /**
    * The block machine name.
    *
-   * @var string.
+   * @var string
    */
   protected $subpage;
 
   /**
    * The contact user object.
    *
-   * @var \Drupal\user\Entity\User.
+   * @var \Drupal\user\Entity\User
    */
   protected $user;
 
   /**
    * The contact user object.
    *
-   * @var \Drupal\user\Entity\User.
+   * @var \Drupal\user\Entity\User
    */
   protected $ajax;
 
@@ -77,7 +72,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * {@inheritdoc}
    */
   public function build() {
-    /** @var $entity \Drupal\Core\Entity\EntityInterface */
+    /* @var $entity \Drupal\Core\Entity\EntityInterface */
     $build = [];
     $this->subpage = $this->getContextValue('subpage');
     $this->user = $this->getContextValue('user');
@@ -106,13 +101,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#tabs' => [],
       '#attached' => [
         'library' => ['contacts/contacts-ajax-tabs'],
-      ]
+      ],
     ];
 
     // @TODO load tabs rather than hard code.
     $tabs = [
       'summary' => 'Summary',
-      'notes' => 'Notes'
+      'notes' => 'Notes',
     ];
 
     foreach ($tabs as $machine => $label) {
@@ -153,4 +148,5 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $build['content'] = $content + ['#weight' => 2];
     }
   }
+
 }
