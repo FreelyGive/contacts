@@ -12,3 +12,7 @@ services:
     arguments: ['@current_user', '@url_generator']
     tags:
       - { name: event_subscriber }
+  contacts.user_content_export_subscriber:
+    class: Drupal\contacts\EventSubscriber\UserContentExportSubscriber
+    tags:
+      - { name: event_subscriber }

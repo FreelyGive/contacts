@@ -112,7 +112,6 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     // @TODO load tabs rather than hard code.
     $tabs = [
       'summary' => 'Summary',
-      'indiv' => 'Individual',
       'notes' => 'Notes'
     ];
 
