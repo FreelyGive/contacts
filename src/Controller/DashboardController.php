@@ -105,7 +105,9 @@ class DashboardController extends ControllerBase {
           'label' => 'Contact Notes',
         ];
         /* @var $plugin_block \Drupal\Core\Block\BlockBase */
-        $plugin_block = $block_manager->createInstance('crm_notes', $config);
+        $plugin_block = $block_manager->createInstance('contacts_entity_form', $config);
+        $operation = new Context(new ContextDefinition('string', $this->t('Operation')), 'crm_dashboard');
+        $plugin_block->setContext('operation', $operation);
 
         if (!empty($user->profile_crm_notes->entity)) {
           $profile = $user->profile_crm_notes->entity;
