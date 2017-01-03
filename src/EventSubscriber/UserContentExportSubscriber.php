@@ -36,7 +36,8 @@ class UserContentExportSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[DefaultContentEvents::PRE_EXPORT][] = ['preExport'];
+    $events = [];
+    //$events[DefaultContentEvents::PRE_EXPORT][] = ['preExport'];
     return $events;
   }
 

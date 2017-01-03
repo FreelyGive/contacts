@@ -7,16 +7,25 @@
     {
       "type": "composer",
       "url": "https://packagist.drupal-composer.org"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/FreelyGive/contacts_admin"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/FreelyGive/ctools"
     }
   ],
   "require": {
     "cweagans/composer-patches": "~1.0",
     "drupal/profile": "8.1.*",
     "drupal/address": "8.1.*",
-    "drupal/ctools": "8.3.*",
     "drupal/layout_plugin": "8.1.*",
     "drupal/page_manager": "8.1.*",
-    "drupal/panels": "8.3.*"
+    "drupal/panels": "8.3.*",
+    "freelygive/contacts_admin": "dev-contacts-dashboard",
+    "freelygive/ctools": "dev-contacts-dashboard"
   },
   "autoload": {
     "psr-4": {
