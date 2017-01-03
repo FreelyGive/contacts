@@ -24,6 +24,7 @@
     "drupal/layout_plugin": "8.1.*",
     "drupal/page_manager": "8.1.*",
     "drupal/panels": "8.3.*",
+    "drupal/default_content": "8.1.*",
     "freelygive/contacts_admin": "dev-contacts-dashboard",
     "freelygive/ctools": "dev-contacts-dashboard"
   },

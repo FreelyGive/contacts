@@ -11,6 +11,7 @@ dependencies:
   - panels
   - ctools_views
   - search_api_db
+  - default_content
 
 features:
   required:
