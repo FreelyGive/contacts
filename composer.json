@@ -37,19 +37,19 @@
   "autoload-dev": {
     "psr-4": {
       "Drupal\\Tests\\contacts\\": "tests/src"
-    },
-    "extra": {
+    }
+  },
+  "extra": {
       "patches": {
-        "drupal/core": {
-          "#2693081: Merging data types leads to incomplete definition": "https://www.drupal.org/files/issues/merging_data_types-2693081-15_0.patch"
-        },
-        "drupal/default_content": {
-          "#2837719: Need an event before serialization": "https://www.drupal.org/files/issues/need_an_event_before-2837719-2.patch"
-        },
-        "drupal/ctools": {
-          "#2657060: Add Configure Filter functionality to block views configuration": "https://www.drupal.org/files/issues/2657060-44.exposed_filter_block_config.patch",
-          "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch"
-        }
+      "drupal/core": {
+        "#2693081: Merging data types leads to incomplete definition": "https://www.drupal.org/files/issues/merging_data_types-2693081-15_0.patch"
+      },
+      "drupal/default_content": {
+        "#2837719: Need an event before serialization": "https://www.drupal.org/files/issues/need_an_event_before-2837719-2.patch"
+      },
+      "drupal/ctools": {
+        "#2657060: Add Configure Filter functionality to block views configuration": "https://www.drupal.org/files/issues/2657060-44.exposed_filter_block_config.patch",
+        "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch"
       }
     }
   }
