@@ -19,15 +19,15 @@
   ],
   "require": {
     "cweagans/composer-patches": "~1.0",
-    "drupal/profile": "8.1.*",
-    "drupal/address": "8.1.*",
-    "drupal/layout_plugin": "8.1.*",
-    "drupal/page_manager": "8.1.*",
-    "drupal/panels": "8.3.*",
-    "drupal/default_content": "8.1.*",
+    "drupal/profile": "1.x-dev",
+    "drupal/address": "~1.0",
+    "drupal/layout_plugin": "~1.0",
+    "drupal/page_manager": "~1.0",
+    "drupal/panels": "~3.0",
+    "drupal/default_content": "~1.0",
     "drupal/decoupled_auth": "dev-feature/dashboard",
     "freelygive/contacts_admin": "dev-contacts-dashboard",
-    "drupal/ctools": "8.3.*"
+    "drupal/ctools": "~3.0"
   },
   "autoload": {
     "psr-4": {
