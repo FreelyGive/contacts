@@ -11,10 +11,6 @@
     {
       "type": "vcs",
       "url": "https://github.com/FreelyGive/contacts_admin"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/yanniboi/decoupled_auth"
     }
   ],
   "require": {
@@ -25,7 +21,6 @@
     "drupal/page_manager": "8.1.*",
     "drupal/panels": "8.3.*",
     "drupal/default_content": "8.1.*",
-    "drupal/decoupled_auth": "dev-feature/dashboard",
     "freelygive/contacts_admin": "dev-contacts-dashboard",
     "drupal/ctools": "8.3.*"
   },
