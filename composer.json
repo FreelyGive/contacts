@@ -25,7 +25,6 @@
     "drupal/page_manager": "~1.0",
     "drupal/panels": "~3.0",
     "drupal/search_api": "~1.0",
-    "drupal/default_content": "~1.0",
     "drupal/decoupled_auth": "dev-feature/dashboard",
     "freelygive/contacts_admin": "dev-contacts-dashboard",
     "drupal/ctools": "~3.0"
