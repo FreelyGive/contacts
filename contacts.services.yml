@@ -1,4 +1,8 @@
 services:
+  contacts.breadcrumb_builder:
+    class: Drupal\contacts\BreadcrumbBuilder
+    tags:
+      - { name: breadcrumb_builder, priority: 10 }
   contacts.theme.negotiator:
     class: Drupal\contacts\Theme\DashboardNegotiator
     tags:
