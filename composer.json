@@ -6,16 +6,20 @@
   "repositories": [
     {
       "type": "composer",
-      "url": "https://packagist.drupal-composer.org"
+      "url": "https://packages.drupal.org/8"
     }
   ],
   "require": {
-    "drupal/profile": "8.1.*",
-    "drupal/address": "8.1.*",
-    "drupal/ctools": "8.3.*",
-    "drupal/layout_plugin": "8.1.*",
-    "drupal/page_manager": "8.1.*",
-    "drupal/panels": "8.3.*"
+    "cweagans/composer-patches": "~1.0",
+    "drupal/profile": "1.x-dev",
+    "drupal/address": "~1.0",
+    "drupal/layout_plugin": "~1.0",
+    "drupal/page_manager": "~1.0",
+    "drupal/panels": "~3.0",
+    "drupal/search_api": "~1.0",
+    "drupal/decoupled_auth": "1.x-dev",
+    "drupal/contacts_theme": "1.x-dev",
+    "drupal/ctools": "~3.0"
   },
   "autoload": {
     "psr-4": {
@@ -25,6 +29,20 @@
   "autoload-dev": {
     "psr-4": {
       "Drupal\\Tests\\contacts\\": "tests/src"
+    }
+  },
+  "extra": {
+    "patches": {
+      "drupal/core": {
+        "#2693081: Merging data types leads to incomplete definition": "https://www.drupal.org/files/issues/merging_data_types-2693081-15_0.patch"
+      },
+      "drupal/default_content": {
+        "#2837719: Need an event before serialization": "https://www.drupal.org/files/issues/need_an_event_before-2837719-2.patch"
+      },
+      "drupal/ctools": {
+        "#2657060: Add Configure Filter functionality to block views configuration": "https://www.drupal.org/files/issues/2657060-44.exposed_filter_block_config.patch",
+        "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch"
+      }
     }
   }
 }
