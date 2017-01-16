@@ -12,6 +12,10 @@ dependencies:
     - field.storage.profile.crm_name
     - field.storage.profile.crm_photo
     - field.storage.profile.crm_address
+    - field.storage.profile.crm_org_email
+    - field.storage.profile.crm_org_name
+    - field.storage.profile.crm_logo
+    - field.storage.profile.crm_org_address
     - search_api.server.database_server
 id: contacts_index
 name: 'Contacts Index'
@@ -83,7 +87,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_photo
-  postal_code:
+  indiv_postal_code:
     label: 'Individual » Profile » Address » The postal code.'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:postal_code'
@@ -93,7 +97,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  address_line1:
+  indiv_address_line1:
     label: 'Individual » Profile » Address » The first line of the address block.'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:address_line1'
@@ -103,7 +107,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  address_line2:
+  indiv_address_line2:
     label: 'Individual » Profile » Address » The second line of the address block.'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:address_line2'
@@ -113,7 +117,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  locality:
+  indiv_locality:
     label: 'Individual » Profile » Address » The locality (i.e. city).'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:locality'
@@ -123,7 +127,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  dependent_locality:
+  indiv_dependent_locality:
     label: 'Individual » Profile » Address » The dependent locality (i.e. neighbourhood).'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:dependent_locality'
@@ -133,7 +137,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  country_code:
+  indiv_country_code:
     label: 'Individual » Profile » Address » The two-letter country code.'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:country_code'
@@ -143,7 +147,7 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  administrative_area:
+  indiv_administrative_area:
     label: 'Individual » Profile » Address » The top-level administrative subdivision of the country.'
     datasource_id: 'entity:user'
     property_path: 'profile_crm_indiv:entity:crm_address:administrative_area'
@@ -153,6 +157,106 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
+  crm_org_email:
+    label: 'Organisation » Profile » Email'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_email'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_email
+  crm_org_name:
+    label: 'Organisation » Profile » Name'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_name'
+    type: text
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_name
+  crm_logo:
+    label: 'Organisation » Profile » Logo'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_logo'
+    type: integer
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_logo
+  org_country_code:
+    label: 'Organisation » Profile » Address » The two-letter country code.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:country_code'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_administrative_area:
+    label: 'Organisation » Profile » Address » The top-level administrative subdivision of the country.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:administrative_area'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_locality:
+    label: 'Organisation » Profile » Address » The locality (i.e. city).'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:locality'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_dependent_locality:
+    label: 'Organisation » Profile » Address » The dependent locality (i.e. neighbourhood).'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:dependent_locality'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_postal_code:
+    label: 'Organisation » Profile » Address » The postal code.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:postal_code'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_address_line1:
+    label: 'Organisation » Profile » Address » The first line of the address block.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:address_line1'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
+  org_address_line2:
+    label: 'Organisation » Profile » Address » The second line of the address block.'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_org:entity:crm_org_address:address_line2'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_org_address
 processor_settings:
   rendered_item:
     plugin_id: rendered_item
@@ -172,13 +276,22 @@ processor_settings:
         - crm_email
         - crm_gender
         - crm_name
-        - postal_code
-        - address_line1
-        - address_line2
-        - locality
-        - dependent_locality
-        - country_code
-        - administrative_area
+        - indiv_postal_code
+        - indiv_address_line1
+        - indiv_address_line2
+        - indiv_locality
+        - indiv_dependent_locality
+        - indiv_country_code
+        - indiv_administrative_area
+        - crm_org_email
+        - crm_org_name
+        - org_postal_code
+        - org_address_line1
+        - org_address_line2
+        - org_locality
+        - org_dependent_locality
+        - org_country_code
+        - org_administrative_area
       weights:
         preprocess_index: -10
         preprocess_query: -10

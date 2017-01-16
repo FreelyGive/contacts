@@ -19,7 +19,7 @@
    * @param {number} [status]
    *   XMLHttpRequest status.
    */
-  Drupal.AjaxCommands.prototype.contactsTab = function(ajax, response, status){
+  Drupal.AjaxCommands.prototype.contactsTab = function (ajax, response, status) {
     if (response.activeTab) {
       $('.contacts-ajax-tabs .is-active').removeClass('is-active');
       $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass('is-active');
@@ -44,10 +44,8 @@
     });
   }
 
-  // ----------
   // @todo: Remove everything after here if https://www.drupal.org/node/2834834
   // goes in.
-
   // Get our original AJAX behavior so we can still call it.
   var originalAjaxAttach = Drupal.behaviors.AJAX.attach;
 

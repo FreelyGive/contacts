@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Plugin\Derivative\ContactsDashboardSummaryDeriver.
- */
-
 namespace Drupal\contacts\Plugin\Deriver;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
