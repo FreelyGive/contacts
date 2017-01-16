@@ -1,0 +1,48 @@
+{
+    "_links": {
+        "self": {
+            "href": "http:\/\/default\/user\/3?_format=hal_json"
+        },
+        "type": {
+            "href": "http:\/\/drupal.org\/rest\/type\/user\/user"
+        }
+    },
+    "uid": [
+        {
+            "value": "3"
+        }
+    ],
+    "uuid": [
+        {
+            "value": "16673f6a-3196-4072-845d-5751e8be98e6"
+        }
+    ],
+    "langcode": [
+        {
+            "value": "en",
+            "lang": "en"
+        }
+    ],
+    "created": [
+        {
+            "value": "1482153698"
+        }
+    ],
+    "changed": [
+        {
+            "value": "1482153768",
+            "lang": "en"
+        }
+    ],
+    "roles": [
+        {
+            "target_id": "crm_org"
+        }
+    ],
+    "default_langcode": [
+        {
+            "value": "1",
+            "lang": "en"
+        }
+    ]
+}

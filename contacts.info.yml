@@ -20,8 +20,3 @@ features:
     - page_manager.page_variant.contacts_dashboard
     - views.view.contacts_dashboard
 
-default_content:
-    user:
-      - 3955aec3-c305-4104-90cf-42bd293d5731
-    profile:
-      - 4e98193c-d711-437b-b0d1-fca276881139
