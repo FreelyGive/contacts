@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Plugin\Block\ContactsDashboardSummary.
- */
-
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
@@ -23,7 +18,7 @@ class ContactsDashboardSummary extends BlockBase {
   /**
    * The contact user object.
    *
-   * @var \Drupal\user\Entity\User.
+   * @var \Drupal\user\Entity\User
    */
   protected $user;
 
@@ -39,7 +34,7 @@ class ContactsDashboardSummary extends BlockBase {
       '#user' => $this->user,
       '#attached' => [
         'library' => ['contacts/contacts-dashboard'],
-      ]
+      ],
     ];
 
     return $build;

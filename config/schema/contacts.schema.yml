@@ -5,3 +5,11 @@ block.settings.custom_text:
     text:
       type: string
       label: 'Custom text'
+
+block.settings.custom_page_title_block:
+  type: block_settings
+  label: 'Custom page title settings'
+  mapping:
+    title:
+      type: string
+      label: 'Page title'
