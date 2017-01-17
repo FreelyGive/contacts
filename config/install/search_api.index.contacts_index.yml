@@ -154,46 +154,34 @@ field_settings:
       config:
         - field.storage.profile.crm_address
 processor_settings:
-  rendered_item:
-    plugin_id: rendered_item
-    settings: {  }
-  add_url:
-    plugin_id: add_url
-    settings: {  }
-  aggregated_field:
-    plugin_id: aggregated_field
-    settings: {  }
+  rendered_item: {  }
+  add_url: {  }
+  aggregated_field: {  }
   ignorecase:
-    plugin_id: ignorecase
-    settings:
-      fields:
-        - mail
-        - roles
-        - crm_email
-        - crm_gender
-        - crm_name
-        - postal_code
-        - address_line1
-        - address_line2
-        - locality
-        - dependent_locality
-        - country_code
-        - administrative_area
-      weights:
-        preprocess_index: -10
-        preprocess_query: -10
+    fields:
+      - mail
+      - roles
+      - crm_email
+      - crm_gender
+      - crm_name
+      - postal_code
+      - address_line1
+      - address_line2
+      - locality
+      - dependent_locality
+      - country_code
+      - administrative_area
+    weights:
+      preprocess_index: -10
+      preprocess_query: -10
 options:
   index_directly: true
   cron_limit: 50
 datasource_settings:
   'entity:user':
-    plugin_id: 'entity:user'
-    settings:
-      languages:
-        default: true
-        selected: {  }
+    languages:
+      default: true
+      selected: {  }
 tracker_settings:
-  default:
-    plugin_id: default
-    settings: {  }
+  default: {  }
 server: database_server
