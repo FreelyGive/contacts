@@ -31,6 +31,7 @@ class ContactsDashboardTest extends WebTestBase {
     $this->adminUser->addRole('administrator');
     $this->adminUser->save();
 
+    \Drupal::service('theme_installer')->install(['contacts_theme']);
   }
 
   /**
