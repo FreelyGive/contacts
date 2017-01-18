@@ -59,11 +59,7 @@ variant_settings:
       label_display: '0'
       views_label: ''
       items_per_page: none
-      exposed:
-        filter-combine:
-          combine: ''
-        filter-decoupled:
-          decoupled: All
+      exposed: {  }
       region: right
       weight: -7
       uuid: 17b4e88c-1140-48c6-ab57-baf30e918348
