@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Ajax\ContactsTab.
- */
-
 namespace Drupal\contacts\Ajax;
 
 use Drupal\Core\Ajax\CommandInterface;
@@ -70,4 +65,5 @@ class ContactsTab implements CommandInterface {
       'url' => $this->url,
     ];
   }
+
 }
