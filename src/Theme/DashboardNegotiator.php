@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Theme\DashboardNegotiator.
- */
-
 namespace Drupal\contacts\Theme;
 
 use Drupal\Core\Theme\ThemeNegotiatorInterface;
@@ -14,6 +9,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  * Switches theme to Dashboard theme on contact dashboard pages.
  */
 class DashboardNegotiator implements ThemeNegotiatorInterface {
+
   /**
    * {@inheritdoc}
    */
