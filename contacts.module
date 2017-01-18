@@ -1,12 +1,11 @@
 <?php
 
-use Drupal\Core\Render\Element;
-use Drupal\Core\Template\Attribute;
-
 /**
  * @file
  * Module related hook implementations for the contacts module.
  */
+
+use Drupal\Core\Template\Attribute;
 
 /**
  * Implements hook_theme().
@@ -41,12 +40,12 @@ function contacts_theme() {
  *
  * Default template: contacts-indiv.html.twig.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - content: Default markup content for this tab.
  */
-function template_preprocess_contacts_indiv(&$variables) {
+function template_preprocess_contacts_indiv(array &$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'flex-fill';
@@ -57,12 +56,12 @@ function template_preprocess_contacts_indiv(&$variables) {
  *
  * Default template: contacts-summary.html.twig.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - content: Default markup content for this tab.
  */
-function template_preprocess_contacts_summary(&$variables) {
+function template_preprocess_contacts_summary(array &$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'flex-fill';
@@ -74,12 +73,12 @@ function template_preprocess_contacts_summary(&$variables) {
  *
  * Default template: contacts-notes.html.twig.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - content: Default markup content for this tab.
  */
-function template_preprocess_contacts_notes(&$variables) {
+function template_preprocess_contacts_notes(array &$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'flex-fill';
@@ -91,16 +90,18 @@ function template_preprocess_contacts_notes(&$variables) {
  *
  * Default template: contacts-dash-tabs.html.twig.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - tabs: Associative array of tabs and tab properties.
  */
-function template_preprocess_contacts_dash_tabs(&$variables) {
-  $variables['attributes'] = ['class' => [
-    'contacts-ajax-tabs',
-    'tabs',
-  ]];
+function template_preprocess_contacts_dash_tabs(array &$variables) {
+  $variables['attributes'] = [
+    'class' => [
+      'contacts-ajax-tabs',
+      'tabs',
+    ],
+  ];
 
   foreach ($variables['tabs'] as &$tab) {
     $tab['attributes'] = !empty($tab['attributes']) ? new Attribute($tab['attributes']) : new Attribute();
@@ -113,14 +114,14 @@ function template_preprocess_contacts_dash_tabs(&$variables) {
  *
  * Default template: contacts-dash-summary.html.twig.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - user: Fully loaded drupal User object.
  *   - crm_indiv: Boolean whether contact has an indiv profile.
  *   - crm_org: Boolean whether contact has an org profile.
  */
-function template_preprocess_contacts_dash_summary(&$variables) {
+function template_preprocess_contacts_dash_summary(array &$variables) {
   if (!empty($variables['user']->profile_crm_indiv)) {
     $variables['crm_indiv'] = TRUE;
   }

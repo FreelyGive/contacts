@@ -63,7 +63,6 @@ class CustomPageTitleBlock extends BlockBase implements ContainerFactoryPluginIn
     );
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -71,8 +70,7 @@ class CustomPageTitleBlock extends BlockBase implements ContainerFactoryPluginIn
     return [
       'title' => '',
     ] + parent::defaultConfiguration();
-
- }
+  }
 
   /**
    * {@inheritdoc}

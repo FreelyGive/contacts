@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\contacts\Controller\DashboardController.
- */
-
 namespace Drupal\contacts\Controller;
 
 use Drupal\contacts\Ajax\ContactsTab;
@@ -23,7 +18,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user we are viewing.
-   * @param $subpage
+   * @param string $subpage
    *   The subpage we want to view.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
@@ -49,7 +44,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user we are viewing.
-   * @param $subpage
+   * @param string $subpage
    *   The subpage we are viewing.
    *
    * @return array
