@@ -6,14 +6,20 @@
 # Install drupal.
 #
 function drupal_ti_install_drupal() {
-	git clone --depth 1 --branch "$DRUPAL_TI_CORE_BRANCH" http://git.drupal.org/project/drupal.git
-	cd drupal
+    if [ "$TRAVIS_EVENT_TYPE" = "cron" ]
+    then
+        composer create-project drupal/drupal:8.*@dev -n
+    else
+        composer create-project drupal/drupal -n
+    fi
+
+    cd drupal
     composer config extra.enable-patching true
     composer config extra.merge-plugin.merge-extra true
     composer require cweagans/composer-patches ~1.6
     composer install
-	php -d sendmail_path=$(which true) ~/.composer/vendor/bin/drush.php --yes -v site-install "$DRUPAL_TI_INSTALL_PROFILE" --db-url="$DRUPAL_TI_DB_URL"
-	drush use $(pwd)#default
+    php -d sendmail_path=$(which true) ~/.composer/vendor/bin/drush.php --yes -v site-install "$DRUPAL_TI_INSTALL_PROFILE" --db-url="$DRUPAL_TI_DB_URL"
+    drush use $(pwd)#default
 }
 
 #

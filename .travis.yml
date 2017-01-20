@@ -38,7 +38,7 @@ env:
     - DRUPAL_TI_WEBSERVER_URL="http://127.0.0.1"
     - DRUPAL_TI_WEBSERVER_PORT="8080"
     - DRUPAL_TI_SIMPLETEST_ARGS="--verbose --color --concurrency 4 --url $DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT"
-    - DRUPAL_TI_PHPUNIT_ARGS="--group contacts"
+    - DRUPAL_TI_PHPUNIT_ARGS=""
     - SIMPLETEST_BASE_URL="http://127.0.0.1:8080"
 
     # Debug options
@@ -47,7 +47,7 @@ env:
 
   matrix:
     #- We run phpunit manually in ./travis-ci/travis-script.sh
-    - DRUPAL_TI_RUNNERS="phpunit-core simpletest"
+    - DRUPAL_TI_RUNNERS="phpunit-core"
 
 mysql:
   database: drupal_travis_db
@@ -57,8 +57,6 @@ mysql:
 before_install:
   # Remove xdebug. We aren't generating code coverage, and it slows down Composer.
   - phpenv config-rm xdebug.ini || true
-  - export COMPOSER_EXIT_ON_PATCH_FAILURE=1
-  - composer self-update
   - git config --global github.accesstoken $GITHUB_OAUTH_TOKEN
   - composer global require "lionsad/drupal_ti:dev-master"
   - composer global require "squizlabs/php_codesniffer:2.*"
