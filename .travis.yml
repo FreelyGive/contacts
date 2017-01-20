@@ -12,36 +12,42 @@ php:
 # Set up environment variables.
 env:
   global:
-    # add composer's global bin directory to the path
-    # see: https://github.com/drush-ops/drush#install---composer
+    # Global
     - PATH="$PATH:$HOME/.composer/vendor/bin"
 
-    # Configuration variables.
-    - DRUPAL_TI_MODULE_NAME="contacts"
-    #- DRUPAL_TI_SIMPLETEST_GROUP="user"
-    - DRUPAL_TI_PULL_SIMPLETEST_GROUP="contacts"
-    - DRUPAL_TI_NON_PULL_SIMPLETEST_GROUP="contacts"
-    #- DRUPAL_TI_NON_PULL_SIMPLETEST_GROUP="user,contacts"
-    #- DRUPAL_TI_NON_PULL_SIMPLETEST_GROUP="--all"
+    # Composer
+    - COMPOSER_EXIT_ON_PATCH_FAILURE=1
 
-    # The environment to use, supported are: drupal-7, drupal-8
+    # DRUPAL_TI Config.
+    - DRUPAL_TI_MODULE_NAME="contacts"
+    - DRUPAL_TI_SIMPLETEST_GROUP="contacts"
+
+    # DRUPAL_TI Env
     - DRUPAL_TI_ENVIRONMENT="drupal-8"
     - DRUPAL_TI_CORE_BRANCH="8.2.x"
 
-    # Drupal specific variables.
+
+    # Define runners and environment vars to include before and after the
+    # main runners / environment vars.
+    - DRUPAL_TI_SCRIPT_DIR_BEFORE="./travis-ci/before"
+    - DRUPAL_TI_SCRIPT_DIR_AFTER="./travis-ci/after"
+
+    # DRUPAL_TI Testing.
     - DRUPAL_TI_DB="drupal_travis_db"
     - DRUPAL_TI_DB_URL="mysql://root:@127.0.0.1/drupal_travis_db"
-    # Note: Do not add a trailing slash here.
     - DRUPAL_TI_WEBSERVER_URL="http://127.0.0.1"
     - DRUPAL_TI_WEBSERVER_PORT="8080"
-
-    # Simpletest specific commandline arguments, the DRUPAL_TI_SIMPLETEST_GROUP is appended at the end.
     - DRUPAL_TI_SIMPLETEST_ARGS="--verbose --color --concurrency 4 --url $DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT"
+    - DRUPAL_TI_PHPUNIT_ARGS=""
     - SIMPLETEST_BASE_URL="http://127.0.0.1:8080"
+
+    # Debug options
+    #- DRUPAL_TI_DEBUG="-x -v"
+    #- DRUPAL_TI_DEBUG_FILE_OUTPUT="all"
 
   matrix:
     #- We run phpunit manually in ./travis-ci/travis-script.sh
-    - DRUPAL_TI_RUNNERS="simpletest"
+    - DRUPAL_TI_RUNNERS="phpunit-core"
 
 mysql:
   database: drupal_travis_db
@@ -49,26 +55,28 @@ mysql:
   encoding: utf8
 
 before_install:
-  - export COMPOSER_EXIT_ON_PATCH_FAILURE=1
-  - composer self-update
+  # Remove xdebug. We aren't generating code coverage, and it slows down Composer.
+  - phpenv config-rm xdebug.ini || true
   - git config --global github.accesstoken $GITHUB_OAUTH_TOKEN
-  - composer global require "yanniboi/drupal_ti:dev-master"
+  - composer global require "lionsad/drupal_ti:dev-master"
+  - composer global require "squizlabs/php_codesniffer:2.*"
+  - composer global require "drupal/coder:8.2.*"
+  - phpcs --config-set installed_paths $HOME/.composer/vendor/drupal/coder/coder_sniffer
   - drupal-ti before_install
 
 install:
   - drupal-ti install
 
 before_script:
-  - drupal-ti --include "./travis-ci/travis-before-script.sh"
   - drupal-ti before_script
 
 script:
-  - drupal-ti --include "./travis-ci/travis-script.sh"
+  - phpcs . -p --standard=Drupal --colors --extensions=php,inc,test,module,install
   - drupal-ti script
 
 after_script:
   - drupal-ti after_script
 
 notifications:
-  #email: yan@yanniboi.com
+  email: false
   irc: "chat.freenode.net#freelygive"
