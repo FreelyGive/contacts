@@ -13,3 +13,4 @@ dependencies:
   - panels
   - ctools_views
   - search_api_db
+  - contacts_theme

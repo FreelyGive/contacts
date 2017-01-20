@@ -11,7 +11,7 @@ use Drupal\Tests\BrowserTestBase;
  */
 class ContactsDashboardTest extends BrowserTestBase {
 
-  public static $modules = ['user', 'contacts', 'views'];
+  public static $modules = ['user', 'views'];
 
   /**
    * Testing admin user.
@@ -32,6 +32,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $this->adminUser->save();
 
     \Drupal::service('theme_installer')->install(['contacts_theme']);
+    \Drupal::service('module_installer')->install(['contacts']);
     drupal_flush_all_caches();
   }
 

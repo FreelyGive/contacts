@@ -1,0 +1,34 @@
+<?php
+
+ /**
+  * @file
+  * Install related hook implementations for the contacts module.
+  */
+
+/**
+ * Implements hook_requirements().
+ */
+function contacts_requirements($phase) {
+  $requirements = array();
+
+  // Test admin theme is enabled.
+  if ($phase == 'install') {
+    /* @var $themeHandler \Drupal\Core\Extension\ThemeHandler */
+    $themeHandler = \Drupal::service('theme_handler');
+
+    if (!$themeHandler->themeExists('contacts_theme')) {
+      // Try to install theme.
+      $success = \Drupal::service('theme_installer')->install(['contacts_theme']);
+
+      if (!$success) {
+        $requirements['theme'] = array(
+          'title' => t('Missing Theme'),
+          'value' => 'To enable the contacts module you must first enable the contacts theme.',
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+    }
+  }
+
+  return $requirements;
+}
