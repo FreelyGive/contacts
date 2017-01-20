@@ -1,15 +1,15 @@
 <?php
 
-namespace Drupal\contacts\Tests;
+namespace Drupal\Tests\contacts\Functional;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Tests CRM fields and views.
  *
  * @group contacts
  */
-class ContactsDashboardTest extends WebTestBase {
+class ContactsDashboardTest extends BrowserTestBase {
 
   public static $modules = ['user', 'contacts', 'views'];
 
@@ -32,6 +32,7 @@ class ContactsDashboardTest extends WebTestBase {
     $this->adminUser->save();
 
     \Drupal::service('theme_installer')->install(['contacts_theme']);
+    drupal_flush_all_caches();
   }
 
   /**
@@ -40,13 +41,13 @@ class ContactsDashboardTest extends WebTestBase {
    * @return mixed
    *   An associative array of user information or FALSE if not users are found.
    */
-  protected function testViewDashboard() {
+  public function testViewDashboard() {
     $this->drupalLogin($this->adminUser);
 
     $this->drupalGet('admin/contacts');
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
 
-    $this->assertRaw('Contacts');
+    $this->assertSession()->responseContains('Contacts');
   }
 
 }
