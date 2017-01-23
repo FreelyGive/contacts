@@ -17,18 +17,28 @@ function contacts_requirements($phase) {
     $themeHandler = \Drupal::service('theme_handler');
 
     if (!$themeHandler->themeExists('contacts_theme')) {
-      // Try to install theme.
-      $success = \Drupal::service('theme_installer')->install(['contacts_theme']);
-
-      if (!$success) {
-        $requirements['theme'] = array(
-          'title' => t('Missing Theme'),
-          'value' => 'To enable the contacts module you must first enable the contacts theme.',
-          'severity' => REQUIREMENT_ERROR,
-        );
-      }
+      $requirements['contacts_theme_missing'] = array(
+        'title' => t('Contacts theme missing'),
+        'value' => 'To enable the contacts module you must first enable the contacts theme.',
+        'severity' => REQUIREMENT_ERROR,
+      );
     }
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_module_preinstall().
+ *
+ * Module config depends on a layout provided by the theme.
+ */
+function contacts_module_preinstall() {
+  /* @var $themeHandler \Drupal\Core\Extension\ThemeHandler */
+  $themeHandler = \Drupal::service('theme_handler');
+
+  if (!$themeHandler->themeExists('contacts_theme')) {
+    // Try to install theme.
+    \Drupal::service('theme_installer')->install(['contacts_theme']);
+  }
 }

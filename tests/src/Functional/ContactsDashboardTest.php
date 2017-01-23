@@ -11,7 +11,10 @@ use Drupal\Tests\BrowserTestBase;
  */
 class ContactsDashboardTest extends BrowserTestBase {
 
-  public static $modules = ['user', 'views'];
+  /**
+   * {@inheritdoc}
+   */
+  public static $modules = ['user', 'contacts', 'views'];
 
   /**
    * Testing admin user.
@@ -30,10 +33,6 @@ class ContactsDashboardTest extends BrowserTestBase {
     // @TODO update page permission requirements.
     $this->adminUser->addRole('administrator');
     $this->adminUser->save();
-
-    \Drupal::service('theme_installer')->install(['contacts_theme']);
-    \Drupal::service('module_installer')->install(['contacts']);
-    drupal_flush_all_caches();
   }
 
   /**
