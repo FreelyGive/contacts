@@ -28,7 +28,7 @@ class DashboardNegotiator implements ThemeNegotiatorInterface {
    */
   public function determineActiveTheme(RouteMatchInterface $route_match) {
     // Here you return the actual theme name.
-    return 'contacts_admin';
+    return 'contacts_theme';
   }
 
 }
