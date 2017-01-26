@@ -40,3 +40,11 @@ function drupal_ti_ensure_module_linked() {
 	composer require drupal/$DRUPAL_TI_MODULE_NAME *@dev
 	git apply -v $DRUPAL_TI_DRUPAL_DIR/modules/contacts/travis-ci/merging_data_types-2693081-15_0.patch
 }
+
+#
+# Ensures that the module is linked but not installed.
+#
+function drupal_ti_ensure_module() {
+	# Ensure the module is linked into the code base.
+	drupal_ti_ensure_module_linked
+}

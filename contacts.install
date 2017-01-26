@@ -1,0 +1,91 @@
+<?php
+
+ /**
+  * @file
+  * Install related hook implementations for the contacts module.
+  */
+
+use Drupal\Core\Installer\Exception\InstallerException;
+
+/**
+ * Implements hook_requirements().
+ */
+function contacts_requirements($phase) {
+  $requirements = array();
+
+  // Test admin theme is enabled.
+  if ($phase == 'install') {
+    /* @var $themeHandler \Drupal\Core\Extension\ThemeHandler */
+    $themeHandler = \Drupal::service('theme_handler');
+
+    if (!$themeHandler->themeExists('contacts_theme')) {
+      // See if the theme is available to install. If it is we'll do that in
+      // contacts_module_preinstall().
+      $theme_data = \Drupal::service('theme_handler')->rebuildThemeData();
+
+      // If the theme is not available, show an error.
+      if (!isset($theme_data['contacts_theme'])) {
+        $requirements['contacts_theme_missing'] = [
+          'description' => t('Contacts theme missing: to enable the contacts module you must first enable the contacts theme.'),
+          'severity' => REQUIREMENT_ERROR,
+        ];
+      }
+      // Otherwise check for any missing dependencies.
+      else {
+        $themes = ['contacts_theme' => NULL];
+
+        while (in_array(NULL, $themes, TRUE)) {
+          foreach (array_keys($themes, NULL, TRUE) as $theme) {
+            foreach ($theme_data[$theme]->requires as $requirement) {
+              // See if we are missing this dependency.
+              if (!isset($theme_data[$requirement['name']])) {
+                $themes[$theme] = FALSE;
+              }
+              // Otherwise, add the dependency to the list to be checked.
+              else {
+                $themes += [$requirement['name'] => NULL];
+              }
+            }
+
+            // If we've got this far, we have this themes' dependencies.
+            $themes[$theme] = TRUE;
+          }
+        }
+
+        // If we have missing dependencies, report an error.
+        if ($missing = array_keys($themes, FALSE, TRUE)) {
+          $requirements['contacts_theme_dependency'] = [
+            'description' => t('Contacts theme missing dependencies @dependencies: to enable the contacts module you must first enable the contacts theme.', [
+              '@dependencies' => implode(', ', $missing),
+            ]),
+            'severity' => REQUIREMENT_ERROR,
+          ];
+        }
+      }
+
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_module_preinstall().
+ *
+ * Module config depends on a layout provided by the theme.
+ */
+function contacts_module_preinstall($module) {
+  if ($module == 'contacts') {
+    /* @var $themeHandler \Drupal\Core\Extension\ThemeHandler */
+    $themeHandler = \Drupal::service('theme_handler');
+
+    if (!$themeHandler->themeExists('contacts_theme')) {
+      // Try to install theme.
+      $result = \Drupal::service('theme_installer')
+        ->install(['contacts_theme']);
+      if (!$result) {
+        throw new InstallerException('Failed to install contacts theme.');
+      }
+    }
+  }
+}
