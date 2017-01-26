@@ -49,4 +49,5 @@ class BreadcrumbBuilder implements BreadcrumbBuilderInterface {
 
     return $breadcrumb->setLinks($links);
   }
+
 }
