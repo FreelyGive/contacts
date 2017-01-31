@@ -71,7 +71,7 @@ before_script:
   - drupal-ti before_script
 
 script:
-  - phpcs . -p --standard=Drupal --colors
+  - phpcs . -p --standard=Drupal --colors --extensions=php,inc,test,module,install,css,js
   - drupal-ti script
 
 after_script:
