@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - page_manager.page.contacts_dashboard_add_indiv
+  module:
+    - panels
+id: contacts_dashboard_add_indiv-panels_variant-0
+label: 'Contacts Dashboard - Add Individual'
+variant: panels_variant
+variant_settings:
+  blocks: {  }
+  id: panels_variant
+  uuid: d5f5c5e4-ea95-4b6e-a963-909859a0cfa0
+  label: null
+  weight: -10
+  layout: onecol
+  layout_settings: {  }
+  page_title: 'Add individual'
+  storage_type: page_manager
+  storage_id: contacts_dashboard_add_indiv-panels_variant-0
+  builder: standard
+page: contacts_dashboard_add_indiv
+weight: 0
+selection_criteria: {  }
+selection_logic: and
+static_context: {  }

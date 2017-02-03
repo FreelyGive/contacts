@@ -68,6 +68,7 @@ class DashboardController extends ControllerBase {
         /* @var $plugin_block \Drupal\Core\Block\BlockBase */
         $plugin_block = $block_manager->createInstance('entity_view:profile', $config);
         if ($user->hasRole('crm_indiv') && !empty($user->profile_crm_indiv->entity)) {
+
           $profile = $user->profile_crm_indiv->entity;
           $profile_context = new Context(new ContextDefinition('entity:profile', $this->t('Indiv Profile')), $profile);
           $plugin_block->setContext('entity', $profile_context);
@@ -103,11 +104,10 @@ class DashboardController extends ControllerBase {
         $config = [
           'label_display' => 'visible',
           'label' => 'Contact Notes',
+          'form_mode' => 'crm_dashboard',
         ];
         /* @var $plugin_block \Drupal\Core\Block\BlockBase */
-        $plugin_block = $block_manager->createInstance('contacts_entity_form', $config);
-        $operation = new Context(new ContextDefinition('string', $this->t('Operation')), 'crm_dashboard');
-        $plugin_block->setContext('operation', $operation);
+        $plugin_block = $block_manager->createInstance('contacts_entity_form:user', $config);
 
         if (!empty($user->profile_crm_notes->entity)) {
           $profile = $user->profile_crm_notes->entity;

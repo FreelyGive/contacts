@@ -138,6 +138,7 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
 function contacts_entity_type_build(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
   $entity_types['profile']->setFormClass('crm_dashboard', 'Drupal\profile\Form\ProfileForm');
+  $entity_types['user']->setFormClass('add_individual', 'Drupal\Core\Entity\ContentEntityForm');
 }
 
 /**

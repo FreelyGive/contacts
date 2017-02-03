@@ -13,6 +13,7 @@
     "cweagans/composer-patches": "~1.0",
     "drupal/profile": "1.x-dev",
     "drupal/address": "~1.0",
+    "drupal/flexiform": "1.x-dev",
     "drupal/layout_plugin": "~1.0",
     "drupal/page_manager": "~1.0",
     "drupal/panels": "~3.0",
