@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user.add_individual
+label: 'Add Individual'
+targetEntityType: user
+cache: true

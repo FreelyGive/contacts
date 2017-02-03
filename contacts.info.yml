@@ -8,6 +8,7 @@ dependencies:
   - block
   - help
   - decoupled_auth_crm
+  - flexiform
   - profile
   - page_manager
   - panels

@@ -1,0 +1,77 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.user.add_individual
+    - field.field.user.user.user_picture
+  module:
+    - flexiform
+    - user
+third_party_settings:
+  flexiform:
+    form_entities:
+      'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0':
+        label: 'Individual Entity from User'
+        plugin: 'referenced_entity:entity:user:profile_crm_indiv:crm_indiv'
+        context_mapping:
+          base: ''
+        create: 1
+      'referenced_entity:entity:user:profile_crm_notes:crm_notes_0':
+        label: 'Notes Entity from User'
+        plugin: 'referenced_entity:entity:user:profile_crm_notes:crm_notes'
+        context_mapping:
+          base: ''
+        create: 1
+id: user.user.add_individual
+targetEntityType: user
+bundle: user
+mode: add_individual
+content:
+  account:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_address':
+    type: address_default
+    weight: 6
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_dob':
+    type: datetime_default
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_email':
+    type: email_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_gender':
+    type: options_select
+    weight: 5
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_name':
+    type: string_textfield
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_indiv:crm_indiv_0:crm_photo':
+    type: image_image
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+  'referenced_entity:entity:user:profile_crm_notes:crm_notes_0:crm_notes':
+    type: string_textarea
+    weight: 7
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  contact: true
+  language: true
+  'referenced_entity:entity:user:profile_crm_org:crm_org_0:crm_logo': true
+  'referenced_entity:entity:user:profile_crm_org:crm_org_0:crm_org_address': true
+  'referenced_entity:entity:user:profile_crm_org:crm_org_0:crm_org_email': true
+  'referenced_entity:entity:user:profile_crm_org:crm_org_0:crm_org_name': true
+  timezone: true
+  user_picture: true

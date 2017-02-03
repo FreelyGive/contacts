@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies: {  }
+id: contacts_dashboard_add_indiv
+label: 'Contacts Dashboard - Add Individual'
+description: ''
+use_admin_theme: true
+path: /admin/contacts/add/indiv
+access_logic: and
+access_conditions:
+  admin_user_condition:
+    id: user_role
+    roles:
+      administrator: administrator
+    negate: false
+    context_mapping:
+      user: current_user
+parameters: {  }

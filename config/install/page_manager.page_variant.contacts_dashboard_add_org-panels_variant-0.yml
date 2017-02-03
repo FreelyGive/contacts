@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - page_manager.page.contacts_dashboard_add_org
+  module:
+    - panels
+id: contacts_dashboard_add_org-panels_variant-0
+label: 'Contacts Dashboard - Add Organisation'
+variant: panels_variant
+variant_settings:
+  blocks: {  }
+  id: panels_variant
+  uuid: 21dbe2b3-e091-4aa2-9e92-21a0c8563ed7
+  label: null
+  weight: -10
+  layout: onecol
+  layout_settings: {  }
+  page_title: 'Add Organisation'
+  storage_type: page_manager
+  storage_id: contacts_dashboard_add_org-panels_variant-0
+  builder: standard
+page: contacts_dashboard_add_org
+weight: 0
+selection_criteria: {  }
+selection_logic: and
+static_context: {  }
