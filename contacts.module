@@ -131,6 +131,16 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
 }
 
 /**
+ * Implements hook_entity_type_build().
+ *
+ * Add contacts dashboard form operation to profile entity.
+ */
+function contacts_entity_type_build(array &$entity_types) {
+  /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  $entity_types['profile']->setFormClass('crm_dashboard', 'Drupal\profile\Form\ProfileForm');
+}
+
+/**
  * Implements hook_toolbar_alter().
  *
  * Add contacts icon css to toolbar.
