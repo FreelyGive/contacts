@@ -11,10 +11,10 @@ use GuzzleHttp\Client;
  * Generate individuals using the randomuser.me API.
  *
  * @DevelGenerate(
- *   id = "crm_indiv",
- *   label = @Translation("Contacts (Individuals)"),
- *   description = @Translation("Generate a given number of individual contacts. Optionally delete current contacts."),
- *   url = "contacts-indiv",
+ *   id = "crm_org",
+ *   label = @Translation("Contacts (Organisations)"),
+ *   description = @Translation("Generate a given number of organisation contacts. Optionally delete current contacts."),
+ *   url = "contacts-org",
  *   permission = "administer devel_generate",
  *   settings = {
  *     "num" = 50,
@@ -22,12 +22,12 @@ use GuzzleHttp\Client;
  *   }
  * )
  */
-class CrmIndivGenerate extends CrmGeneratorBase {
+class CrmOrgGenerate extends CrmGeneratorBase {
 
   /**
    * {@inheritdoc}
    */
-  const ROLE_NAME = 'crm_indiv';
+  const ROLE_NAME = 'crm_org';
 
   /**
    * {@inheritdoc}
@@ -36,8 +36,9 @@ class CrmIndivGenerate extends CrmGeneratorBase {
     $form = parent::settingsForm($form, $form_state);
 
     $form['copyright'] = array(
-      '#markup' => $this->t('Individuals are generated using data provided by <a href=":url" target=_"blank">randomuser.me</a>.', [
-        ':url' => 'https://randomuser.me',
+      '#markup' => $this->t('Organisation are generated using data provided by <a href=":data-url" target=_"blank">www.mockaroo.com</a> with images from <a href=":image-url" target=_"blank">www.flamingtext.co.uk</a>.', [
+        ':data-url' => 'http://www.mockaroo.com/',
+        ':image-url' => 'http://www.flamingtext.co.uk/',
       ]),
     );
 
@@ -48,29 +49,23 @@ class CrmIndivGenerate extends CrmGeneratorBase {
    * {@inheritdoc}
    */
   public function generateContacts($number = 1, array $options = array()) {
-    // Set some default options.
-    $options += [
-      'api' => [
-        'nat' => 'gb',
-      ]
-    ];
-
-
-    // Enforce a couple API options.
-    $options['api']['results'] = $number;
-    $options['api'][] = 'noinfo';
+    // Organisations never have accounts.
+    $options['coupled'] = FALSE;
 
     // Retrieve our results.
     $client = $this->httpClientFactory->fromOptions();
-    $results = $client->request('GET', 'https://randomuser.me/api', [
-      'query' => $options['api'],
+    $results = $client->request('GET', 'https://www.mockaroo.com/dddbdc80/download?count=10&key=ee1f5f90', [
+      'query' => [
+        'count' => $number,
+        'key' => 'ee1f5f90',
+      ],
     ]);
     $results = json_decode($results->getBody());
 
     // Loop over and create the users and associated entities.
-    foreach ($results->results as $result) {
+    foreach ($results as $result) {
       $user = $this->createUser($result, $options);
-      $this->createProfileIndiv($result, $user, $options);
+      $this->createProfileOrg($result, $user, $options);
       $this->createProfileNotes($result, $user, $options);
     }
   }
@@ -88,17 +83,15 @@ class CrmIndivGenerate extends CrmGeneratorBase {
    * @return \Drupal\profile\Entity\ProfileInterface
    *   The generated profile.
    */
-  protected function createProfileIndiv(\stdClass $result, UserInterface $user, $options = array()) {
+  protected function createProfileOrg(\stdClass $result, UserInterface $user, $options = array()) {
     $options += [
-      'photo' => -10,
+      'logo' => -10,
     ];
 
     $values = [
-      'crm_name' => ucwords("{$result->name->title} {$result->name->first} {$result->name->last}"),
-      'crm_gender' => $result->gender,
-      'crm_email' => $result->email,
-      'crm_dob' => substr($result->dob, 0, 10),
-      'crm_address' => [
+      'crm_org_name' => $result->name,
+      'crm_org_email' => $result->email,
+      'crm_org_address' => [
         'country_code' => 'GB',
         'address_line1' => $result->location->street,
         'locality' => $result->location->city,
@@ -107,12 +100,23 @@ class CrmIndivGenerate extends CrmGeneratorBase {
     ];
 
     // Generate our photo if required.
-    if ($this->getRandomDecision($options['photo'])) {
-      $photo = file_save_data(file_get_contents($result->picture->large));
-      $values['crm_photo'] = $photo->id();
+    if ($this->getRandomDecision($options['logo'])) {
+      $designs = ['minions', 'comics', 'blackbird'];
+      $query = [
+        'script' => $designs[rand(0, count($designs) - 1)] . '-logo',
+        '_loc' => 'generate',
+        'imageoutput' => 'true',
+        'fillTextType' => 0,
+        'fillTextColor' => '#' . dechex(rand(0, 15)) . dechex(rand(0, 15)) . dechex(rand(0, 15)) . dechex(rand(0, 15)) . dechex(rand(0, 15)) . dechex(rand(0, 15)),
+        'text' => $result->name,
+      ];
+      $url = 'http://www.flamingtext.co.uk/net-fu/proxy_form.cgi?' . http_build_query($query);
+
+      $photo = file_save_data(file_get_contents($url));
+      $values['crm_logo'] = $photo->id();
     }
 
-    return $this->createProfile('crm_indiv', $values, $user);
+    return $this->createProfile('crm_org', $values, $user);
   }
 
   /**
@@ -139,7 +143,7 @@ class CrmIndivGenerate extends CrmGeneratorBase {
     }
 
     $values = [
-      'crm_notes' => $this->getRandomDecision($options['notes_content']) ? "{$result->id->name}: {$result->id->value}" : '',
+      'crm_notes' => $this->getRandomDecision($options['notes_content']) ? $result->slogan : '',
     ];
 
     return $this->createProfile('crm_notes', $values, $user);

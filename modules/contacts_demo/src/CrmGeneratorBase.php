@@ -183,7 +183,7 @@ abstract class CrmGeneratorBase extends DevelGenerateBase implements ContainerFa
       'roles' => [],
     ];
     $options['roles'][] = static::ROLE_NAME;
-    $options['roles'] = array_filter($options['roles']);
+    $options['roles'] = array_unique($options['roles']);
 
     // Generate some reasonable timestamps.
     $created = strtotime($result->registered);
@@ -215,6 +215,19 @@ abstract class CrmGeneratorBase extends DevelGenerateBase implements ContainerFa
     return $user;
   }
 
+  /**
+   * Create and save a profile of the given type, connecting it to the user.
+   *
+   * @param $type
+   *   The profile type.
+   * @param array $values
+   *   The values to store.
+   * @param \Drupal\user\UserInterface $user
+   *   The user to connect it with.
+   *
+   * @return \Drupal\profile\Entity\ProfileInterface
+   *   The generated profile.
+   */
   protected function createProfile($type, array $values, UserInterface $user) {
     $values['type'] = $type;
     $values['uid'] = $user->id();
