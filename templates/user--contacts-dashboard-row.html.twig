@@ -1,0 +1,9 @@
+<div class="contacts-row-image"><a href="{{ url }}">{{ image }}</a></div>
+<div class="contacts-row-main flex-fill">
+  {% if label %}<h3><a href="{{ url }}">{{ label }}</a></h3>{% endif %}
+  {{ address }}
+</div>
+<div class="contacts-row-supporting">
+  <h6><a href="{{ url }}">ID: {{ user.id }}</a></h6>
+  <div class="description">{{ roles }}</div>
+</div>

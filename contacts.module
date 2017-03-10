@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_theme().
@@ -32,6 +33,10 @@ function contacts_theme() {
       'variables' => ['user' => NULL],
       'template' => 'contacts-dash-summary',
     ],
+    'user__contacts_dashboard_row' => [
+      'base hook' => 'user',
+      'template' => 'user--contacts-dashboard-row',
+    ]
   ];
 }
 
@@ -156,6 +161,78 @@ function contacts_toolbar_alter(&$items) {
 function contacts_page_attachments(array &$attachments) {
   $current_path = \Drupal::service('path.current')->getPath();
   if (substr($current_path, 0, 15) == '/admin/contacts') {
-    $attachments['#attached']['library'][] = 'contacts/contacts-dashboard';
+    $attachments['#attached']['library'][] = 'contacts/dashboard';
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function contacts_theme_suggestions_user(array $variables) {
+  $suggestions = [];
+  /* @var \Drupal\user\UserInterface $user */
+  $user = $variables['elements']['#user'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'user__' . $sanitized_view_mode;
+  foreach ($user->getRoles(TRUE) as $role) {
+    if (substr($role, 0, 4) == 'crm_') {
+      $suggestions[] = 'user__' . $role . '__';
+      $suggestions[] = 'user__' . $role . '__' . $sanitized_view_mode;
+
+    }
+  }
+
+  return $suggestions;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function contacts_preprocess_user(&$variables) {
+  if ($variables['elements']['#view_mode'] != 'contacts_dashboard_row') {
+    return;
+  }
+
+  /* @var \Drupal\user\UserInterface $user */
+  $user = $variables['user'];
+  $image_display = [
+    'label' => 'hidden',
+    'type' => 'image',
+    'settings' => [
+      'image_style' => 'thumbnail',
+    ],
+  ];
+
+  // Set some defaults.
+  $variables['url'] = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
+    'user' => $user->id(),
+  ]);
+  $variables['label'] = $user->getDisplayName();
+  $variables['image'] = '';
+  $variables['address'] = '';
+
+  $roles = user_role_names();
+  $variables['roles'] = implode(', ', array_intersect_key($roles, array_fill_keys($user->getRoles(), TRUE)));
+
+  if ($user->hasRole('crm_indiv')) {
+    if ($profile = $user->profile_crm_indiv->entity) {
+      $variables['profile'] = $profile;
+      $variables['label'] = $profile->crm_name->value;
+      if ($profile->crm_photo[0]) {
+        $variables['image'] = $profile->crm_photo->view($image_display)[0];
+        $variables['address'] = $profile->crm_address->locality;
+      }
+    }
+  }
+  elseif ($user->hasRole('crm_org')) {
+    if ($profile = $user->profile_crm_org->entity) {
+      $variables['profile'] = $profile;
+      $variables['label'] = $profile->crm_org_name->value;
+      if ($profile->crm_logo[0]) {
+        $variables['image'] = $profile->crm_logo->view($image_display)[0];
+      }
+      $variables['address'] = $profile->crm_org_address->locality;
+    }
   }
 }

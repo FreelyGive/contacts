@@ -7,7 +7,7 @@ id: contacts_dashboard
 label: 'Contacts Dashboard'
 description: null
 use_admin_theme: true
-path: '/admin/contacts'
+path: /admin/contacts
 access_logic: and
 access_conditions:
   admin_user_condition:
