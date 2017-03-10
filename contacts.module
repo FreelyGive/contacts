@@ -205,6 +205,7 @@ function contacts_preprocess_user(&$variables) {
   ];
 
   // Set some defaults.
+  // @todo: Simplify this when we have 'primary fields'.
   $variables['url'] = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
     'user' => $user->id(),
   ]);
@@ -221,8 +222,8 @@ function contacts_preprocess_user(&$variables) {
       $variables['label'] = $profile->crm_name->value;
       if ($profile->crm_photo[0]) {
         $variables['image'] = $profile->crm_photo->view($image_display)[0];
-        $variables['address'] = $profile->crm_address->locality;
       }
+      $variables['address'] = $profile->crm_address->locality;
     }
   }
   elseif ($user->hasRole('crm_org')) {
