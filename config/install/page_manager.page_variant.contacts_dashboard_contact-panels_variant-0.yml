@@ -14,16 +14,6 @@ label: 'Contacts Dashboard - Contact'
 variant: panels_variant
 variant_settings:
   blocks:
-    7c36ff39-3877-4db4-bc62-c6fb1388044e:
-      id: custom_text
-      label: 'Back to search'
-      provider: contacts
-      label_display: '0'
-      text: '<a href="/admin/contacts" class="button">Back to search</a>'
-      region: left
-      weight: -10
-      uuid: 7c36ff39-3877-4db4-bc62-c6fb1388044e
-      context_mapping: {  }
     ecd0d505-c665-4e76-830e-a6bb9ff91afc:
       id: 'views_block:contacts_dashboard_indexed-simple'
       label: ''
@@ -33,7 +23,7 @@ variant_settings:
       items_per_page: none
       exposed: {  }
       region: left
-      weight: -9
+      weight: -2
       uuid: ecd0d505-c665-4e76-830e-a6bb9ff91afc
       context_mapping: {  }
     659d4b6a-ca77-4e4a-a742-69fb23276995:
@@ -74,7 +64,7 @@ variant_settings:
       label_display: '0'
       title: '[user:display-name]'
       region: header
-      weight: 0
+      weight: -10
       uuid: b1606cd6-76f3-4299-910d-79ad68b08223
       context_mapping: {  }
     d0612f8c-f829-405e-96b8-8e0bcc03018d:
@@ -94,6 +84,15 @@ variant_settings:
       region: right
       weight: -1
       uuid: 4ffd41af-55d0-447e-8f50-19de97be6051
+      context_mapping: {  }
+    10589b20-3baa-41f2-93e4-c6d2c9b82bde:
+      id: contacts_back
+      label: 'Back to search'
+      provider: contacts
+      label_display: '0'
+      region: left
+      weight: -4
+      uuid: 10589b20-3baa-41f2-93e4-c6d2c9b82bde
       context_mapping: {  }
   id: panels_variant
   uuid: 1b3702e1-e046-4560-b148-726eeb34f497

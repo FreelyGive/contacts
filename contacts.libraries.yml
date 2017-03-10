@@ -6,10 +6,11 @@ contacts-ajax-tabs:
     - core/jquery
     - core/drupal.ajax
 
-contacts-dashboard:
+dashboard:
   version: 1.x
   css:
     theme:
+      css/dashboard.css: {}
       css/dashboard-blocks.css: {}
 
 contacts.icons:
