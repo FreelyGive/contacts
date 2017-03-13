@@ -97,6 +97,7 @@ class CrmOrgGenerate extends CrmGeneratorBase {
         'locality' => ucwords($result->location->city),
         'postal_code' => strtoupper($result->location->postcode),
       ],
+      'crm_phone' => '07000 ' . str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
     ];
 
     // Generate our photo if required.
