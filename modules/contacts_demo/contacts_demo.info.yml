@@ -6,14 +6,3 @@ core: '8.x'
 
 dependencies:
   - contacts
-  - default_content
-
-default_content:
-    user:
-      - 16673f6a-3196-4072-845d-5751e8be98e6
-      - 096d7ac0-1358-4677-ad71-c05193ccf279
-    profile:
-      - 852ed573-0163-4c2f-9264-eb54f57e0c4d
-      - c9e213d2-4a7a-40f4-be4b-fe03a06141b7
-      - 03d148c4-8cde-4ea4-a924-bccd35a68376
-      - 66ac6619-17e5-41c8-9c25-0bcb57889646
