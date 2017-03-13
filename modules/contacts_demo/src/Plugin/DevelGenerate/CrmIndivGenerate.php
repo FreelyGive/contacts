@@ -100,9 +100,9 @@ class CrmIndivGenerate extends CrmGeneratorBase {
       'crm_dob' => substr($result->dob, 0, 10),
       'crm_address' => [
         'country_code' => 'GB',
-        'address_line1' => $result->location->street,
-        'locality' => $result->location->city,
-        'postal_code' => $result->location->postcode,
+        'address_line1' => ucwords($result->location->street),
+        'locality' => ucwords($result->location->city),
+        'postal_code' => strtoupper($result->location->postcode),
       ],
     ];
 

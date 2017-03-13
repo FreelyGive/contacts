@@ -93,9 +93,9 @@ class CrmOrgGenerate extends CrmGeneratorBase {
       'crm_org_email' => $result->email,
       'crm_org_address' => [
         'country_code' => 'GB',
-        'address_line1' => $result->location->street,
-        'locality' => $result->location->city,
-        'postal_code' => $result->location->postcode,
+        'address_line1' => ucwords($result->location->street),
+        'locality' => ucwords($result->location->city),
+        'postal_code' => strtoupper($result->location->postcode),
       ],
     ];
 
