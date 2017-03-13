@@ -17,6 +17,7 @@
     "drupal/page_manager": "~1.0",
     "drupal/panels": "~3.0",
     "drupal/search_api": "~1.0",
+    "drupal/facets": "1.x-dev",
     "drupal/decoupled_auth": "1.x-dev",
     "drupal/contacts_theme": "1.x-dev",
     "drupal/ctools": "~3.0"
