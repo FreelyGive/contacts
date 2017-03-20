@@ -7,4 +7,4 @@ contacts.ajax_subpage:
       user:
         type: entity:user
   requirements:
-    _permission: 'administer users'
+    _permission: 'view contacts'

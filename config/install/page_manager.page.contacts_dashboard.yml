@@ -1,20 +1,11 @@
 langcode: en
 status: true
-dependencies:
-  module:
-    - user
+dependencies: {  }
 id: contacts_dashboard
 label: 'Contacts Dashboard'
 description: null
 use_admin_theme: true
-path: '/admin/contacts'
+path: /admin/contacts
 access_logic: and
-access_conditions:
-  admin_user_condition:
-    id: user_role
-    roles:
-      administrator: administrator
-    negate: false
-    context_mapping:
-      user: current_user
+access_conditions: {  }
 parameters: {  }

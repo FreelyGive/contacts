@@ -1,2 +1,8 @@
 administer contacts:
-  title: 'Administer contacts'
+  title: 'Configure contacts'
+  description: 'Configure the contacts dashboard and related settings.'
+  restrict access: TRUE
+
+view contacts:
+  title: 'View contacts'
+  description: 'View contacts via the Contact Dashboard.'
