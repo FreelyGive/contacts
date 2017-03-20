@@ -1,19 +1,37 @@
-contacts-ajax-tabs:
-  version: 1.x
+# Extend Core's .use-ajax implementation.
+drupal.ajax:
+  js:
+    js/ajax.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+
+# AJAXed tabs with history (if supported).
+tabs:
   js:
     js/tabs.js: {}
   dependencies:
     - core/jquery
     - core/drupal.ajax
+    - contacts/drupal.ajax
 
+# Styling
 contacts-dashboard:
   version: 1.x
   css:
     theme:
       css/dashboard-blocks.css: {}
 
+# Toolbar icons.
 contacts.icons:
   version: 1.x
   css:
     theme:
       css/contacts.icons.css: {}
+
+# Legacy library which depends on our broken out versions.
+# @todo: Make sure this is never used and remove it.
+contacts-ajax-tabs:
+  dependencies:
+    - contacts/drupal.ajax
+    - contacts/tabs
