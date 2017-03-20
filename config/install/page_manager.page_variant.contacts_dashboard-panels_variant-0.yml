@@ -14,15 +14,6 @@ label: 'Contacts Dashboard'
 variant: panels_variant
 variant_settings:
   blocks:
-    420acddc-2ffa-4076-8f6a-78d1989da9ab:
-      id: system_breadcrumb_block
-      label: Breadcrumbs
-      provider: system
-      label_display: '0'
-      region: right
-      weight: -9
-      uuid: 420acddc-2ffa-4076-8f6a-78d1989da9ab
-      context_mapping: {  }
     be98596f-b504-4c50-9001-f83e1fe26c4f:
       id: system_messages_block
       label: Messages
