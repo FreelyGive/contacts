@@ -7,7 +7,6 @@ dependencies:
   module:
     - contacts
     - panels
-    - system
     - views
 id: contacts_dashboard_contact-panels_variant-0
 label: 'Contacts Dashboard - Contact'
@@ -75,15 +74,6 @@ variant_settings:
       region: left
       weight: -4
       uuid: 10589b20-3baa-41f2-93e4-c6d2c9b82bde
-      context_mapping: {  }
-    4ffd41af-55d0-447e-8f50-19de97be6051:
-      id: system_messages_block
-      label: Messages
-      provider: system
-      label_display: '0'
-      region: right
-      weight: -1
-      uuid: 4ffd41af-55d0-447e-8f50-19de97be6051
       context_mapping: {  }
   id: panels_variant
   uuid: 1b3702e1-e046-4560-b148-726eeb34f497
