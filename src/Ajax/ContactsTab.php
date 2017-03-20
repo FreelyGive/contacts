@@ -3,7 +3,6 @@
 namespace Drupal\contacts\Ajax;
 
 use Drupal\Core\Ajax\CommandInterface;
-use Drupal\Core\Ajax\CommandWithAttachedAssetsTrait;
 
 /**
  * Update the contacts tab.
@@ -11,17 +10,6 @@ use Drupal\Core\Ajax\CommandWithAttachedAssetsTrait;
  * @ingroup ajax
  */
 class ContactsTab implements CommandInterface {
-
-  use CommandWithAttachedAssetsTrait;
-
-  /**
-   * The content the tab.
-   *
-   * Either a render array or an HTML string.
-   *
-   * @var string|array
-   */
-  protected $content;
 
   /**
    * The new active tab.
@@ -40,16 +28,12 @@ class ContactsTab implements CommandInterface {
   /**
    * Constructs a ContactsTab object.
    *
-   * @param string|array $content
-   *   The content that will be inserted in the matched element(s), either a
-   *   render array or an HTML string.
    * @param string $tab
    *   The new active tab.
    * @param string $url
    *   The new URL we are at.
    */
-  public function __construct($content, $tab = NULL, $url = NULL) {
-    $this->content = $content;
+  public function __construct($tab, $url) {
     $this->tab = $tab;
     $this->url = $url;
   }
@@ -60,7 +44,6 @@ class ContactsTab implements CommandInterface {
   public function render() {
     return [
       'command' => 'contactsTab',
-      'data' => $this->getRenderedContent(),
       'activeTab' => $this->tab,
       'url' => $this->url,
     ];
