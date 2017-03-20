@@ -37,6 +37,12 @@ class DashboardController extends ControllerBase {
       'subpage' => $subpage,
     ]);
 
+    // Prepend the content with system messages.
+    $content['#content']['messages'] = [
+      '#type' => 'status_messages',
+      '#weight' => -99,
+    ];
+
     // Create AJAX Response object.
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));

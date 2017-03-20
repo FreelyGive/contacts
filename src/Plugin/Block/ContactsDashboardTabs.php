@@ -145,7 +145,12 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   public function buildContent(array &$build) {
     if (in_array($this->subpage, ['summary', 'indiv', 'notes'])) {
       $content = $this->blockController->renderBlock($this->user, $this->subpage);
-      $build['content'] = $content + ['#weight' => 2];
+      $content['#weight'] = 2;
+      $content['#content']['messages'] = [
+        '#type' => 'status_messages',
+        '#weight' => -99,
+      ];
+      $build['content'] = $content;
     }
   }
 
