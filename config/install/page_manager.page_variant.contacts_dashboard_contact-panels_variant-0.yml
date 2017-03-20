@@ -77,15 +77,6 @@ variant_settings:
       weight: 0
       uuid: b1606cd6-76f3-4299-910d-79ad68b08223
       context_mapping: {  }
-    d0612f8c-f829-405e-96b8-8e0bcc03018d:
-      id: system_breadcrumb_block
-      label: Breadcrumbs
-      provider: system
-      label_display: '0'
-      region: right
-      weight: -3
-      uuid: d0612f8c-f829-405e-96b8-8e0bcc03018d
-      context_mapping: {  }
     4ffd41af-55d0-447e-8f50-19de97be6051:
       id: system_messages_block
       label: Messages
