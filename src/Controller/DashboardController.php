@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Controller;
 
 use Drupal\contacts\Ajax\ContactsTab;
+use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
@@ -38,7 +39,8 @@ class DashboardController extends ControllerBase {
 
     // Create AJAX Response object.
     $response = new AjaxResponse();
-    $response->addCommand(new ContactsTab($content, $subpage, $url->toString()));
+    $response->addCommand(new ContactsTab($subpage, $url->toString()));
+    $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
     // Return ajax response.
     return $response;

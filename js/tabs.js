@@ -25,10 +25,6 @@
       $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass('is-active');
     }
 
-    if (response.data) {
-      $('#contacts-tabs-content').html(response.data);
-    }
-
     if (response.url && historySupport) {
       if (document.location.pathname != response.url) {
         history.pushState({}, '', response.url);
@@ -36,7 +32,8 @@
     }
   };
 
-  // Try and set the browser back/forward buttons up to trigger AJAX requests.
+  // If supported, set the browser back/forward buttons up to trigger AJAX
+  // requests that update the tabs.
   if (historySupport) {
     $(window).on('popstate', function (e) {
       // Look for an ajax link with this url.
