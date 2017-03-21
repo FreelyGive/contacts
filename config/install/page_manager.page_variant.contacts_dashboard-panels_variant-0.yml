@@ -23,16 +23,6 @@ variant_settings:
       weight: -8
       uuid: be98596f-b504-4c50-9001-f83e1fe26c4f
       context_mapping: {  }
-    9a6ba718-e09e-403d-9c34-53a889fa7d47:
-      id: custom_text
-      label: Logo
-      provider: contacts
-      label_display: '0'
-      text: Logo
-      region: logo
-      weight: -10
-      uuid: 9a6ba718-e09e-403d-9c34-53a889fa7d47
-      context_mapping: {  }
     e16d290c-2d5c-489a-8eb9-36066ba4c096:
       id: custom_page_title_block
       label: 'Page title'
@@ -64,6 +54,15 @@ variant_settings:
       region: left
       weight: -2
       uuid: 612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d
+      context_mapping: {  }
+    f348b93c-57eb-40d3-b8cc-983385e536df:
+      id: contacts_theme_logo
+      label: 'Theme logo'
+      provider: contacts
+      label_display: '0'
+      region: logo
+      weight: 0
+      uuid: f348b93c-57eb-40d3-b8cc-983385e536df
       context_mapping: {  }
   id: panels_variant
   label: null
