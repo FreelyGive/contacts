@@ -55,7 +55,8 @@ variant_settings:
       region: header
       weight: 0
       uuid: b1606cd6-76f3-4299-910d-79ad68b08223
-      context_mapping: {  }
+      context_mapping:
+        user: user
     10589b20-3baa-41f2-93e4-c6d2c9b82bde:
       id: contacts_back
       label: 'Back to search'

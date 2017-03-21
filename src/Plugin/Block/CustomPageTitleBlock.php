@@ -102,10 +102,31 @@ class CustomPageTitleBlock extends BlockBase implements ContainerFactoryPluginIn
     $data = $this->getContextAsTokenData();
     $title = Markup::create((string) $this->token->replace(new HtmlEscapedText($this->configuration['title']), $data));
 
-    return [
+    $build['title'] = [
       '#type' => 'page_title',
       '#title' => $title,
     ];
+
+    /* @var \Drupal\decoupled_auth\Entity\DecoupledAuthUser $contact */
+    $contact = $this->getContext('user')->getContextValue();
+    if ($contact) {
+      $image_display = [
+        'label' => 'hidden',
+        'type' => 'image',
+        'settings' => [
+          'image_style' => 'thumbnail',
+        ],
+      ];
+
+      if ($contact->user_picture[0]) {
+        $build['image'] = $contact->user_picture[0]->view($image_display);
+        $build['image']['#weight'] = -1;
+        $build['image']['#prefix'] = '<div class="contacts-header-image">';
+        $build['image']['#suffix'] = '</div>';
+      }
+    }
+    
+    return $build;
   }
 
   /**
