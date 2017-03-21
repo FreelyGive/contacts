@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies: {  }
+id: crm_org
+label: Organisation
+weight: 4
+is_admin: null
+permissions:
+  - 'add own crm_org profile'
+  - 'edit own crm_org profile'
+  - 'view own crm_org profile'

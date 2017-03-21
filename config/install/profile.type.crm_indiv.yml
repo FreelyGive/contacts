@@ -1,0 +1,14 @@
+langcode: en
+status: true
+dependencies: {  }
+id: crm_indiv
+label: Individual
+registration: true
+multiple: false
+roles:
+  crm_indiv: crm_indiv
+  authenticated: '0'
+  administrator: '0'
+  crm_org: '0'
+  staff: '0'
+weight: 0

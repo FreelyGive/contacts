@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.crm_phone
+    - profile.type.crm_indiv
+id: profile.crm_indiv.crm_phone
+field_name: crm_phone
+entity_type: profile
+bundle: crm_indiv
+label: 'Phone number'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

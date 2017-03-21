@@ -1,0 +1,34 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.crm_address
+    - profile.type.crm_indiv
+  module:
+    - address
+id: profile.crm_indiv.crm_address
+field_name: crm_address
+entity_type: profile
+bundle: crm_indiv
+label: Address
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  available_countries:
+    GB: GB
+    US: US
+  fields:
+    administrativeArea: administrativeArea
+    locality: locality
+    dependentLocality: dependentLocality
+    postalCode: postalCode
+    sortingCode: sortingCode
+    addressLine1: addressLine1
+    addressLine2: addressLine2
+    organization: '0'
+    recipient: '0'
+  langcode_override: ''
+field_type: address
