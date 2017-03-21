@@ -100,7 +100,7 @@ class DashboardController extends ControllerBase {
             'right' => '<div><h2>Summary Operations</h2><p>This block contains a list of useful operations to perform on the contact.</p></div>',
           ],
           '#attached' => [
-            'library' => ['contacts/contacts-dashboard'],
+            'library' => ['contacts/dashboard'],
           ],
         ];
         break;
@@ -135,7 +135,7 @@ class DashboardController extends ControllerBase {
             'middle' => $block,
           ],
           '#attached' => [
-            'library' => ['contacts/contacts-dashboard'],
+            'library' => ['contacts/dashboard'],
           ],
         ];
         break;

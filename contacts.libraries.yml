@@ -15,8 +15,8 @@ tabs:
     - core/drupal.ajax
     - contacts/drupal.ajax
 
-# Styling
-contacts-dashboard:
+# Styling.
+dashboard:
   version: 1.x
   css:
     theme:
