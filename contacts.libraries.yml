@@ -20,6 +20,7 @@ contacts-dashboard:
   version: 1.x
   css:
     theme:
+      css/dashboard.css: {}
       css/dashboard-blocks.css: {}
 
 # Toolbar icons.
