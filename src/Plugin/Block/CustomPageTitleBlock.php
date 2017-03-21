@@ -117,15 +117,36 @@ class CustomPageTitleBlock extends BlockBase implements ContainerFactoryPluginIn
           'image_style' => 'thumbnail',
         ],
       ];
+      $default_image_element = [
+        '#theme' => 'image_style',
+        '#style_name' => $image_display['settings']['image_style'],
+        '#width' => 100,
+        '#height' => 100,
+        '#attributes' => [],
+      ];
 
       if ($contact->user_picture[0]) {
         $build['image'] = $contact->user_picture[0]->view($image_display);
-        $build['image']['#weight'] = -1;
-        $build['image']['#prefix'] = '<div class="contacts-header-image">';
-        $build['image']['#suffix'] = '</div>';
       }
+      elseif ($contact->hasRole('crm_indiv')) {
+        $build['image'] = $default_image_element;
+        $build['image']['#uri'] = 'contacts://images/default-indiv.png';
+      }
+      elseif ($contact->hasRole('crm_org')) {
+        $build['image'] = $default_image_element;
+        $build['image']['#uri'] = 'contacts://images/default-org.png';
+      }
+      // Assume this is a web account, so give some indiv like features.
+      else {
+        $build['image'] = $default_image_element;
+        $build['image']['#uri'] = 'contacts://images/default-indiv.png';
+      }
+
+      $build['image']['#weight'] = -1;
+      $build['image']['#prefix'] = '<div class="contacts-header-image">';
+      $build['image']['#suffix'] = '</div>';
     }
-    
+
     return $build;
   }
 

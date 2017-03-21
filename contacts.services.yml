@@ -16,3 +16,7 @@ services:
     arguments: ['@current_user', '@url_generator']
     tags:
       - { name: event_subscriber }
+  stream_wrapper.contacts:
+    class: Drupal\contacts\StreamWrapper\ContactsStream
+    tags:
+      - { name: stream_wrapper, scheme: contacts }
