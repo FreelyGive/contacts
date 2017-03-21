@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.crm_notes.crm_notes
+    - profile.type.crm_notes
+id: profile.crm_notes.default
+targetEntityType: profile
+bundle: crm_notes
+mode: default
+content:
+  crm_notes:
+    weight: 3
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+hidden: {  }

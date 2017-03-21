@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.crm_org.crm_org_address
+    - field.field.profile.crm_org.crm_org_name
+    - field.field.profile.crm_org.crm_phone
+    - profile.type.crm_org
+  module:
+    - address
+id: profile.crm_org.default
+targetEntityType: profile
+bundle: crm_org
+mode: default
+content:
+  crm_org_address:
+    weight: 2
+    settings:
+      default_country: null
+    third_party_settings: {  }
+    type: address_default
+  crm_org_name:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  crm_phone:
+    type: string_textfield
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

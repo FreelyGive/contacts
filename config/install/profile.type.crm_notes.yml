@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies: {  }
+id: crm_notes
+label: Notes
+registration: false
+multiple: false
+roles:
+  crm_indiv: crm_indiv
+  crm_org: crm_org
+  authenticated: '0'
+  administrator: '0'
+weight: 0

@@ -7,14 +7,10 @@ dependencies:
     - user
   config:
     - field.storage.profile.crm_dob
-    - field.storage.profile.crm_email
     - field.storage.profile.crm_gender
     - field.storage.profile.crm_name
-    - field.storage.profile.crm_photo
     - field.storage.profile.crm_address
-    - field.storage.profile.crm_org_email
     - field.storage.profile.crm_org_name
-    - field.storage.profile.crm_logo
     - field.storage.profile.crm_org_address
     - search_api.server.database_server
 id: contacts_index
@@ -47,16 +43,6 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_dob
-  crm_email:
-    label: 'Individual » Profile » Email'
-    datasource_id: 'entity:user'
-    property_path: 'profile_crm_indiv:entity:crm_email'
-    type: string
-    dependencies:
-      module:
-        - profile
-      config:
-        - field.storage.profile.crm_email
   crm_gender:
     label: 'Individual » Profile » Gender'
     datasource_id: 'entity:user'
@@ -77,16 +63,6 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_name
-  crm_photo:
-    label: 'Individual » Profile » Photo'
-    datasource_id: 'entity:user'
-    property_path: 'profile_crm_indiv:entity:crm_photo'
-    type: integer
-    dependencies:
-      module:
-        - profile
-      config:
-        - field.storage.profile.crm_photo
   indiv_postal_code:
     label: 'Individual » Profile » Address » The postal code.'
     datasource_id: 'entity:user'
@@ -157,16 +133,6 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_address
-  crm_org_email:
-    label: 'Organisation » Profile » Email'
-    datasource_id: 'entity:user'
-    property_path: 'profile_crm_org:entity:crm_org_email'
-    type: string
-    dependencies:
-      module:
-        - profile
-      config:
-        - field.storage.profile.crm_org_email
   crm_org_name:
     label: 'Organisation » Profile » Name'
     datasource_id: 'entity:user'
@@ -177,16 +143,6 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_org_name
-  crm_logo:
-    label: 'Organisation » Profile » Logo'
-    datasource_id: 'entity:user'
-    property_path: 'profile_crm_org:entity:crm_logo'
-    type: integer
-    dependencies:
-      module:
-        - profile
-      config:
-        - field.storage.profile.crm_logo
   org_country_code:
     label: 'Organisation » Profile » Address » The two-letter country code.'
     datasource_id: 'entity:user'
@@ -257,6 +213,11 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_org_address
+datasource_settings:
+  'entity:user':
+    languages:
+      default: true
+      selected: {  }
 processor_settings:
   rendered_item: {  }
   add_url: {  }
@@ -265,7 +226,6 @@ processor_settings:
     fields:
       - mail
       - roles
-      - crm_email
       - crm_gender
       - crm_name
       - indiv_postal_code
@@ -275,7 +235,6 @@ processor_settings:
       - indiv_dependent_locality
       - indiv_country_code
       - indiv_administrative_area
-      - crm_org_email
       - crm_org_name
       - org_postal_code
       - org_address_line1
@@ -287,14 +246,9 @@ processor_settings:
     weights:
       preprocess_index: -10
       preprocess_query: -10
+tracker_settings:
+  default: {  }
 options:
   index_directly: true
   cron_limit: 50
-datasource_settings:
-  'entity:user':
-    languages:
-      default: true
-      selected: {  }
-tracker_settings:
-  default: {  }
 server: database_server

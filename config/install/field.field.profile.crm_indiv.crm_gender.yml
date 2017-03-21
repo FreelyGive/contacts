@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.crm_gender
+    - profile.type.crm_indiv
+  module:
+    - options
+id: profile.crm_indiv.crm_gender
+field_name: crm_gender
+entity_type: profile
+bundle: crm_indiv
+label: Gender
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
