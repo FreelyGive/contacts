@@ -8,3 +8,23 @@ contacts.ajax_subpage:
         type: entity:user
   requirements:
     _permission: 'view contacts'
+
+contacts.add_indiv_form:
+  path: '/admin/contacts/add/indiv'
+  defaults:
+    _form: '\Drupal\contacts\Form\AddIndivForm'
+    _title: 'Add person'
+  requirements:
+    _permission: 'add contacts'
+  options:
+    _admin_route: TRUE
+
+contacts.add_org_form:
+  path: '/admin/contacts/add/org'
+  defaults:
+    _form: '\Drupal\contacts\Form\AddOrgForm'
+    _title: 'Add organisation'
+  requirements:
+    _permission: 'add contacts'
+  options:
+    _admin_route: TRUE

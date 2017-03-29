@@ -1,0 +1,25 @@
+/* Action groups */
+.action-group-wrapper {
+  position: relative;
+}
+.action-links .action-group {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 1em;
+  left: 0;
+  z-index: 99;
+  -webkit-box-shadow: 2px 2px 2px 0 #D5D5D5;
+  box-shadow: 2px 2px 2px 0 #D5D5D5;
+  width: 200px;
+}
+.action-links .action-group-links {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.action-links .action-group-links li {
+  display: block;
+  margin: 0;
+  padding: 0;
+}

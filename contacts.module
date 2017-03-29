@@ -8,6 +8,7 @@
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\Component\Utility\Html;
 
 /**
  * Implements hook_theme().
@@ -371,5 +372,91 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
   }
   elseif ($panels_display->getStorageId() == 'contacts_dashboard_contact-panels_variant-0') {
     $build['#attached']['library'][] = 'contacts/contact';
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ */
+function contacts_preprocess_block(&$variables, $hook) {
+  if (isset($variables['plugin_id']) && $variables['plugin_id'] == 'local_actions_block') {
+    // Do a first pass to alter our group items.
+    foreach ($variables['content'] as $plugin_id => $item) {
+      if (empty($item['#link']['localized_options']['is_action_group'])) {
+        continue;
+      }
+
+      $id = Html::getUniqueId(Html::getId('local-action-group-' . str_replace('.', '-', $plugin_id)));
+
+      $group = [
+        '#prefix' => '<li class="action-group-wrapper">',
+        '#suffix' => '</li>',
+        '#is_group' => TRUE,
+        '#attributes' => [
+          'class' => ['action-group-wrapper'],
+        ],
+        'button' => [
+          '#type' => 'html_tag',
+          '#tag' => 'button',
+          '#value' => $item['#link']['title'],
+          '#attributes' => isset($item['#link']['localized_options']['attributes']) ? $item['#link']['localized_options']['attributes'] : [],
+        ],
+        'group' => [
+          '#type' => 'container',
+          '#attributes' => [
+            'id' => $id,
+            'class' => ['js-hide', 'action-group'],
+          ],
+          'links' => [
+            '#theme' => 'links',
+            '#set_active_class' => FALSE,
+            '#links' => [],
+            '#attributes' => [
+              'class' => ['action-group-links'],
+            ],
+          ],
+        ],
+        '#attached' => [
+          'library' => 'contacts/action.group',
+        ],
+      ];
+      $group['button']['#attributes']['class'][] = 'action-group-control';
+      $group['button']['#attributes']['data-action-group'] = $id;
+      if (!empty($item['#link']['localized_options']['attributes']['title'])) {
+        $group['group']['links']['#heading']['text'] = $item['#link']['localized_options']['attributes']['title'];
+      }
+
+      $variables['content'][$plugin_id] = $group;
+    }
+
+    // Now pass through and move links into their groups.
+    foreach ($variables['content'] as $plugin_id => $action) {
+      // Skip inaccessible links.
+      if (isset($action['#access']) && !$action['#access']) {
+        continue;
+      }
+
+      // Ignore anything that isn't in a group.
+      if (empty($action['#link']['localized_options']['action_group'])) {
+        continue;
+      }
+
+      $group_name = $action['#link']['localized_options']['action_group'];
+      if (!empty($variables['content'][$group_name]['#is_group'])) {
+        // Get our links container.
+        $action['#link'] += $action['#link']['localized_options'];
+        $variables['content'][$group_name]['group']['links']['#links'][$plugin_id] = $action['#link'];
+        unset($variables['content'][$plugin_id]);
+      }
+    }
+
+    // Now pass over groups and remove any items without links.
+    foreach ($variables['content'] as $plugin_id => $item) {
+      if (!empty($variables['content'][$plugin_id]['#is_group'])) {
+        if (empty($item['group']['links']['#links'])) {
+          unset($variables['content'][$plugin_id]);
+        }
+      }
+    }
   }
 }

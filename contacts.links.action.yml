@@ -1,0 +1,42 @@
+contacts.contact_create_group:
+  route_name: <current>
+  title: 'Create'
+  appears_on:
+    - page_manager.page_view_contacts_dashboard
+    - page_manager.page_view_contacts_dashboard_contact
+  options:
+    is_action_group: true
+    attributes:
+      title: 'Create'
+      class:
+        - 'button'
+        - 'button-action'
+        - 'action-group-control-create'
+
+contacts.contact_add_indiv:
+  route_name: contacts.add_indiv_form
+  title: 'Person'
+  appears_on:
+    - page_manager.page_view_contacts_dashboard
+    - page_manager.page_view_contacts_dashboard_contact
+  options:
+    action_group: contacts.contact_create_group
+    attributes:
+      class:
+        - 'use-ajax'
+      data-dialog-type: 'modal'
+      data-ajax-progress: 'fullscreen'
+
+contacts.contact_add_org:
+  route_name: contacts.add_org_form
+  title: 'Organisation'
+  appears_on:
+    - page_manager.page_view_contacts_dashboard
+    - page_manager.page_view_contacts_dashboard_contact
+  options:
+    action_group: contacts.contact_create_group
+    attributes:
+      class:
+        - 'use-ajax'
+      data-dialog-type: 'modal'
+      data-ajax-progress: 'fullscreen'
