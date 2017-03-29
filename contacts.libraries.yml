@@ -25,20 +25,17 @@ views.linkrow:
   dependencies:
     - core/jquery
 
-# Styling.
-dashboard:
-  version: 1.x
-  css:
-    theme:
-      css/dashboard.css: {}
-      css/dashboard-blocks.css: {}
-
 # Toolbar icons.
 contacts.icons:
-  version: 1.x
   css:
     theme:
       css/contacts.icons.css: {}
+
+# Contacts dashboard layout.
+dashboard.layout:
+  css:
+    layout:
+      css/dashboard-layout.css: {}
 
 # Styling for the listings.
 listings:
@@ -48,9 +45,8 @@ listings:
   dependencies:
     - contacts/views.linkrow
 
-# Legacy library which depends on our broken out versions.
-# @todo: Make sure this is never used and remove it.
-contacts-ajax-tabs:
-  dependencies:
-    - contacts/drupal.ajax
-    - contacts/tabs
+# Styling for the contact page.
+contact:
+  css:
+    theme:
+      css/contact.css: {}

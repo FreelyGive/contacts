@@ -13,6 +13,15 @@ label: 'Contacts Dashboard - Contact'
 variant: panels_variant
 variant_settings:
   blocks:
+    10589b20-3baa-41f2-93e4-c6d2c9b82bde:
+      id: contacts_back
+      label: 'Back to search'
+      provider: contacts
+      label_display: '0'
+      region: sidebar
+      weight: 0
+      uuid: 10589b20-3baa-41f2-93e4-c6d2c9b82bde
+      context_mapping: {  }
     ecd0d505-c665-4e76-830e-a6bb9ff91afc:
       id: 'views_block:contacts_dashboard_indexed-simple'
       label: ''
@@ -21,8 +30,8 @@ variant_settings:
       views_label: ''
       items_per_page: none
       exposed: {  }
-      region: left
-      weight: -9
+      region: sidebar
+      weight: 1
       uuid: ecd0d505-c665-4e76-830e-a6bb9ff91afc
       context_mapping: {  }
     659d4b6a-ca77-4e4a-a742-69fb23276995:
@@ -30,8 +39,8 @@ variant_settings:
       label: 'Contacts Dashboard User Summary'
       provider: contacts
       label_display: '0'
-      region: right
-      weight: -2
+      region: content
+      weight: 0
       uuid: 659d4b6a-ca77-4e4a-a742-69fb23276995
       context_mapping:
         user: user
@@ -40,46 +49,17 @@ variant_settings:
       label: 'Contacts Dashboard Tabs'
       provider: contacts
       label_display: '0'
-      region: right
-      weight: 0
+      region: content
+      weight: 1
       uuid: a1fe7eb4-7f8c-4397-a3c7-17702ac4b68f
       context_mapping:
         subpage: subpage
         user: user
-    b1606cd6-76f3-4299-910d-79ad68b08223:
-      id: custom_page_title_block
-      label: 'Page title'
-      provider: contacts
-      label_display: '0'
-      title: '[user:display-name]'
-      region: header
-      weight: 0
-      uuid: b1606cd6-76f3-4299-910d-79ad68b08223
-      context_mapping:
-        user: user
-    10589b20-3baa-41f2-93e4-c6d2c9b82bde:
-      id: contacts_back
-      label: 'Back to search'
-      provider: contacts
-      label_display: '0'
-      region: left
-      weight: -4
-      uuid: 10589b20-3baa-41f2-93e4-c6d2c9b82bde
-      context_mapping: {  }
-    e9e74744-1775-4765-9d38-365beb9b1e6a:
-      id: contacts_theme_logo
-      label: 'Theme logo'
-      provider: contacts
-      label_display: '0'
-      region: logo
-      weight: 0
-      uuid: e9e74744-1775-4765-9d38-365beb9b1e6a
-      context_mapping: {  }
   id: panels_variant
   uuid: 1b3702e1-e046-4560-b148-726eeb34f497
   label: null
   weight: 0
-  layout: dashboard
+  layout: contacts_dashboard
   layout_settings: {  }
   page_title: '[user:display-name]'
   storage_type: page_manager

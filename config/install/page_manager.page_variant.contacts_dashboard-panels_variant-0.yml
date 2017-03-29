@@ -17,6 +17,16 @@ label: 'Contacts Dashboard'
 variant: panels_variant
 variant_settings:
   blocks:
+    612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d:
+      id: 'views_exposed_filter_block:contacts_dashboard_indexed-full'
+      label: ''
+      provider: views
+      label_display: '0'
+      views_label: ''
+      region: sidebar
+      weight: 0
+      uuid: 612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d
+      context_mapping: {  }
     4f7a34b9-5cd4-4305-97f1-de27a85ceb49:
       id: 'facet_block:crm_type'
       label: Type
@@ -40,19 +50,9 @@ variant_settings:
       label: Messages
       provider: system
       label_display: '0'
-      region: right
-      weight: -8
-      uuid: be98596f-b504-4c50-9001-f83e1fe26c4f
-      context_mapping: {  }
-    e16d290c-2d5c-489a-8eb9-36066ba4c096:
-      id: custom_page_title_block
-      label: 'Page title'
-      provider: contacts
-      label_display: '0'
-      title: Contacts
-      region: header
+      region: content
       weight: 0
-      uuid: e16d290c-2d5c-489a-8eb9-36066ba4c096
+      uuid: be98596f-b504-4c50-9001-f83e1fe26c4f
       context_mapping: {  }
     17b4e88c-1140-48c6-ab57-baf30e918348:
       id: 'views_block:contacts_dashboard_indexed-full'
@@ -62,33 +62,14 @@ variant_settings:
       views_label: ''
       items_per_page: none
       exposed: {  }
-      region: right
-      weight: -7
+      region: content
+      weight: 1
       uuid: 17b4e88c-1140-48c6-ab57-baf30e918348
-      context_mapping: {  }
-    612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d:
-      id: 'views_exposed_filter_block:contacts_dashboard_indexed-full'
-      label: ''
-      provider: views
-      label_display: '0'
-      views_label: ''
-      region: left
-      weight: -2
-      uuid: 612cc1cb-d8b6-4fc9-b9d1-fa3be81e0a7d
-      context_mapping: {  }
-    f348b93c-57eb-40d3-b8cc-983385e536df:
-      id: contacts_theme_logo
-      label: 'Theme logo'
-      provider: contacts
-      label_display: '0'
-      region: logo
-      weight: 0
-      uuid: f348b93c-57eb-40d3-b8cc-983385e536df
       context_mapping: {  }
   id: panels_variant
   label: null
   weight: 0
-  layout: dashboard
+  layout: contacts_dashboard
   layout_settings: {  }
   page_title: Contacts
   storage_type: page_manager

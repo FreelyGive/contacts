@@ -1,17 +1,7 @@
-{% if user -%}
-  <div class="dash-block-2 clearfix">
-    <div class="dash-top">
-    </div>
-
-    <div class="dash-left">
-      {{ user.email }}
-
-    </div>
-    <div class="dash-right">
-      <div>{{ user.profile_crm_indiv.entity.crm_name[0].value }}</div>
-      <div>{{ user.profile_crm_indiv.entity.crm_dob[0].value }}</div>
-    </div>
-  </div>
-{%- endif %}
-
-
+<div class="contact-summary clearfix">
+  <small class="contact-id">ID: {{ user.id }}</small>
+  {% if image %}<div class="contacts-header-image">{{ image }}</div>{% endif %}
+  <h2>{{ name }}</h2>
+  {% if email %}<div class="contact-email">{{ email }}</div>{% endif %}
+  {% if phone %}<div class="contact-phone">{{ phone }}</div>{% endif %}
+</div>
