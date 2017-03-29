@@ -2,10 +2,13 @@ langcode: en
 status: true
 dependencies:
   config:
+    - facets.facet.crm_roles
+    - facets.facet.crm_type
     - page_manager.page.contacts_dashboard
     - views.view.contacts_dashboard_indexed
   module:
     - contacts
+    - facets
     - panels
     - system
     - views
@@ -14,6 +17,24 @@ label: 'Contacts Dashboard'
 variant: panels_variant
 variant_settings:
   blocks:
+    4f7a34b9-5cd4-4305-97f1-de27a85ceb49:
+      id: 'facet_block:crm_type'
+      label: Type
+      provider: facets
+      label_display: visible
+      region: sidebar
+      weight: 1
+      uuid: 4f7a34b9-5cd4-4305-97f1-de27a85ceb49
+      context_mapping: {  }
+    86458774-c69c-407f-98ce-4e050272d8e4:
+      id: 'facet_block:crm_roles'
+      label: Roles
+      provider: facets
+      label_display: visible
+      region: sidebar
+      weight: 2
+      uuid: 86458774-c69c-407f-98ce-4e050272d8e4
+      context_mapping: {  }
     be98596f-b504-4c50-9001-f83e1fe26c4f:
       id: system_messages_block
       label: Messages

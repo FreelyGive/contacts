@@ -311,3 +311,29 @@ function contacts_views_post_render(ViewExecutable $view, &$output, CachePluginB
     $output['#attached']['library'][] = 'contacts/listings';
   }
 }
+
+/**
+ * Implements hook_panels_build_alter().
+ */
+function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels_display) {
+  if ($panels_display->getStorageId() == 'contacts_dashboard-panels_variant-0') {
+    // Find the crm_type facet and make the labels plural.
+    if (isset($build['sidebar'])) {
+      foreach (Element::children($build['sidebar']) as $key) {
+        $block = &$build['sidebar'][$key];
+        if (isset($block['#plugin_id']) && $block['#plugin_id'] == 'facet_block:crm_type') {
+          foreach ($block['content'][0]['#items'] as &$item) {
+            switch ($item['#attributes']['data-drupal-facet-item-value']) {
+              case 'crm_indiv':
+                $item['#title']['#value'] = t('People');
+                break;
+              case 'crm_org':
+                $item['#title']['#value'] = t('Organisations');
+                break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
