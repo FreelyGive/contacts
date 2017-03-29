@@ -1,0 +1,6 @@
+.view-content [data-row-link] {
+  cursor: pointer;
+}
+.view-content [data-row-link]:hover {
+  background: #f7fcff;
+}
