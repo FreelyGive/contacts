@@ -1,0 +1,12 @@
+contacts_dashboard:
+  label: Contacts Dashboard
+  category: "Contacts"
+  path: layouts/dashboard
+  icon: dashboard.png
+  template: contacts-dashboard
+  library: contacts/dashboard.layout
+  regions:
+    sidebar:
+      label: Sidebar
+    content:
+      label: Content

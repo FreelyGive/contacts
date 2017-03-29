@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the contacts dashboard.
+ *
+ * Available variables:
+ * - content: The content for this layout, including sidebar and content.
+ * - attributes: HTML attributes for the layout <div>.
+ *
+ * @ingroup themeable
+ */
+#}
+{%
+set classes = [
+  'layout--contacts-dashboard',
+]
+%}
+{% if content %}
+  <div{{ attributes.addClass(classes) }}>
+    <div class="layout-region layout-region--content" role="main">
+      {{ content.content }}
+    </div>
+    <aside class="layout-region layout-region--sidebar" role="complementary">
+      {{ content.sidebar }}
+    </aside>
+  </div>
+{% endif %}

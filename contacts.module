@@ -22,7 +22,7 @@ function contacts_theme() {
       'template' => 'contacts-indiv',
     ],
     'contacts_summary' => [
-      'variables' => ['content' => []],
+      'variables' => ['content' => [], 'attributes' => []],
       'template' => 'contacts-summary',
     ],
     'contacts_notes' => [
@@ -58,23 +58,6 @@ function template_preprocess_contacts_indiv(array &$variables) {
   $variables['attributes']['id'] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'contacts-tabs-content';
   $variables['attributes']['class'][] = 'flex-fill';
-}
-
-/**
- * Prepares variables for contact dashboard summary tab templates.
- *
- * Default template: contacts-summary.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - attributes: HTML markup attributes for the content wrapper.
- *   - content: Default markup content for this tab.
- */
-function template_preprocess_contacts_summary(array &$variables) {
-  $variables['attributes']['id'] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'flex-fill';
-
 }
 
 /**
@@ -131,11 +114,70 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
  *   - crm_org: Boolean whether contact has an org profile.
  */
 function template_preprocess_contacts_dash_summary(array &$variables) {
-  if (!empty($variables['user']->profile_crm_indiv)) {
-    $variables['crm_indiv'] = TRUE;
+  /* @var \Drupal\decoupled_auth\Entity\DecoupledAuthUser $user */
+  $user = $variables['user'];
+
+  $image_display = [
+    'label' => 'hidden',
+    'type' => 'image',
+    'settings' => [
+      'image_style' => 'contacts_small',
+    ],
+  ];
+  $default_image_element = [
+    '#theme' => 'image_style',
+    '#style_name' => $image_display['settings']['image_style'],
+    '#width' => 100,
+    '#height' => 100,
+    '#attributes' => [],
+  ];
+  $variables['image'] = $user->user_picture[0] ? $user->user_picture[0]->view($image_display) : '';
+
+  if ($user->getEmail()) {
+    $email = $user->getEmail();
+    $variables['email'] = Link::fromTextAndUrl($email, Url::fromUri('mailto:' . $email));
   }
-  if (!empty($variables['user']->profile_crm_org)) {
-    $variables['crm_org'] = TRUE;
+
+  $variables['name'] = $user->getDisplayName();
+
+  // For individuals.
+  if ($user->hasRole('crm_indiv')) {
+    if ($profile = $user->profile_crm_indiv->entity) {
+      if ($profile->crm_phone->value) {
+        $variables['phone'] = $profile->crm_phone->value;
+      }
+      if ($profile->crm_dob[0]) {
+        $variables['dob'] = $profile->crm_dob[0]->view([
+          'label' => 'hidden',
+          'settings' => [
+            'format_type' => 'html_date',
+          ],
+        ]);
+      }
+    }
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
+    }
+  }
+  // For organisations.
+  elseif ($user->hasRole('crm_org')) {
+    if ($profile = $user->profile_crm_org->entity) {
+      if ($profile->crm_phone->value) {
+        $variables['phone'] = $profile->crm_phone->value;
+      }
+    }
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-org.png';
+    }
+  }
+  // Assume this is a web account, so give some indiv like features.
+  else {
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
+    }
   }
 }
 
@@ -157,16 +199,6 @@ function contacts_entity_type_build(array &$entity_types) {
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
   $items['administration']['#attached']['library'][] = 'contacts/contacts.icons';
-}
-
-/**
- * Implements hook_page_attachments().
- */
-function contacts_page_attachments(array &$attachments) {
-  $current_path = \Drupal::service('path.current')->getPath();
-  if (substr($current_path, 0, 15) == '/admin/contacts') {
-    $attachments['#attached']['library'][] = 'contacts/contacts-dashboard';
-  }
 }
 
 /**
@@ -335,5 +367,8 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
         }
       }
     }
+  }
+  elseif ($panels_display->getStorageId() == 'contacts_dashboard_contact-panels_variant-0') {
+    $build['#attached']['library'][] = 'contacts/contact';
   }
 }

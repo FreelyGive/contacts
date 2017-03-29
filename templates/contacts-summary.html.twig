@@ -1,14 +1,20 @@
 {% if content -%}
   <div {{ attributes }}>
-  <div class="dash-block-2 clearfix">
-    <div class="dash-left">
-      {{ content.left | raw }}
+    {{ content|without('left', 'right') }}
+    {% if (content.left or content.right) %}
+    <div class="dash-summary flex-container flex-container-rows">
+      {% if content.left %}
+      <div class="dash-left">
+        {{ content.left|raw }}
+      </div>
+      {% endif %}
+      {% if content.right %}
+      <div class="dash-right">
+        {{ content.right|raw }}
+      </div>
+      {% endif %}
     </div>
-
-    <div class="dash-right">
-      {{ content.right | raw }}
-    </div>
-  </div>
+    {% endif %}
   </div>
 {%- endif %}
 
