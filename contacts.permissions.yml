@@ -6,3 +6,7 @@ administer contacts:
 view contacts:
   title: 'View contacts'
   description: 'View contacts via the Contact Dashboard.'
+
+add contacts:
+  title: 'Add contacts'
+  description: 'Add contacts via the Contact Dashboard.'

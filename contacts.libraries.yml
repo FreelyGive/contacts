@@ -25,6 +25,16 @@ views.linkrow:
   dependencies:
     - core/jquery
 
+# Allow grouping of local actions.
+action.group:
+  css:
+    state:
+      css/action-group.css: {}
+  js:
+    js/action-group.js: {}
+  dependencies:
+    - core/jquery
+
 # Toolbar icons.
 contacts.icons:
   css:
