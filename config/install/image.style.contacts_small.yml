@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies: {  }
+name: contacts_small
+label: 'Contact Small'
+effects:
+  1e427c10-3224-4edf-86b6-1963f9d58481:
+    uuid: 1e427c10-3224-4edf-86b6-1963f9d58481
+    id: image_scale
+    weight: -10
+    data:
+      width: 100
+      height: 100
+      upscale: true
+  586f34e7-4202-47ca-9da6-23ebf0dcf6aa:
+    uuid: 586f34e7-4202-47ca-9da6-23ebf0dcf6aa
+    id: image_crop
+    weight: -9
+    data:
+      width: 100
+      height: 100
+      anchor: center-center

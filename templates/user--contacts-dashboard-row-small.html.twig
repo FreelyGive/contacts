@@ -1,0 +1,9 @@
+<div class="contacts-row-image">
+  {%  if image %}
+  <a href="{{ url }}">{{ image }}</a>
+  {% endif %}
+</div>
+<div class="contacts-row-main flex-fill">
+  {% if label %}<h3 class="contact-label"><a href="{{ url }}">{{ label }}</a></h3>{% endif %}
+  {% if roles %}<div class="contact-roles description">{{ roles }}</div>{% endif %}
+</div>
