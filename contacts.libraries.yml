@@ -15,6 +15,16 @@ tabs:
     - core/drupal.ajax
     - contacts/drupal.ajax
 
+# Make views rows linkable.
+views.linkrow:
+  css:
+    state:
+      css/views-link-row.css: {}
+  js:
+    js/views-link-row.js: {}
+  dependencies:
+    - core/jquery
+
 # Styling.
 dashboard:
   version: 1.x
@@ -35,6 +45,8 @@ listings:
   css:
     theme:
       css/listings.css: {}
+  dependencies:
+    - contacts/views.linkrow
 
 # Legacy library which depends on our broken out versions.
 # @todo: Make sure this is never used and remove it.

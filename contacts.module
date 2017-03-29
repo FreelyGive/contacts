@@ -290,6 +290,20 @@ function contacts_sort_roles(RoleInterface $a, RoleInterface $b) {
 }
 
 /**
+ * Implements hook_preprocess_HOOK().
+ */
+function contacts_preprocess_views_view_unformatted(&$variables) {
+  if ($variables['view']->id() == 'contacts_dashboard_indexed') {
+    foreach ($variables['rows'] as $id => &$row) {
+      $url = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
+        'user' => $row['content']['#user']->id(),
+      ]);
+      $row['attributes']->setAttribute('data-row-link', $url->toString());
+    }
+  }
+}
+
+/**
  * Implements hook_views_post_render().
  */
 function contacts_views_post_render(ViewExecutable $view, &$output, CachePluginBase $cache) {
