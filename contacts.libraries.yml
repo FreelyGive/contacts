@@ -30,6 +30,12 @@ contacts.icons:
     theme:
       css/contacts.icons.css: {}
 
+# Styling for the listings.
+listings:
+  css:
+    theme:
+      css/listings.css: {}
+
 # Legacy library which depends on our broken out versions.
 # @todo: Make sure this is never used and remove it.
 contacts-ajax-tabs:

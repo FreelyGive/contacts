@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: user.contacts_dashboard_row_small
+label: 'Contacts dashboard row (small)'
+targetEntityType: user
+cache: true

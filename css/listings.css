@@ -1,0 +1,38 @@
+.contacts-row {
+  padding: .5em 0;
+  border-bottom: 1px solid #ccc;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
+.contacts-row:last-child {
+  border-bottom: none;
+}
+.contacts-row > div {
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+.contacts-row > .contacts-row-main {
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  margin: 0 10px;
+}
+
+.contacts-row h3,
+.contacts-row h6 {
+  margin: 0 0 .5em;
+}
+
+.contacts-row-image img {
+  display: block;
+}
+
+.contacts-row-supporting {
+  text-align: right;
+}

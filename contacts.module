@@ -32,6 +32,14 @@ function contacts_theme() {
       'variables' => ['user' => NULL],
       'template' => 'contacts-dash-summary',
     ],
+    'user__contacts_dashboard_row' => [
+      'base hook' => 'user',
+      'template' => 'user--contacts-dashboard-row',
+    ],
+    'user__contacts_dashboard_row_small' => [
+      'base hook' => 'user',
+      'template' => 'user--contacts-dashboard-row-small',
+    ],
   ];
 }
 
@@ -157,5 +165,134 @@ function contacts_page_attachments(array &$attachments) {
   $current_path = \Drupal::service('path.current')->getPath();
   if (substr($current_path, 0, 15) == '/admin/contacts') {
     $attachments['#attached']['library'][] = 'contacts/contacts-dashboard';
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function contacts_theme_suggestions_user(array $variables) {
+  $suggestions = [];
+  /* @var \Drupal\user\UserInterface $user */
+  $user = $variables['elements']['#user'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'user__' . $sanitized_view_mode;
+  foreach ($user->getRoles(TRUE) as $role) {
+    if (substr($role, 0, 4) == 'crm_') {
+      $suggestions[] = 'user__' . $role . '__';
+      $suggestions[] = 'user__' . $role . '__' . $sanitized_view_mode;
+    }
+  }
+
+  return $suggestions;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function contacts_preprocess_user(&$variables) {
+  $view_mode = $variables['elements']['#view_mode'];
+  $view_modes = [
+    'contacts_dashboard_row',
+    'contacts_dashboard_row_small',
+  ];
+  if (!in_array($view_mode, $view_modes)) {
+    return;
+  }
+
+  /* @var \Drupal\user\UserInterface $user */
+  $user = $variables['user'];
+  $image_display = [
+    'label' => 'hidden',
+    'type' => 'image',
+    'settings' => [
+      'image_style' => $view_mode == 'contacts_dashboard_row' ? 'contacts_small' : 'contacts_tiny',
+    ],
+  ];
+  $default_image_element = [
+    '#theme' => 'image_style',
+    '#style_name' => $image_display['settings']['image_style'],
+    '#width' => 100,
+    '#height' => 100,
+    '#attributes' => [],
+  ];
+
+  // Set some defaults.
+  // @todo: Simplify this when we have 'primary fields'.
+  $variables['url'] = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
+    'user' => $user->id(),
+  ]);
+  $variables['label'] = $user->getDisplayName();
+  $variables['email'] = $user->getEmail();
+  $variables['image'] = $user->user_picture[0] ? $user->user_picture[0]->view($image_display) : '';
+  $variables['address'] = '';
+
+  $roles = user_roles();
+  uasort($roles, 'contacts_sort_roles');
+  $roles = array_map(function ($item) {
+    return $item->label();
+  }, $roles);
+  $variables['roles'] = implode(', ', array_intersect_key($roles, array_fill_keys($user->getRoles(), TRUE)));
+
+  // For individuals.
+  if ($user->hasRole('crm_indiv')) {
+    if ($profile = $user->profile_crm_indiv->entity) {
+      $variables['profile'] = $profile;
+      $variables['label'] = $profile->crm_name->value;
+      $variables['address'] = $profile->crm_address->locality;
+    }
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
+    }
+  }
+  // For organisations.
+  elseif ($user->hasRole('crm_org')) {
+    if ($profile = $user->profile_crm_org->entity) {
+      $variables['profile'] = $profile;
+      $variables['label'] = $profile->crm_org_name->value;
+      $variables['address'] = $profile->crm_org_address->locality;
+    }
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-org.png';
+    }
+  }
+  // Assume this is a web account, so give some indiv like features.
+  else {
+    if (empty($variables['image'])) {
+      $variables['image'] = $default_image_element;
+      $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
+    }
+  }
+}
+
+/**
+ * Sort roles by CRM then alphabetically.
+ *
+ * @param \Drupal\user\RoleInterface $a
+ *   The first role.
+ * @param \Drupal\user\RoleInterface $b
+ *   The first role.
+ *
+ * @return int
+ *   The comparison result for uasort().
+ */
+function contacts_sort_roles(RoleInterface $a, RoleInterface $b) {
+  $a_crm = substr($a->id(), 0, 4) == 'crm_';
+  $b_crm = substr($b->id(), 0, 4) == 'crm_';
+  if ($a_crm xor $b_crm) {
+    return $a_crm ? -1 : 1;
+  }
+  return strnatcmp($a->label(), $b->label());
+}
+
+/**
+ * Implements hook_views_post_render().
+ */
+function contacts_views_post_render(ViewExecutable $view, &$output, CachePluginBase $cache) {
+  if ($output['#view']->id() == 'contacts_dashboard_indexed') {
+    $output['#attached']['library'][] = 'contacts/listings';
   }
 }

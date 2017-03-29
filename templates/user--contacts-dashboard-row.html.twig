@@ -1,0 +1,14 @@
+<div class="contacts-row-image">
+  {%  if image %}
+  <a href="{{ url }}">{{ image }}</a>
+  {% endif %}
+</div>
+<div class="contacts-row-main">
+  {% if label %}<h3 class="contact-label"><a href="{{ url }}">{{ label }}</a></h3>{% endif %}
+  {% if email %}<div class="contact-email">{{ email }}</div>{% endif %}
+  {% if address %}<div class="contact-address">{{ address }}</div>{% endif %}
+  {% if roles %}<div class="contact-roles description">{{ roles }}</div>{% endif %}
+</div>
+<div class="contacts-row-supporting">
+  <small class="contact-id description">ID: {{ user.id }}</small>
+</div>
