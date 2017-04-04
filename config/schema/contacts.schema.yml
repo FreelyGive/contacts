@@ -1,0 +1,13 @@
+contacts.relationship:
+  type: mapping
+  label: 'Relationship'
+  mapping:
+    id:
+      type: string
+      label: 'Plugin ID'
+    name:
+      type: string
+      label: 'Context name'
+    source:
+      type: string
+      label: 'Source context'

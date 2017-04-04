@@ -20,3 +20,6 @@ services:
     class: Drupal\contacts\StreamWrapper\ContactsStream
     tags:
       - { name: stream_wrapper, scheme: contacts }
+  contacts.tab_manager:
+    class: Drupal\contacts\ContactsTabManager
+    arguments: ['@entity_type.manager', '@plugin.manager.block', '@context.handler', '@plugin.manager.ctools.relationship', '@current_user', '@user.private_tempstore', '@request_stack']

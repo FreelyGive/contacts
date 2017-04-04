@@ -4,3 +4,10 @@ page_manager.page_view_contacts_dashboard:
   description: 'Manage user accounts, including decoupled users.'
   parent: system.admin
   weight: 5
+
+# Contact tab menu items definition
+entity.contact_tab.collection:
+  title: 'Contact tabs'
+  route_name: entity.contact_tab.collection
+  parent: system.admin_structure
+  weight: 99

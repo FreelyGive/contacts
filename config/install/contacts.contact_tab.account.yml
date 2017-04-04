@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - user
+id: account
+label: 'User account'
+path: account
+weight: 90
+relationships: {  }
+block:
+  id: 'contacts_entity:user'
+  label: ''
+  provider: contacts
+  label_display: '0'
+  mode: form
+  context_mapping:
+    entity: user

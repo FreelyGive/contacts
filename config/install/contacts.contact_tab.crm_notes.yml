@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - profile.type.crm_notes
+  module:
+    - profile
+id: crm_notes
+label: Notes
+path: notes
+weight: 99
+relationships:
+  profile:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
+    name: profile
+    source: user
+block:
+  id: 'contacts_entity:profile'
+  label: ''
+  provider: contacts
+  label_display: '0'
+  mode: form
+  create: crm_notes
+  context_mapping:
+    entity: profile
