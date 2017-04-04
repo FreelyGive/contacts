@@ -19,17 +19,9 @@ function contacts_theme() {
       'variables' => ['tabs' => []],
       'template' => 'contacts-dash-tabs',
     ],
-    'contacts_indiv' => [
-      'variables' => ['content' => []],
-      'template' => 'contacts-indiv',
-    ],
     'contacts_summary' => [
       'variables' => ['content' => [], 'attributes' => []],
       'template' => 'contacts-summary',
-    ],
-    'contacts_notes' => [
-      'variables' => ['content' => []],
-      'template' => 'contacts-notes',
     ],
     'contacts_dash_summary' => [
       'variables' => ['user' => NULL],
@@ -44,39 +36,6 @@ function contacts_theme() {
       'template' => 'user--contacts-dashboard-row-small',
     ],
   ];
-}
-
-/**
- * Prepares variables for contact dashboard individual contact tab templates.
- *
- * Default template: contacts-indiv.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - attributes: HTML markup attributes for the content wrapper.
- *   - content: Default markup content for this tab.
- */
-function template_preprocess_contacts_indiv(array &$variables) {
-  $variables['attributes']['id'] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'flex-fill';
-}
-
-/**
- * Prepares variables for contact dashboard notes tab templates.
- *
- * Default template: contacts-notes.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - attributes: HTML markup attributes for the content wrapper.
- *   - content: Default markup content for this tab.
- */
-function template_preprocess_contacts_notes(array &$variables) {
-  $variables['attributes']['id'] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'contacts-tabs-content';
-  $variables['attributes']['class'][] = 'flex-fill';
-
 }
 
 /**
