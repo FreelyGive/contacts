@@ -10,6 +10,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Html;
 use Drupal\contacts\Form\ContactsProfileForm;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_theme().
@@ -421,3 +422,11 @@ function contacts_preprocess_block(&$variables, $hook) {
     }
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function contacts_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['account']['roles']['#default_value'][] = 'crm_indiv';
+}
+
