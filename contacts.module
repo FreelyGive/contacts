@@ -9,6 +9,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Html;
+use Drupal\contacts\Form\ContactsProfileForm;
 
 /**
  * Implements hook_theme().
@@ -149,7 +150,7 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
  */
 function contacts_entity_type_build(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-  $entity_types['profile']->setFormClass('crm_dashboard', 'Drupal\profile\Form\ProfileForm');
+  $entity_types['profile']->setFormClass('crm_dashboard', ContactsProfileForm::class);
 }
 
 /**
