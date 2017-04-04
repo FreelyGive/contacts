@@ -3,7 +3,6 @@
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**

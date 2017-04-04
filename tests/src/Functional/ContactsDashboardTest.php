@@ -153,7 +153,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $session->elementTextContains('css', '.page-title', 'Contacts');
 
     // Sort our contacts.
-    usort($contacts, function($a, $b) {
+    usort($contacts, function ($a, $b) {
       $a_indiv = $a->hasRole('crm_indiv');
       $b_indiv = $b->hasRole('crm_indiv');
 

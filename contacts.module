@@ -320,6 +320,7 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
               case 'crm_indiv':
                 $item['#title']['#value'] = t('People');
                 break;
+
               case 'crm_org':
                 $item['#title']['#value'] = t('Organisations');
                 break;

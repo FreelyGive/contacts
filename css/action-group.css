@@ -9,8 +9,8 @@
   padding: 1em;
   left: 0;
   z-index: 99;
-  -webkit-box-shadow: 2px 2px 2px 0 #D5D5D5;
-  box-shadow: 2px 2px 2px 0 #D5D5D5;
+  -webkit-box-shadow: 2px 2px 2px 0 #d5d5d5;
+  box-shadow: 2px 2px 2px 0 #d5d5d5;
   width: 200px;
 }
 .action-links .action-group-links {
