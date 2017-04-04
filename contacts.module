@@ -429,4 +429,3 @@ function contacts_preprocess_block(&$variables, $hook) {
 function contacts_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['account']['roles']['#default_value'][] = 'crm_indiv';
 }
-
