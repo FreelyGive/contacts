@@ -9,3 +9,12 @@
   float: left;
   margin-right: 10px;
 }
+
+/* Summary tab */
+.dash-summary > * {
+  width: 48%;
+  float: left;
+}
+.dash-left {
+  margin-right: 4%;
+}

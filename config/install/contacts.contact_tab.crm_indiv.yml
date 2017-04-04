@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - profile.type.crm_indiv
+  module:
+    - profile
+id: crm_indiv
+label: Individual
+path: indiv
+weight: -10
+relationships:
+  profile:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
+    name: profile
+    source: user
+block:
+  id: 'contacts_entity:profile'
+  label: ''
+  provider: contacts
+  label_display: '0'
+  create: crm_indiv
+  context_mapping:
+    entity: profile
+    user: user

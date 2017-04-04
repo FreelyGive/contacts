@@ -2,7 +2,7 @@
 
 namespace Drupal\contacts\Plugin\Block;
 
-use Drupal\contacts\Controller\DashboardController;
+use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
@@ -21,11 +21,18 @@ use Drupal\Core\Block\BlockBase;
 class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInterface, ContainerFactoryPluginInterface {
 
   /**
-   * The block controller.
+   * The tab manager.
    *
-   * @var \Drupal\contacts\Controller\DashboardController
+   * @var \Drupal\contacts\ContactsTabManager
    */
-  protected $blockController;
+  protected $tabManager;
+
+  /**
+   * Whether we are building tabs via AJAX.
+   *
+   * @var bool
+   */
+  protected $ajax;
 
   /**
    * The block machine name.
@@ -42,18 +49,20 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $user;
 
   /**
-   * The contact user object.
+   * Construct the Contact Dsahboard Tabs block.
    *
-   * @var \Drupal\user\Entity\User
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param string $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\contacts\ContactsTabManager $tab_manager
+   *   The tab manager.
    */
-  protected $ajax;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->blockController = new DashboardController();
+    $this->tabManager = $tab_manager;
     $this->ajax = TRUE;
   }
 
@@ -64,7 +73,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     return new static(
       $configuration,
       $plugin_id,
-      $plugin_definition
+      $plugin_definition,
+      $container->get('contacts.tab_manager')
     );
   }
 
@@ -90,48 +100,44 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   Drupal renderable array being added to.
    */
   public function buildTabs(array &$build) {
-    global $base_path;
-
     // @TODO Permission check.
 
     // Build content array.
     $content = [
       '#theme' => 'contacts_dash_tabs',
-      '#weight' => 1,
+      '#weight' => -1,
       '#tabs' => [],
       '#attached' => [
-        'library' => ['contacts/contacts-ajax-tabs'],
+        'library' => ['contacts/tabs'],
       ],
     ];
 
-    // @TODO load tabs rather than hard code.
-    $tabs = [
-      'summary' => 'Summary',
-      'notes' => 'Notes',
-    ];
-
-    foreach ($tabs as $machine => $label) {
-      $content['#tabs'][$machine] = [
-        'text' => $label,
+    foreach ($this->tabManager->getTabs($this->user) as $tab) {
+      $url_stub = $tab->getPath();
+      $content['#tabs'][$url_stub] = [
+        'text' => $tab->label(),
         'link' => Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
           'user' => $this->user->id(),
-          'subpage' => $machine,
+          'subpage' => $url_stub,
         ]),
       ];
 
       // Swap links for AJAX request links.
       if ($this->ajax) {
-        $content['#tabs'][$machine]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
+        $content['#tabs'][$url_stub]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
           'user' => $this->user->id(),
-          'subpage' => $machine,
+          'subpage' => $url_stub,
         ])->toString();
-        $content['#tabs'][$machine]['link_attributes']['class'][] = 'use-ajax';
+        $content['#tabs'][$url_stub]['link_attributes']['class'][] = 'use-ajax';
+        $content['#tabs'][$url_stub]['link_attributes']['data-ajax-progress'] = 'fullscreen';
       }
     }
 
-    // Add subpage class to current tab.
-    $content['#tabs'][$this->subpage]['attributes']['class'][] = 'is-active';
-    $content['#tabs'][$this->subpage]['link_attributes']['class'][] = 'is-active';
+    // Add active class to current tab.
+    if (isset($content['#tabs'][$this->subpage])) {
+      $content['#tabs'][$this->subpage]['attributes']['class'][] = 'is-active';
+      $content['#tabs'][$this->subpage]['link_attributes']['class'][] = 'is-active';
+    }
 
     $build['tabs'] = $content;
   }
@@ -143,15 +149,23 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   Drupal renderable array being added to.
    */
   public function buildContent(array &$build) {
-    if (in_array($this->subpage, ['summary', 'indiv', 'notes'])) {
-      $content = $this->blockController->renderBlock($this->user, $this->subpage);
-      $content['#weight'] = 2;
-      $content['#content']['messages'] = [
-        '#type' => 'status_messages',
-        '#weight' => -99,
-      ];
-      $build['content'] = $content;
+    $build['content'] = [
+      '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
+      '#suffix' => '</div>',
+    ];
+
+    $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
+    if ($tab && $block = $this->tabManager->getBlock($tab, $this->user)) {
+      $build['content']['block'] = $block->build();
     }
+    else {
+      drupal_set_message($this->t('Page not found.'), 'warning');
+    }
+
+    $build['content']['messages'] = [
+      '#type' => 'status_messages',
+      '#weight' => -99,
+    ];
   }
 
 }

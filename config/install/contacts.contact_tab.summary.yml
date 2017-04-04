@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies: {  }
+id: summary
+label: Summary
+path: summary
+weight: -99
+relationships: {  }
+block:
+  id: contact_summary_tab
+  label: ''
+  provider: contacts
+  label_display: '0'
+  context_mapping:
+    user: user

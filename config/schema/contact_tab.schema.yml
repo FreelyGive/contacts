@@ -1,0 +1,33 @@
+contacts.contact_tab.*:
+  type: config_entity
+  label: 'Contact tab config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    uuid:
+      type: string
+    path:
+      type: string
+      label: 'Path'
+    weight:
+      type: integer
+      label: 'Weight'
+    relationships:
+      type: sequence
+      label: 'Relationships'
+      sequence:
+        type: contacts.relationship.[%name]
+        label: 'Relationship'
+    block:
+      type: block.settings.[id]
+      label: 'Block'
+      mapping:
+        context_mapping:
+          type: sequence
+          label: 'Context assignments'
+          sequence:
+            - type: string

@@ -1,21 +1,10 @@
-{% if content -%}
-  <div {{ attributes }}>
-    {{ content|without('left', 'right') }}
-    {% if (content.left or content.right) %}
-    <div class="dash-summary flex-container flex-container-rows">
-      {% if content.left %}
-      <div class="dash-left">
-        {{ content.left|raw }}
-      </div>
-      {% endif %}
-      {% if content.right %}
-      <div class="dash-right">
-        {{ content.right|raw }}
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
+<div {{ attributes.addClass('dash-summary') }}>
+  <div class="dash-left">
+    {{ content.left }}
   </div>
-{%- endif %}
+  <div class="dash-right">
+    {{ content.right }}
+  </div>
+</div>
 
 
