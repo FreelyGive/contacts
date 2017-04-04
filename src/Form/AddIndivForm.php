@@ -37,8 +37,8 @@ class AddIndivForm extends AddContactBase {
   }
 
   /**
-    * {@inheritdoc}
-    */
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $this->profileViolations->filterByFields(['crm_name']);
@@ -46,10 +46,7 @@ class AddIndivForm extends AddContactBase {
   }
 
   /**
-   * Copy form values onto our entities.
-   *
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * {@inheritdoc}
    */
   protected function buildEntities(array $form, FormStateInterface $form_state) {
     parent::buildEntities($form, $form_state);

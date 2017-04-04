@@ -34,7 +34,7 @@ abstract class AddContactBase extends FormBase {
    *
    * @var \Drupal\Core\Field\WidgetPluginManager
    */
-  protected $pluginManager;
+  protected $widgetManager;
 
   /**
    * The user entity.
@@ -65,14 +65,19 @@ abstract class AddContactBase extends FormBase {
   protected $profileViolations;
 
   /**
-   * Build the Add Individual form.
+   * Construct the add contact form object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager.
+   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Field\WidgetPluginManager $widget_manager
+   *   The widget manager.
    */
-  public function __construct(EntityTypeManager $entity_type_manager, EntityFieldManager $entity_field_manager, WidgetPluginManager $plugin_manager) {
+  public function __construct(EntityTypeManager $entity_type_manager, EntityFieldManager $entity_field_manager, WidgetPluginManager $widget_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
-    $this->pluginManager = $plugin_manager;
+    $this->widgetManager = $widget_manager;
   }
 
   /**
@@ -103,8 +108,8 @@ abstract class AddContactBase extends FormBase {
   }
 
   /**
-    * {@inheritdoc}
-    */
+   * {@inheritdoc}
+   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
     $this->buildEntities($form, $form_state);
@@ -138,7 +143,7 @@ abstract class AddContactBase extends FormBase {
    *   The entity we are working with.
    * @param \Drupal\field\Entity\FieldConfig[] $field_definitions
    *   The field definitions for the given entity.
-   * @param $field_name
+   * @param string $field_name
    *   The field name to get the widget for.
    * @param array $form
    *   The form array.
@@ -149,7 +154,7 @@ abstract class AddContactBase extends FormBase {
    *   The widget form array.
    */
   protected function getWidget(FieldableEntityInterface $entity, array $field_definitions, $field_name, array $form, FormStateInterface $form_state) {
-    $widget = $this->pluginManager->getInstance([
+    $widget = $this->widgetManager->getInstance([
       'field_definition' => $field_definitions[$field_name],
       'form_mode' => 'default',
     ]);
@@ -162,7 +167,9 @@ abstract class AddContactBase extends FormBase {
    * Copy form values onto our entities.
    *
    * @param array $form
+   *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   protected function buildEntities(array $form, FormStateInterface $form_state) {
     /* @var \Drupal\user\UserInterface $user */

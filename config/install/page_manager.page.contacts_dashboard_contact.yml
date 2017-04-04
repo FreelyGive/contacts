@@ -1,7 +1,6 @@
 langcode: en
 status: true
 dependencies: {  }
-_core: {  }
 id: contacts_dashboard_contact
 label: 'Contacts Dashboard - Contact'
 description: null
