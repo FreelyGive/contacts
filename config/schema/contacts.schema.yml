@@ -1,4 +1,4 @@
-contacts.relationship:
+contacts.relationship.*:
   type: mapping
   label: 'Relationship'
   mapping:
@@ -11,3 +11,34 @@ contacts.relationship:
     source:
       type: string
       label: 'Source context'
+
+contacts.block_plugin.*:
+  type: block.settings.[id]
+  mapping:
+    context_mapping:
+      type: sequence
+      label: 'Context assignments'
+      sequence:
+        - type: string
+
+block.settings.contacts_entity:*:
+  type: block_settings
+  mapping:
+    mode:
+      type: string
+      label: 'Mode'
+    create:
+      type: string
+      label: 'Create'
+    operation:
+      type: string
+      label: 'Operation'
+    view_mode:
+      type: string
+      label: 'View mode'
+    edit_link:
+      type: string
+      label: 'Edit link'
+    edit_id:
+      type: string
+      label: 'Edit ID'

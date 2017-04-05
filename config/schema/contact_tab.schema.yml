@@ -23,11 +23,5 @@ contacts.contact_tab.*:
         type: contacts.relationship.[%name]
         label: 'Relationship'
     block:
-      type: block.settings.[id]
+      type: contacts.block_plugin.[id]
       label: 'Block'
-      mapping:
-        context_mapping:
-          type: sequence
-          label: 'Context assignments'
-          sequence:
-            - type: string
