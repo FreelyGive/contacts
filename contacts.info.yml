@@ -13,6 +13,7 @@ dependencies:
   - panels
   - ctools_views
   - search_api_db
+  - facets
   - datetime
   - options
   - address
