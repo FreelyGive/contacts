@@ -3,7 +3,6 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.user.contacts_dashboard_row
-    - field.field.user.user.user_picture
   module:
     - user
 id: user.user.contacts_dashboard_row
@@ -11,9 +10,4 @@ targetEntityType: user
 bundle: user
 mode: contacts_dashboard_row
 content: {  }
-hidden:
-  member_for: true
-  profile_crm_indiv: true
-  profile_crm_notes: true
-  profile_crm_org: true
-  user_picture: true
+hidden: {  }
