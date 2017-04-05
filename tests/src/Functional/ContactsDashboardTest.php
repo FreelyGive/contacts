@@ -2,10 +2,13 @@
 
 namespace Drupal\Tests\contacts\Functional;
 
+use Drupal\Core\Url;
 use Drupal\decoupled_auth\Entity\DecoupledAuthUser;
 use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
 use Drupal\profile\Entity\Profile;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * Tests CRM fields and views.
@@ -153,27 +156,10 @@ class ContactsDashboardTest extends BrowserTestBase {
     $session->elementTextContains('css', '.page-title', 'Contacts');
 
     // Sort our contacts.
-    usort($contacts, function ($a, $b) {
-      $a_indiv = $a->hasRole('crm_indiv');
-      $b_indiv = $b->hasRole('crm_indiv');
+    usort($contacts, [static::class, 'sortContacts']);
 
-      // Deal with the scenario when one or more is not an individual as the
-      // sort is currently on an individual field.
-      if (!$a_indiv && !$b_indiv) {
-        return 0;
-      }
-      elseif (!$a_indiv) {
-        return -1;
-      }
-      elseif (!$b_indiv) {
-        return 1;
-      }
-
-      // Otherwise we use strnatcmp() on the name.
-      $a_name = $a->profile_crm_indiv->entity->crm_name->value;
-      $b_name = $b->profile_crm_indiv->entity->crm_name->value;
-      return strnatcmp($a_name, $b_name);
-    });
+    // Load our image style for building URLs.
+    $style = ImageStyle::load('contacts_small');
 
     // Check our expected users are listed.
     $index = 1;
@@ -181,49 +167,65 @@ class ContactsDashboardTest extends BrowserTestBase {
       // Gather our relevant values.
       $values = [];
 
-      $roles = user_role_names();
+      $roles = user_roles();
+      uasort($roles, 'contacts_sort_roles');
+      $roles = array_map(function ($item) {
+        return $item->label();
+      }, $roles);
       $values['roles'] = implode(', ', array_intersect_key($roles, array_fill_keys($contact->getRoles(), TRUE)));
       $values['email'] = $contact->getEmail();
+      $values['image'] = $contact->user_picture[0] ? $contact->user_picture[0]->entity->getFileUri() : FALSE;
 
       if ($contact->hasRole('crm_indiv')) {
-        /* @var \Drupal\profile\Entity\ProfileInterface $profile */
         $profile = $contact->profile_crm_indiv->entity;
         $values['label'] = $profile->crm_name->value;
         $values['city'] = $profile->crm_address->locality;
-        $values['image'] = $profile->crm_photo->entity->getFileUri() ?: FALSE;
+        if (!$values['image']) {
+          $values['image'] = 'contacts://images/default-indiv.png';
+        }
       }
       elseif ($contact->hasRole('crm_org')) {
-        /* @var \Drupal\profile\Entity\ProfileInterface $profile */
         $profile = $contact->profile_crm_org->entity;
         $values['label'] = $profile->crm_org_name->value;
         $values['city'] = $profile->crm_org_address->locality;
-        $values['image'] = $profile->crm_logo->entity->getFileUri() ?: FALSE;
+        if (!$values['image']) {
+          $values['image'] = 'contacts://images/default-org.png';
+        }
       }
       else {
         $values['label'] = $contact->getDisplayName();
         $values['city'] = FALSE;
-        $values['image'] = FALSE;
+        if (!$values['image']) {
+          $values['image'] = 'contacts://images/default-indiv.png';
+        }
       }
+
+      // Convert the image URI to a URL.
+      $values['image'] = file_url_transform_relative(file_create_url($style->buildUri($values['image'])));
+      $values['url'] = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
+        'user' => $contact->id(),
+      ])->toString();
 
       // Check our row is correctly rendered.
-      $base_selector = ".views-row:nth-child({$index}) ";
+      $base_selector = "div.views-row:nth-of-type({$index}) ";
 
-      if ($values['image']) {
-        $session->elementAttributeContains('css', $base_selector . '.contacts-row-image a', 'href', 'admin/contacts/' . $contact->id());
-        $session->elementAttributeContains('css', $base_selector . '.contacts-row-image img', 'src', 'contactImage_' . $contact->id());
-      }
-      else {
-        $session->elementNotExists('css', $base_selector . '.contacts-row-image a');
-        $session->elementNotExists('css', $base_selector . '.contacts-row-image img');
-      }
+      // Check our row link.
+      $session->elementAttributeContains('css', $base_selector, 'data-row-link', $values['url']);
 
+      // Check the image.
+      $session->elementAttributeContains('css', $base_selector . '.contacts-row-image a', 'href', $values['url']);
+      $session->elementAttributeContains('css', $base_selector . '.contacts-row-image img', 'src', $values['image']);
+
+      // Check the label.
       if ($values['label']) {
-        $session->elementAttributeContains('css', $base_selector . '.contacts-row-main h3.contact-label a', 'href', 'admin/contacts/' . $contact->id());
+        $session->elementAttributeContains('css', $base_selector . '.contacts-row-main h3.contact-label a', 'href', $values['url']);
         $session->elementTextContains('css', $base_selector . '.contacts-row-main h3.contact-label a', $values['label']);
       }
       else {
         $session->elementNotExists('css', $base_selector . '.contacts-row-main h3.contact-label');
       }
+
+      // Check the email.
       if ($values['email']) {
         $session->elementTextContains('css', $base_selector . '.contacts-row-main .contact-email', $values['email']);
       }
@@ -231,19 +233,59 @@ class ContactsDashboardTest extends BrowserTestBase {
         $session->elementNotExists('css', $base_selector . '.contacts-row-main .contact-email');
       }
 
-      $session->elementAttributeContains('css', $base_selector . '.contacts-row-supporting small.contact-id a', 'href', 'admin/contacts/' . $contact->id());
-      $session->elementTextContains('css', $base_selector . '.contacts-row-supporting small.contact-id a', 'ID: ' . $contact->id());
-      $element = $session->elementExists('css', $base_selector . '.contacts-row-supporting .contact-roles');
-
-      if ($values['roles']) {
-        $session->elementTextContains('css', $base_selector . '.contacts-row-supporting .contact-roles', $values['roles']);
+      // Check the city.
+      if ($values['city']) {
+        $session->elementTextContains('css', $base_selector . '.contacts-row-main .contact-address', $values['city']);
       }
       else {
-        $session->elementNotExists('css', $base_selector . '.contacts-row-supporting .contact-roles');
+        $session->elementNotExists('css', $base_selector . '.contacts-row-main .contact-address');
       }
+
+      // Check the roles.
+      if ($values['roles']) {
+        $session->elementTextContains('css', $base_selector . '.contacts-row-main .contact-roles', $values['roles']);
+      }
+      else {
+        $session->elementNotExists('css', $base_selector . '.contacts-row-main .contact-roles');
+      }
+
+      // Check the ID.
+      $session->elementTextContains('css', $base_selector . '.contacts-row-supporting small.contact-id', 'ID: ' . $contact->id());
 
       $index++;
     }
+  }
+
+  /**
+   * Sort comparison callback for sorting contacts.
+   *
+   * @param \Drupal\user\UserInterface $a
+   *   The first contact.
+   * @param \Drupal\user\UserInterface $b
+   *   The second contact.
+   *
+   * @return int
+   *   The sort result.
+   */
+  public static function sortContacts(UserInterface $a, UserInterface $b) {
+    // First sort by roles.
+    $a_roles = $a->getRoles();
+    $a_role = reset($a_roles);
+    $b_roles = $b->getRoles();
+    $b_role = reset($b_roles);
+    if ($a_role != $b_role) {
+      return strnatcmp($a_role, $b_role);
+    }
+
+    // Then sort by individual name.
+    $a_name = isset($a->profile_crm_indiv->entity->crm_name->value) ? $a->profile_crm_indiv->entity->crm_name->value : NULL;
+    $b_name = isset($b->profile_crm_indiv->entity->crm_name->value) ? $b->profile_crm_indiv->entity->crm_name->value : NULL;
+    if ($a_name != $b_name) {
+      return strnatcmp($a_name, $b_name);
+    }
+
+    // Finally sort by ID.
+    return strnatcmp($a->id(), $b->id());
   }
 
 }
