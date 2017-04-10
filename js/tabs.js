@@ -27,7 +27,7 @@
 
     if (response.url && historySupport) {
       var current_url = document.location.pathname + document.location.search;
-      if (current_url != response.url) {
+      if (current_url !== response.url) {
         history.pushState({}, '', response.url);
       }
     }

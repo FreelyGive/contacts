@@ -16,6 +16,11 @@
    * Override core's .use-ajax implementation.
    *
    * Implements an alternative ajax URL and progress types via data attributes.
+   *
+   * @param {object} context
+   *   The context for the behavior.
+   * @param {object} settings
+   *   The Drupal settings object.
    */
   Drupal.behaviors.AJAX.attach = function (context, settings) {
     // Bind Ajax behaviors to all items showing the class.
