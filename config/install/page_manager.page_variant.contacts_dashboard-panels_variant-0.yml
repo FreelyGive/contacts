@@ -7,7 +7,6 @@ dependencies:
     - page_manager.page.contacts_dashboard
     - views.view.contacts_dashboard_indexed
   module:
-    - contacts
     - facets
     - panels
     - system
@@ -61,9 +60,9 @@ variant_settings:
       label_display: '0'
       views_label: ''
       items_per_page: none
-      exposed: {  }
       region: content
       weight: 1
+      exposed: {  }
       uuid: 17b4e88c-1140-48c6-ab57-baf30e918348
       context_mapping: {  }
   id: panels_variant

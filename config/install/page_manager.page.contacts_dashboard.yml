@@ -3,7 +3,7 @@ status: true
 dependencies: {  }
 id: contacts_dashboard
 label: 'Contacts Dashboard'
-description: null
+description: ''
 use_admin_theme: true
 path: /admin/contacts
 access_logic: and

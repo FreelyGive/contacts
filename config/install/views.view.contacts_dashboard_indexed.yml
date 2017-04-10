@@ -176,9 +176,10 @@ display:
       display_extenders: {  }
       css_class: 'flex-container flex-fill flex-content-fill'
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
+        - url
         - url.query_args
       tags: {  }
   full:
@@ -209,9 +210,10 @@ display:
           content: '@start - @end of @total'
           plugin_id: result
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
+        - url
         - url.query_args
       tags: {  }
   simple:
@@ -245,7 +247,8 @@ display:
             'entity:user':
               user: contacts_dashboard_row_small
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_interface'
+        - url
       tags: {  }

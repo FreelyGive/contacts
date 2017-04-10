@@ -11,6 +11,7 @@
   ],
   "require": {
     "cweagans/composer-patches": "~1.0",
+    "drupal/core": "^8.3",
     "drupal/profile": "1.x-dev",
     "drupal/address": "~1.0",
     "drupal/layout_plugin": "~1.0",
@@ -35,18 +36,12 @@
   "extra": {
     "patches": {
       "drupal/core": {
-        "#2693081: Merging data types leads to incomplete definition": "https://www.drupal.org/files/issues/merging_data_types-2693081-15_0.patch",
         "#2865059: Multiple machine name elements from same source": "https://www.drupal.org/files/issues/2865059-allow_multiple_machine_name_per_source.patch",
         "#736066: ajax.js insert command sometimes wraps content in a div": "https://www.drupal.org/files/issues/736066-165.patch"
       },
-      "drupal/default_content": {
-        "#2837719: Need an event before serialization": "https://www.drupal.org/files/issues/need_an_event_before-2837719-2.patch"
-      },
       "drupal/ctools": {
-        "#2657060: Add Configure Filter functionality to block views configuration": "https://www.drupal.org/files/issues/2657060-44.exposed_filter_block_config.patch",
         "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch",
-        "#2865709: Deriver causes fatal errors if there is no main property": "https://www.drupal.org/files/issues/2865709-fix_relationship_deriver_fatal_on_no_main_property.patch",
-        "#2866323: Fatal error on empty entity reference relationship": "https://www.drupal.org/files/issues/2866323-fix_entity_relationship_with_no_value.patch"
+        "#2866323 & #2865709: Fatal error on empty entity reference relationship": "https://www.drupal.org/files/issues/2866323-fix_entity_relationship_with_no_value.patch"
       }
     }
   }
