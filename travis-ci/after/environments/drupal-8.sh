@@ -35,9 +35,12 @@ function drupal_ti_ensure_module_linked() {
 		return
 	fi
 
-	composer config repositories.$DRUPAL_TI_MODULE_NAME path $TRAVIS_BUILD_DIR
-	composer config repositories.drupal composer https://packages.drupal.org/8
-	composer require drupal/$DRUPAL_TI_MODULE_NAME *@dev
+  # Explicitly set the repository as 0 and 1 override the default repository as
+  # the local repository must be the first in the list.
+  # See https://github.com/LionsAd/drupal_ti/pull/102
+  composer config repositories.0 path $TRAVIS_BUILD_DIR
+  composer config repositories.1 composer https://packages.drupal.org/8
+  composer require drupal/$DRUPAL_TI_MODULE_NAME *@dev
 }
 
 #
