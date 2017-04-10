@@ -11,7 +11,7 @@ use Drupal\Core\Installer\Exception\InstallerException;
  * Implements hook_requirements().
  */
 function contacts_requirements($phase) {
-  $requirements = array();
+  $requirements = [];
 
   // Test admin theme is enabled.
   if ($phase == 'install') {

@@ -3,9 +3,7 @@
 namespace Drupal\contacts\Form;
 
 use Drupal\Core\Entity\EntityForm;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\RoleInterface;
 
 /**
  * Builds the form to edit Contact tab entities.

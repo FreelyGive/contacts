@@ -141,7 +141,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
 
     // Sort our tabs by weight.
     $entity_type = $this->entityTypeManager->getDefinition('contact_tab');
-    uasort($tabs, array($entity_type->getClass(), 'sort'));
+    uasort($tabs, [$entity_type->getClass(), 'sort']);
 
     // Return our tabs.
     return $tabs;
