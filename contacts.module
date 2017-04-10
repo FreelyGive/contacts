@@ -11,6 +11,11 @@ use Drupal\Core\Link;
 use Drupal\Component\Utility\Html;
 use Drupal\contacts\Form\ContactsProfileForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\user\RoleInterface;
+use Drupal\views\ViewExecutable;
+use Drupal\views\Plugin\views\cache\CachePluginBase;
+use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 
 /**
  * Implements hook_theme().
