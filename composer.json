@@ -24,7 +24,7 @@
     "drupal/search_api": "~1.0",
     "drupal/facets": "1.x-dev",
     "drupal/decoupled_auth": "1.x-dev",
-    "drupal/contacts_theme": "1.x-dev",
+    "drupal/contacts_theme": "1.x-dev#7bebf58e3ebf1a76220c861bbebdc29c39bb7ecd",
     "drupal/ctools": "~3.0"
   },
   "autoload": {
