@@ -29,7 +29,6 @@ variant_settings:
       label_display: visible
       views_label: ''
       items_per_page: none
-      exposed: {  }
       region: sidebar
       weight: 1
       uuid: ecd0d505-c665-4e76-830e-a6bb9ff91afc
