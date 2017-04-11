@@ -58,7 +58,8 @@ before_install:
   # Remove xdebug. We aren't generating code coverage, and it slows down Composer.
   - phpenv config-rm xdebug.ini || true
   - git config --global github.accesstoken $GITHUB_OAUTH_TOKEN
-  - composer global require "lionsad/drupal_ti:dev-master"
+  # See https://github.com/LionsAd/drupal_ti/pull/102
+  - composer global require "lionsad/drupal_ti:dev-master#396d11d200005eb68491d24170da0a98ae7f51b3"
   - composer global require "squizlabs/php_codesniffer:2.*"
   - composer global require "drupal/coder:8.2.*"
   - phpcs --config-set installed_paths $HOME/.composer/vendor/drupal/coder/coder_sniffer
