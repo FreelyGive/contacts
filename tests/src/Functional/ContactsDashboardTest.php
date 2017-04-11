@@ -152,6 +152,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     // Check that the contacts dashboard has the expected content.
     $this->drupalGet('admin/contacts');
     $session = $this->assertSession();
+    print $this->getSession()->getPage()->getOuterHtml();
     $session->statusCodeEquals(200);
     $session->elementTextContains('css', '.page-title', 'Contacts');
 
