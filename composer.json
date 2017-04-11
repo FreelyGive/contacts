@@ -4,6 +4,10 @@
   "type": "drupal-module",
   "license": "GPL-2.0+",
   "repositories": [
+    "contacts_theme": {
+      "type": "vcs",
+      "url": "https://github.com/FreelyGive/contacts_theme.git"
+    },
     {
       "type": "composer",
       "url": "https://packages.drupal.org/8"
