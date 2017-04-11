@@ -73,8 +73,8 @@ before_script:
 
 script:
   - phpcs . -p --standard=Drupal --colors
-  - `$DRUPAL_TI_DRUPAL_DIR/vendor/bin/drupal --root=$DRUPAL_TI_DRUPAL_DIR module:debug --type=no-core`
-  - `$DRUPAL_TI_DRUPAL_DIR/vendor/bin/drupal --root=$DRUPAL_TI_DRUPAL_DIR theme:debug`
+  - eval "$DRUPAL_TI_DRUPAL_DIR/vendor/bin/drupal --root=$DRUPAL_TI_DRUPAL_DIR module:debug --type=no-core"
+  - eval "$DRUPAL_TI_DRUPAL_DIR/vendor/bin/drupal --root=$DRUPAL_TI_DRUPAL_DIR theme:debug"
   - drupal-ti script
 
 after_script:
