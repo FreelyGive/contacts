@@ -4,7 +4,7 @@ echo "# Preparing GIT repos"
 
 # Remove the git details from our repo so we can treat it as a path.
 cd $TRAVIS_BUILD_DIR
-rm /.git -rf
+rm .git -rf
 composer require drupal/contacts_theme dev-master --no-update
 
 # Clone contacts_theme and remove the git details so we can treat it as a path.
