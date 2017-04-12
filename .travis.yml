@@ -15,8 +15,8 @@ env:
     # Ensure composer is able to apply patches.
     - COMPOSER_EXIT_ON_PATCH_FAILURE=1
     # DRUPAL_TI Testing.
-    - SIMPLETEST_DB="mysql://root:@127.0.0.1/drupal_travis_db"
-    - SIMPLETEST_BASE_URL="http://127.0.0.1:8080"
+    - SIMPLETEST_DB="mysql://root:@localhost/drupal_travis_db"
+    - SIMPLETEST_BASE_URL="http://localhost:8888"
 
   matrix:
     # Latest stable release
@@ -50,7 +50,7 @@ before_script:
 script:
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
   # @todo: Add ESLint
-  - php -S localhost:8080 &
+  - php -S localhost:8888 &
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/drupal/web/core/phpunit.xml.dist --group=contacts
 
 notifications:
