@@ -35,16 +35,16 @@ before_install:
   - phpenv config-rm xdebug.ini || true
   - git config --global github.accesstoken $GITHUB_OAUTH_TOKEN
   # Track our general build directory.
-  - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVID_BUILD_DIR")"
+  - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVIS_BUILD_DIR")"
 
 install:
-  - $TRAVID_BUILD_DIR/travis/install.sh
+  - $TRAVIS_BUILD_DIR/travis/install.sh
 
 before_script:
   - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
 
 script:
-  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs $TRAVID_BUILD_DIR -p --standard=Drupal --colors
+  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
   # @todo: Add ESLint
   - php -S localhost:8080 &
   - $DRUPAL_BUILD_ROOT/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/web/core/phpunit.xml.dist --group=contacts

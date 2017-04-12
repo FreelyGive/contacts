@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Remove the git details from our repo so we can treat it as a path.
-rm $TRAVID_BUILD_DIR/.git -rf
+rm $TRAVIS_BUILD_DIR/.git -rf
 
 # Clone contacts_theme and remove the git details so we can treat it as a path.
 git clone --branch=8.x-1.x https://github.com/FreelyGive/contacts_theme.git $DRUPAL_BUILD_ROOT/contacts_theme
