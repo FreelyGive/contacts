@@ -154,7 +154,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $session = $this->assertSession();
     $session->statusCodeEquals(200);
     $session->elementTextContains('css', '.page-title', 'Contacts');
-print $this->getSession()->getPage()->getOuterHtml() . "\n\n";
+print $session->elementExists('css', '.view-content')->getOuterHtml() . "\n\n";
     // Sort our contacts.
     usort($contacts, [static::class, 'sortContacts']);
 
