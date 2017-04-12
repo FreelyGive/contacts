@@ -28,6 +28,7 @@ echo "# Configuring package repos"
 composer config repositories.0 path $TRAVIS_BUILD_DIR
 composer config repositories.1 path $DRUPAL_BUILD_ROOT/contacts_theme
 composer config repositories.2 composer https://packages.drupal.org/8
+composer config extra.enable-patching true
 
 # Now require contacts which will pull itself and contacts_theme from the paths.
 echo "# Requiring contacts"
