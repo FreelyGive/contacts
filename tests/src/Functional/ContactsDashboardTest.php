@@ -302,6 +302,11 @@ class ContactsDashboardTest extends BrowserTestBase {
     $prefx = $con->tablePrefix('profile');
     print_r(compact('info', 'prefx'));
 
+    $db_url = getenv('SIMPLETEST_DB');
+    $db_info = $db_url ? Database::convertDbUrlToConnectionInfo($db_url, DRUPAL_ROOT) : NULL;
+    $db_parsed = $db_url ? Database::parseConnectionInfo($db_info) : NULL;
+    print_r(compact('db_url', 'db_info'));
+
     parent::cleanupEnvironment();
   }
 
