@@ -51,7 +51,7 @@ install:
 before_script:
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/drupal/vendor/drupal/coder/coder_sniffer
   - php -S localhost:8888 -t $DRUPAL_BUILD_ROOT/drupal/web &
-  - mysql -u root -e "CREATE DATABASE drupal_travis_db"
+  - mysql -u root -e "CREATE DATABASE IF NOT EXISTS drupal_travis_db"
 
 script:
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
