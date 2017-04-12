@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\contacts\Functional;
 
-use Drupal\Core\Database\Database;
 use Drupal\Core\Url;
 use Drupal\decoupled_auth\Entity\DecoupledAuthUser;
 use Drupal\file\Entity\File;
