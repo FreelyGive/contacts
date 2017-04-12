@@ -154,7 +154,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $session = $this->assertSession();
     $session->statusCodeEquals(200);
     $session->elementTextContains('css', '.page-title', 'Contacts');
-
+print $this->getSession()->getPage()->getOuterHtml() . "\n\n";
     // Sort our contacts.
     usort($contacts, [static::class, 'sortContacts']);
 
@@ -163,7 +163,7 @@ class ContactsDashboardTest extends BrowserTestBase {
 
     // Check our expected users are listed.
     $index = 1;
-    foreach ($contacts as $contact) {
+    foreach ($contacts as $contact) { print "$index: {$contact->id()}\n";
       // Gather our relevant values.
       $values = [];
 
