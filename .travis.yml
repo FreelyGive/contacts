@@ -11,17 +11,16 @@ env:
   global:
     # Ensure composer is able to apply patches.
     - COMPOSER_EXIT_ON_PATCH_FAILURE=1
-
-    # Latest stable release
-    - DRUPAL_CORE="~8.0@stable"
-    # Latest dev branch
-    - DRUPAL_CORE="~8.0@dev"
-
     # DRUPAL_TI Testing.
     - SIMPLETEST_DB="mysql://root:@127.0.0.1/drupal_travis_db"
     - SIMPLETEST_BASE_URL="http://127.0.0.1:8080"
 
   matrix:
+    # Latest stable release
+    - DRUPAL_CORE="~8.0@stable"
+    # Latest dev branch
+    - DRUPAL_CORE="~8.0@dev"
+
     fast_finish: true
     allow_failures:
       - env DRUPAL_CORE="~8.0@dev"
@@ -39,7 +38,7 @@ before_install:
   - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVID_BUILD_DIR")"
 
 install:
-  - ./travis/install.sh
+  - $TRAVID_BUILD_DIR/travis/install.sh
 
 before_script:
   - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
