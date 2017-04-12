@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\contacts\Functional;
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Url;
 use Drupal\decoupled_auth\Entity\DecoupledAuthUser;
 use Drupal\file\Entity\File;
@@ -286,6 +287,22 @@ class ContactsDashboardTest extends BrowserTestBase {
 
     // Finally sort by ID.
     return strnatcmp($a->id(), $b->id());
+  }
+
+  protected function cleanupEnvironment() {
+    $original_connection_info = Database::getConnectionInfo('simpletest_original_default');
+    $original_prefix = $original_connection_info['default']['prefix']['default'];
+    $test_connection_info = Database::getConnectionInfo('default');
+    $test_prefix = $test_connection_info['default']['prefix']['default'];
+
+    print_r(compact('original_connection_info', 'original_prefix', 'test_connection_info', 'test_prefix'));
+
+    $con = Database::getConnection();
+    $info = $con->getConnectionOptions();
+    $prefx = $con->tablePrefix('profile');
+    print_r(compact('info', 'prefx'));
+
+    parent::cleanupEnvironment();
   }
 
 }
