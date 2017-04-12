@@ -45,13 +45,13 @@ install:
   - ./travis-ci/install.sh
 
 before_script:
-  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
+  - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/drupal/vendor/drupal/coder/coder_sniffer
 
 script:
-  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
+  - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
   # @todo: Add ESLint
   - php -S localhost:8080 &
-  - $DRUPAL_BUILD_ROOT/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/web/core/phpunit.xml.dist --group=contacts
+  - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/drupal/web/core/phpunit.xml.dist --group=contacts
 
 notifications:
   email: false
