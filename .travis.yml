@@ -1,6 +1,9 @@
 # @file
 # Travis CI integration.
 
+git:
+  depth: 5
+
 language: php
 
 php:
@@ -39,7 +42,7 @@ before_install:
   - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVIS_BUILD_DIR")"
 
 install:
-  - ./travis/install.sh
+  - ./travis-ci/install.sh
 
 before_script:
   - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
