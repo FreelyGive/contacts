@@ -21,9 +21,10 @@ env:
     # Latest dev branch
     - DRUPAL_CORE="~8.0@dev"
 
-    fast_finish: true
-    allow_failures:
-      - env DRUPAL_CORE="~8.0@dev"
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env DRUPAL_CORE="~8.0@dev"
 
 mysql:
   database: drupal_travis_db
