@@ -39,7 +39,7 @@ before_install:
   - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVIS_BUILD_DIR")"
 
 install:
-  - $TRAVIS_BUILD_DIR/travis/install.sh
+  - ./travis/install.sh
 
 before_script:
   - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
