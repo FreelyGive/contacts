@@ -289,7 +289,15 @@ class ContactsDashboardTest extends BrowserTestBase {
     return strnatcmp($a->id(), $b->id());
   }
 
-  protected function cleanupEnvironment() {
+  protected function prepareEnvironment() {
+    print 'start ' . __METHOD__;
+    print_r(Database::getAllConnectionInfo());
+    parent::prepareEnvironment();
+    print 'end ' . __METHOD__;
+    print_r(Database::getAllConnectionInfo());
+  }
+
+  protected function cleanupEnvironment() {print __METHOD__;
     $original_connection_info = Database::getConnectionInfo('simpletest_original_default');
     $original_prefix = $original_connection_info['default']['prefix']['default'];
     $test_connection_info = Database::getConnectionInfo('default');
@@ -305,7 +313,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $db_url = getenv('SIMPLETEST_DB');
     $db_info = $db_url ? Database::convertDbUrlToConnectionInfo($db_url, DRUPAL_ROOT) : NULL;
     $db_parsed = $db_url ? Database::parseConnectionInfo($db_info) : NULL;
-    print_r(compact('db_url', 'db_info'));
+    print_r(compact('db_url', 'db_info', 'db_parsed'));
 
     parent::cleanupEnvironment();
   }
