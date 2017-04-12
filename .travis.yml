@@ -22,7 +22,7 @@ env:
     # Latest stable release
     - DRUPAL_CORE="~8.0@stable"
     # Latest dev branch
-    - DRUPAL_CORE="~8.0@dev"
+    - DRUPAL_CORE="8.4.x-dev"
 
 matrix:
   fast_finish: true
@@ -46,11 +46,11 @@ install:
 
 before_script:
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/drupal/vendor/drupal/coder/coder_sniffer
+  - php -S localhost:8888 -t $DRUPAL_BUILD_ROOT/drupal/web &
 
 script:
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpcs $TRAVIS_BUILD_DIR -p --standard=Drupal --colors
   # @todo: Add ESLint
-  - php -S localhost:8888 &
   - $DRUPAL_BUILD_ROOT/drupal/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/drupal/web/core/phpunit.xml.dist --group=contacts
 
 notifications:
