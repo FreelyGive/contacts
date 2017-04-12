@@ -1,53 +1,30 @@
 # @file
-# .travis.yml - Drupal 8 Travis CI Integration
+# Travis CI integration.
 
 language: php
-
-sudo: false
 
 php:
   - 5.6
   - 7
 
-# Set up environment variables.
 env:
   global:
-    # Global
-    - PATH="$PATH:$HOME/.composer/vendor/bin"
-
-    # Composer
+    # Ensure composer is able to apply patches.
     - COMPOSER_EXIT_ON_PATCH_FAILURE=1
 
-    # DRUPAL_TI Config.
-    - DRUPAL_TI_MODULE_NAME="contacts"
-    - DRUPAL_TI_SIMPLETEST_GROUP="contacts"
-
-    # DRUPAL_TI Env
-    - DRUPAL_TI_ENVIRONMENT="drupal-8"
-    - DRUPAL_TI_CORE_BRANCH="8.3.x"
-
-
-    # Define runners and environment vars to include before and after the
-    # main runners / environment vars.
-    - DRUPAL_TI_SCRIPT_DIR_BEFORE="./travis-ci/before"
-    - DRUPAL_TI_SCRIPT_DIR_AFTER="./travis-ci/after"
+    # Latest stable release
+    - DRUPAL_CORE="~8.0@stable"
+    # Latest dev branch
+    - DRUPAL_CORE="~8.0@dev"
 
     # DRUPAL_TI Testing.
-    - DRUPAL_TI_DB="drupal_travis_db"
-    - DRUPAL_TI_DB_URL="mysql://root:@127.0.0.1/drupal_travis_db"
-    - DRUPAL_TI_WEBSERVER_URL="http://127.0.0.1"
-    - DRUPAL_TI_WEBSERVER_PORT="8080"
-    - DRUPAL_TI_SIMPLETEST_ARGS="--verbose --color --concurrency 4 --url $DRUPAL_TI_WEBSERVER_URL:$DRUPAL_TI_WEBSERVER_PORT"
-    - DRUPAL_TI_PHPUNIT_ARGS=""
+    - SIMPLETEST_DB="mysql://root:@127.0.0.1/drupal_travis_db"
     - SIMPLETEST_BASE_URL="http://127.0.0.1:8080"
 
-    # Debug options
-    #- DRUPAL_TI_DEBUG="-x -v"
-    #- DRUPAL_TI_DEBUG_FILE_OUTPUT="all"
-
   matrix:
-    #- We run phpunit manually in ./travis-ci/travis-script.sh
-    - DRUPAL_TI_RUNNERS="phpunit-core"
+    fast_finish: true
+    allow_failures:
+      - env DRUPAL_CORE="~8.0@dev"
 
 mysql:
   database: drupal_travis_db
@@ -58,25 +35,20 @@ before_install:
   # Remove xdebug. We aren't generating code coverage, and it slows down Composer.
   - phpenv config-rm xdebug.ini || true
   - git config --global github.accesstoken $GITHUB_OAUTH_TOKEN
-  # See https://github.com/LionsAd/drupal_ti/pull/102
-  - composer global require "lionsad/drupal_ti:dev-master#396d11d200005eb68491d24170da0a98ae7f51b3"
-  - composer global require "squizlabs/php_codesniffer:2.*"
-  - composer global require "drupal/coder:8.2.*"
-  - phpcs --config-set installed_paths $HOME/.composer/vendor/drupal/coder/coder_sniffer
-  - drupal-ti before_install
+  # Track our general build directory.
+  - export DRUPAL_BUILD_ROOT="$(dirname "$TRAVID_BUILD_DIR")"
 
 install:
-  - drupal-ti install
+  - ./travis/install.sh
 
 before_script:
-  - drupal-ti before_script
+  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs --config-set installed_paths $DRUPAL_BUILD_ROOT/vendor/drupal/coder/coder_sniffer
 
 script:
-  - phpcs . -p --standard=Drupal --colors
-  - drupal-ti script
-
-after_script:
-  - drupal-ti after_script
+  - $DRUPAL_BUILD_ROOT/vendor/bin/phpcs $TRAVID_BUILD_DIR -p --standard=Drupal --colors
+  # @todo: Add ESLint
+  - php -S localhost:8080 &
+  - $DRUPAL_BUILD_ROOT/vendor/bin/phpunit -c $DRUPAL_BUILD_ROOT/web/core/phpunit.xml.dist --group=contacts
 
 notifications:
   email: false
