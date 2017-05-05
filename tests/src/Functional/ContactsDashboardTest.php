@@ -270,16 +270,18 @@ class ContactsDashboardTest extends BrowserTestBase {
   public static function sortContacts(UserInterface $a, UserInterface $b) {
     // First sort by roles.
     $a_roles = $a->getRoles();
+    rsort($a_roles);
     $a_role = reset($a_roles);
     $b_roles = $b->getRoles();
+    rsort($b_roles);
     $b_role = reset($b_roles);
     if ($a_role != $b_role) {
       return strnatcmp($a_role, $b_role);
     }
 
     // Then sort by individual name.
-    $a_name = isset($a->profile_crm_indiv->entity->crm_name->value) ? $a->profile_crm_indiv->entity->crm_name->value : NULL;
-    $b_name = isset($b->profile_crm_indiv->entity->crm_name->value) ? $b->profile_crm_indiv->entity->crm_name->value : NULL;
+    $a_name = isset($a->profile_crm_indiv->entity->crm_name->value) ? preg_replace("/[^A-Za-z0-9 ]/", '', $a->profile_crm_indiv->entity->crm_name->value) : NULL;
+    $b_name = isset($b->profile_crm_indiv->entity->crm_name->value) ? preg_replace("/[^A-Za-z0-9 ]/", '', $b->profile_crm_indiv->entity->crm_name->value) : NULL;
     if ($a_name != $b_name) {
       return strnatcmp($a_name, $b_name);
     }
