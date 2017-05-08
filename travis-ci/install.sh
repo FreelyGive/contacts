@@ -20,7 +20,7 @@ cd $DRUPAL_BUILD_ROOT/drupal
 
 # Set our drupal core version.
 composer require drupal/core $DRUPAL_CORE --no-update
-composer require drupal/coder --no-update --dev
+#composer require drupal/coder --no-update --dev
 
 # Add our repositories for contacts and contact_theme, as well as re-adding
 # the Drupal package repo.
