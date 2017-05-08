@@ -3,11 +3,13 @@
 namespace Drupal\Tests\contacts\Functional;
 
 use Drupal\Core\Url;
+use Drupal\decoupled_auth\DecoupledAuthUserInterface;
 use Drupal\decoupled_auth\Entity\DecoupledAuthUser;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\profile\Entity\Profile;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\user\RoleInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -163,6 +165,22 @@ class ContactsDashboardTest extends BrowserTestBase {
 
     // Check our expected users are listed.
     $index = 1;
+
+    foreach ($contacts as $contact) {
+      $roles = $contact->getRoles();
+      $role = reset($roles);
+//      print '$role ' . $role . "\n";
+//      print "roles \n";
+//      print_r($roles);
+
+      $name = isset($contact->profile_crm_indiv->entity->crm_name->value) ? $contact->profile_crm_indiv->entity->crm_name->value : NULL;
+//      print '$name ' . $name . "\n";
+
+//      print 'id ' . $contact->id() . "\n\n";
+    }
+
+//    print $this->getSession()->getPage()->getContent();
+
     foreach ($contacts as $contact) {
       // Gather our relevant values.
       $values = [];
@@ -259,15 +277,15 @@ class ContactsDashboardTest extends BrowserTestBase {
   /**
    * Sort comparison callback for sorting contacts.
    *
-   * @param \Drupal\user\UserInterface $a
+   * @param \Drupal\decoupled_auth\DecoupledAuthUserInterface $a
    *   The first contact.
-   * @param \Drupal\user\UserInterface $b
+   * @param \Drupal\decoupled_auth\DecoupledAuthUserInterface $b
    *   The second contact.
    *
    * @return int
    *   The sort result.
    */
-  public static function sortContacts(UserInterface $a, UserInterface $b) {
+  public static function sortContacts(DecoupledAuthUserInterface $a, DecoupledAuthUserInterface $b) {
     // First sort by roles.
     $a_roles = $a->getRoles();
     rsort($a_roles);
@@ -280,8 +298,15 @@ class ContactsDashboardTest extends BrowserTestBase {
     }
 
     // Then sort by individual name.
-    $a_name = isset($a->profile_crm_indiv->entity->crm_name->value) ? preg_replace("/[^A-Za-z0-9 ]/", '', $a->profile_crm_indiv->entity->crm_name->value) : NULL;
-    $b_name = isset($b->profile_crm_indiv->entity->crm_name->value) ? preg_replace("/[^A-Za-z0-9 ]/", '', $b->profile_crm_indiv->entity->crm_name->value) : NULL;
+    $a_name = isset($a->profile_crm_indiv->entity->crm_name->value) ? strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $a->profile_crm_indiv->entity->crm_name->value)) : NULL;
+    $b_name = isset($b->profile_crm_indiv->entity->crm_name->value) ? strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $b->profile_crm_indiv->entity->crm_name->value)) : NULL;
+
+//    print $a->id() . "\n";
+//    print $a_name . "\n";
+
+//    print $b->id() . "\n";
+//    print $b_name . "\n";
+
     if ($a_name != $b_name) {
       return strnatcmp($a_name, $b_name);
     }
