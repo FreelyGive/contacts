@@ -5,7 +5,6 @@ echo "# Preparing GIT repos"
 # Remove the git details from our repo so we can treat it as a path.
 cd $TRAVIS_BUILD_DIR
 rm .git -rf
-#composer require drupal/contacts_theme dev-master --no-update
 
 # Create our main Drupal project.
 echo "# Creating Drupal project"
