@@ -1,0 +1,43 @@
+---
+75d9689e-3227-4f16-a5bf-5a179f70978d:
+  uuid: 75d9689e-3227-4f16-a5bf-5a179f70978d
+  mail: susanna.ramirez@example.com
+  user_name: blackrabbit442
+  decoupled: 1
+  status: 1
+  picture: 636d6ded-c1fd-47c4-b43a-02054a0ba17d
+  roles:
+    - crm_indiv
+  full_name: "Mrs Susanna Ramirez"
+  gender: female
+  dob: 1979-03-18
+  phone: "07000 142124"
+  address: "7645 Mill Road|Portsmouth|J0T 2SA|United Kingdom"
+ec2d9ca0-6e85-4023-b056-6368e865f274:
+  uuid: ec2d9ca0-6e85-4023-b056-6368e865f274
+  mail: rich.rhodes@example.com
+  user_name:
+  decoupled: 0
+  status: 1
+  picture: 71bf39b6-868b-4d7b-a76e-ee34534ddd82
+  roles:
+    - crm_indiv
+  full_name: "Mr Rich Rhodes"
+  gender: male
+  dob: 1986-10-22
+  phone: "07000 832892"
+  address: "7034 The Grove|Carlisle|D74 8XW|United Kingdom"
+283ce822-c4c8-4f5e-9b44-a87c5228cf25:
+  uuid: 283ce822-c4c8-4f5e-9b44-a87c5228cf25
+  mail: eleanor.mccoy@example.com
+  user_name:
+  decoupled: 0
+  status: 1
+  picture: d06145bb-e63c-474a-9326-99f44a6e6936
+  roles:
+    - crm_indiv
+  full_name: "Miss Eleanor Mccoy"
+  gender: female
+  dob: 1964-09-27
+  phone: "07000 844870"
+  address: "4295 Station Road|Sunderland|M19 7GX|United Kingdom"

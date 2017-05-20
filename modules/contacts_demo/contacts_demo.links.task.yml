@@ -1,0 +1,9 @@
+contacts_demo.generate:
+  route_name: contacts_demo.generate
+  base_route: contacts_demo.generate
+  title: 'Generate'
+
+contacts_demo.generate_delete:
+  route_name: contacts_demo.generate_delete
+  base_route: contacts_demo.generate
+  title: 'Delete'
