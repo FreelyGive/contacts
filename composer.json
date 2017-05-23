@@ -42,6 +42,9 @@
       "drupal/ctools": {
         "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch",
         "#2866323 & #2865709: Fatal error on empty entity reference relationship": "https://www.drupal.org/files/issues/2866323-fix_entity_relationship_with_no_value.patch"
+      },
+      "drupal/facets": {
+        "#2880411: Clear block cache on facet creation via api/config": "https://www.drupal.org/files/issues/2880411-4-move_block_cache_to_entity.patch"
       }
     }
   }
