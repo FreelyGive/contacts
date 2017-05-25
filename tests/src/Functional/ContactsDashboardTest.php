@@ -20,7 +20,7 @@ class ContactsDashboardTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['user', 'contacts', 'views'];
+  public static $modules = ['contacts'];
 
   /**
    * Testing admin user.
