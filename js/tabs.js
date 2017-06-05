@@ -3,11 +3,13 @@
  * Contact Dashboard ajax navigation.
  */
 
-(function ($, Drupal) {
+(function ($, Drupal, settings) {
 
   'use strict';
 
   var historySupport = !!(window.history && history.pushState);
+
+  var activeClass = settings.contacts.tabs.activeClass || 'is-active';
 
   /**
    * Fill out the tab with the response contents.
@@ -21,8 +23,8 @@
    */
   Drupal.AjaxCommands.prototype.contactsTab = function (ajax, response, status) {
     if (response.activeTab) {
-      $('.contacts-ajax-tabs .is-active').removeClass('is-active');
-      $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass('is-active');
+      $('.contacts-ajax-tabs .' + activeClass).removeClass(activeClass);
+      $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass(activeClass);
     }
 
     if (response.url && historySupport) {
@@ -42,4 +44,4 @@
     });
   }
 
-})(jQuery, Drupal);
+})(jQuery, Drupal, drupalSettings);
