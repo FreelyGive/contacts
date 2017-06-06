@@ -156,7 +156,16 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
 
     $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
     if ($tab && $block = $this->tabManager->getBlock($tab, $this->user)) {
-      $build['content']['block'] = $block->build();
+      $build['content']['block'] = [
+        '#theme' => 'block',
+        '#attributes' => [],
+        '#configuration' => $block->getConfiguration(),
+        '#plugin_id' => $block->getPluginId(),
+        '#base_plugin_id' => $block->getBaseId(),
+        '#derivative_plugin_id' => $block->getDerivativeId(),
+        'content' => $block->build(),
+      ];
+      $build['content']['block']['content']['#title'] = $block->label();
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');

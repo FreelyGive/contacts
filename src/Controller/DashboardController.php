@@ -63,7 +63,16 @@ class DashboardController extends ControllerBase {
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
     if ($tab && $block = $this->tabManager->getBlock($tab, $user)) {
-      $content['block'] = $block->build();
+      $content['block'] = [
+        '#theme' => 'block',
+        '#attributes' => [],
+        '#configuration' => $block->getConfiguration(),
+        '#plugin_id' => $block->getPluginId(),
+        '#base_plugin_id' => $block->getBaseId(),
+        '#derivative_plugin_id' => $block->getDerivativeId(),
+        'content' => $block->build(),
+      ];
+      $content['block']['content']['#title'] = $block->label();
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
