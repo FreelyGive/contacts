@@ -4,6 +4,6 @@
   {% endif %}
 </div>
 <div class="contacts-row-main flex-fill">
-  {% if label %}<h3 class="contact-label"><a href="{{ url }}">{{ label }}</a></h3>{% endif %}
+  {% if label %}<{{ title_tag ?? "h3" }} class="contact-label"><a href="{{ url }}">{{ label }}</a></{{ title_tag ?? "h3" }}>{% endif %}
   {% if roles %}<div class="contact-roles description">{{ roles }}</div>{% endif %}
 </div>
