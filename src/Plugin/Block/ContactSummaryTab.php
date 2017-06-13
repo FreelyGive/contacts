@@ -99,6 +99,7 @@ class ContactSummaryTab extends BlockBase implements ContainerFactoryPluginInter
         '#plugin_id' => $block->getPluginId(),
         '#base_plugin_id' => $block->getBaseId(),
         '#derivative_plugin_id' => $block->getDerivativeId(),
+        '#block' => $block,
         'content' => $block->build(),
       ];
       $build['#content']['left']['content']['#title'] = $block->label();
@@ -122,6 +123,7 @@ class ContactSummaryTab extends BlockBase implements ContainerFactoryPluginInter
       '#plugin_id' => $block->getPluginId(),
       '#base_plugin_id' => $block->getBaseId(),
       '#derivative_plugin_id' => $block->getDerivativeId(),
+      '#block' => $block,
       'content' => $block->build(),
     ];
     $build['#content']['right']['content']['#title'] = $block->label();

@@ -169,7 +169,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * @return false|\Drupal\Core\Link
    *   The edit link, or FALSE if there is none.
    */
-  protected function getEditLink($mode) {
+  public function getEditLink($mode) {
     // Check that we support and want edit links.
     if (!$this->useEditLink()) {
       return FALSE;
@@ -190,7 +190,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $link = Link::createFromRoute('Edit', 'page_manager.page_view_contacts_dashboard_contact', $params, [
       'query' => $query,
       'attributes' => [
-        'class' => 'use-ajax',
+        'class' => ['use-ajax'],
         'data-ajax-progress' => 'fullscreen',
         'data-ajax-url' => Url::fromRoute('contacts.ajax_subpage', $params, [
           'query' => $query,
