@@ -146,11 +146,9 @@ class DashboardController extends ControllerBase {
       // @todo add new relationship.
     }
 
-
     $changed = TRUE;
-      $tab->setBlock($block, $block_config);
-      $tab->save();
-
+    $tab->setBlock($block, $block_config);
+    $tab->save();
 
     $json = $tab->getBlocks();
     $json['#updated'] = $changed;

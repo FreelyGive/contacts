@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Entity;
 
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
 /**
@@ -55,26 +54,49 @@ interface ContactTabInterface extends ConfigEntityInterface {
   /**
    * Get the block settings.
    *
+   * @param string $id
+   *   The id of the block to get.
+   *
    * @return array
    *   An array of the block configuration, including:
    *   - id: The block plugin id.
    *   - context_mapping: Any relevant context mapping.
    *   - ...: Other block config.
    */
+  public function getBlock($id);
+
+  /**
+   * Get the block settings for all blocks.
+   *
+   * @return array
+   *   An array of the block configurations.
+   */
   public function getBlocks();
+
+  /**
+   * Set the block settings for all blocks.
+   *
+   * @param array $blocks
+   *   The block configurations.
+   *
+   * @return $this
+   */
+  public function setBlocks(array $blocks);
 
   /**
    * Set the block settings.
    *
+   * @param string $id
+   *   The id of the block to set.
    * @param array $configuration
    *   The block configuration. Must contain at least the id.
    *
    * @return $this
    */
-  public function setBlocks(array $configuration);
+  public function setBlock($id, array $configuration);
 
   /**
-   * Get the block plugins for the tab.
+   * Get all the block plugins for the tab.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface|null
    *   The block plugin or NULL if it's not been set.
@@ -82,10 +104,10 @@ interface ContactTabInterface extends ConfigEntityInterface {
   public function getBlockPlugins();
 
   /**
-   * Store the block plugin for the tab.
+   * Store all the block plugins for the tab.
    *
    * @param \Drupal\Core\Block\BlockPluginInterface[] $blocks
-   *   The block plugin.
+   *   The block plugins.
    *
    * @return $this
    */

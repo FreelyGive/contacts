@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Entity;
 
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
