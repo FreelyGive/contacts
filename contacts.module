@@ -26,6 +26,10 @@ function contacts_theme() {
       'variables' => ['tabs' => []],
       'template' => 'contacts-dash-tabs',
     ],
+    'contacts_dash_tab_content' => [
+      'variables' => ['content' => []],
+      'template' => 'contacts-dash-tab-content',
+    ],
     'contacts_summary' => [
       'variables' => ['content' => [], 'attributes' => []],
       'template' => 'contacts-summary',

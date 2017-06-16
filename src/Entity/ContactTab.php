@@ -87,14 +87,14 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    *
    * @var array
    */
-  protected $block;
+  protected $blocks;
 
   /**
    * The block plugin for this tab.
    *
    * @var \Drupal\Core\Block\BlockPluginInterface
    */
-  protected $blockPlugin;
+  protected $blockPlugins;
 
   /**
    * {@inheritdoc}
@@ -129,33 +129,56 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlock() {
-    return $this->block;
+  public function getBlock($id) {
+    if (isset($this->blocks[$id])) {
+      return $this->blocks[$id];
+    }
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlock(array $block) {
+  public function getBlocks() {
+    return $this->blocks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlock($id, array $block) {
     if (empty($block['id'])) {
       throw new \InvalidArgumentException('Missing required ID for block settings.');
     }
-    $this->block = $block;
+    $this->blocks[$id] = $block;
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBlockPlugin() {
-    return $this->blockPlugin;
+  public function setBlocks(array $blocks) {
+    foreach ($blocks as $block) {
+      if (empty($block['id'])) {
+        throw new \InvalidArgumentException('Missing required ID for block settings.');
+      }
+    }
+    $this->blocks = $blocks;
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlockPlugin(BlockPluginInterface $block) {
-    $this->blockPlugin = $block;
+  public function getBlockPlugins() {
+    return $this->blockPlugins;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockPlugins(array $blocks) {
+    $this->blockPlugins = $blocks;
     return $this;
   }
 
@@ -182,9 +205,11 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   public function calculateDependencies() {
     parent::calculateDependencies();
 
-    $config = $this->getBlock();
-    $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
-    $this->calculatePluginDependencies($block);
+    $configs = $this->getBlocks();
+    foreach ($configs as $config) {
+      $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
+      $this->calculatePluginDependencies($block);
+    }
 
     return $this;
   }

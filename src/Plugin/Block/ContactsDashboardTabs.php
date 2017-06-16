@@ -152,26 +152,39 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
+      '#theme' => 'contacts_dash_tab_content',
+      '#content' => [
+        'left' => [],
+        'right' => [],
+      ],
     ];
 
     $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
-    if ($tab && $block = $this->tabManager->getBlock($tab, $this->user)) {
-      $build['content']['block'] = [
-        '#theme' => 'block',
-        '#attributes' => [],
-        '#configuration' => $block->getConfiguration(),
-        '#plugin_id' => $block->getPluginId(),
-        '#base_plugin_id' => $block->getBaseId(),
-        '#derivative_plugin_id' => $block->getDerivativeId(),
-        'content' => $block->build(),
-      ];
-      $build['content']['block']['content']['#title'] = $block->label();
+    if ($tab && $blocks = $this->tabManager->getBlocks($tab, $this->user)) {
+      foreach ($blocks as $key => $block) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        // @todo Order blocks by weight.
+        $block_content = [
+          '#theme' => 'block',
+          '#attributes' => [],
+          '#configuration' => $block->getConfiguration(),
+          '#contacts_block_tab' => $tab->getOriginalId(),
+          '#contacts_block_id' => $key,
+          '#plugin_id' => $block->getPluginId(),
+          '#base_plugin_id' => $block->getBaseId(),
+          '#derivative_plugin_id' => $block->getDerivativeId(),
+          '#weight' => $block->getConfiguration()['weight'],
+          'content' => $block->build(),
+        ];
+        $block_content['content']['#title'] = $block->label();
+        $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
+      }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
     }
 
-    $build['content']['messages'] = [
+    $build['content']['#content']['messages'] = [
       '#type' => 'status_messages',
       '#weight' => -99,
     ];

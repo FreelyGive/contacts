@@ -61,7 +61,7 @@ interface ContactTabInterface extends ConfigEntityInterface {
    *   - context_mapping: Any relevant context mapping.
    *   - ...: Other block config.
    */
-  public function getBlock();
+  public function getBlocks();
 
   /**
    * Set the block settings.
@@ -71,24 +71,24 @@ interface ContactTabInterface extends ConfigEntityInterface {
    *
    * @return $this
    */
-  public function setBlock(array $configuration);
+  public function setBlocks(array $configuration);
 
   /**
-   * Get the block plugin for the tab.
+   * Get the block plugins for the tab.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface|null
    *   The block plugin or NULL if it's not been set.
    */
-  public function getBlockPlugin();
+  public function getBlockPlugins();
 
   /**
    * Store the block plugin for the tab.
    *
-   * @param \Drupal\Core\Block\BlockPluginInterface $block
+   * @param \Drupal\Core\Block\BlockPluginInterface[] $blocks
    *   The block plugin.
    *
    * @return $this
    */
-  public function setBlockPlugin(BlockPluginInterface $block);
+  public function setBlockPlugins(array $blocks);
 
 }

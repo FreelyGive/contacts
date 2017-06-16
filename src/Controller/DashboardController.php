@@ -59,27 +59,39 @@ class DashboardController extends ControllerBase {
       'subpage' => $subpage,
     ]);
 
-    $content = [];
+    $content = [
+      '#theme' => 'contacts_dash_tab_content',
+      '#content' => [
+        'left' => [],
+        'right' => [],
+      ],
+    ];
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
-    if ($tab && $block = $this->tabManager->getBlock($tab, $user)) {
-      $content['block'] = [
-        '#theme' => 'block',
-        '#attributes' => [],
-        '#configuration' => $block->getConfiguration(),
-        '#plugin_id' => $block->getPluginId(),
-        '#base_plugin_id' => $block->getBaseId(),
-        '#derivative_plugin_id' => $block->getDerivativeId(),
-        'content' => $block->build(),
-      ];
-      $content['block']['content']['#title'] = $block->label();
+    if ($tab && $blocks = $this->tabManager->getBlocks($tab, $user)) {
+      foreach ($blocks as $block) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        // @todo fix weight.
+        $block_content = [
+          '#theme' => 'block',
+          '#attributes' => [],
+          '#configuration' => $block->getConfiguration(),
+          '#plugin_id' => $block->getPluginId(),
+          '#base_plugin_id' => $block->getBaseId(),
+          '#derivative_plugin_id' => $block->getDerivativeId(),
+          '#weight' => $block->getConfiguration()['weight'],
+          'content' => $block->build(),
+        ];
+        $block_content['content']['#title'] = $block->label();
+        $content['#content'][$block->getConfiguration()['region']][] = $block_content;
+      }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
     }
 
     // Prepend the content with system messages.
-    $content['messages'] = [
+    $content['#content']['messages'] = [
       '#type' => 'status_messages',
       '#weight' => -99,
     ];
@@ -91,6 +103,37 @@ class DashboardController extends ControllerBase {
 
     // Return ajax response.
     return $response;
+  }
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param string $tab
+   *   The id of the tab being updated.
+   * @param string $block
+   *   The id of the block being moved.
+   * @param string $region
+   *   The region the block is being moved to.
+   * @param int $weight
+   *   The weight of the block in that region.
+   *
+   * @todo return a http response code.
+   * @return array
+   *   The response commands.
+   */
+  public function moveBlock($tab, $block, $region, $weight) {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    $block_config = $tab->getBlock($block);
+    $block_config['region'] = $region;
+    $block_config['weight'] = $weight;
+
+    $tab->setBlock($block, $block_config);
+
+    $tab->save();
+
+    return [];
   }
 
 }

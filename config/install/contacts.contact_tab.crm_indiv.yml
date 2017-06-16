@@ -14,12 +14,15 @@ relationships:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
     name: profile
     source: user
-block:
-  id: 'contacts_entity:profile'
-  label: ''
-  provider: contacts
-  label_display: '0'
-  create: crm_indiv
-  context_mapping:
-    entity: profile
-    user: user
+blocks:
+  contacts_entity_profile:
+    id: 'contacts_entity:profile'
+    label: ''
+    provider: contacts
+    label_display: '0'
+    create: crm_indiv
+    region: left
+    weight: 0
+    context_mapping:
+      entity: profile
+      user: user

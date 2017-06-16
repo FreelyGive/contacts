@@ -105,29 +105,6 @@ class ContactSummaryTab extends BlockBase implements ContainerFactoryPluginInter
       $build['#content']['left']['content']['#title'] = $block->label();
     }
 
-    // Notes on the right.
-    /* @var \Drupal\contacts\Plugin\Block\ContactsEntity $block */
-    $block = $this->blockManager->createInstance('contacts_entity:profile', [
-      'mode' => ContactsEntity::MODE_VIEW_NEW,
-      'edit_link' => ContactsEntity::EDIT_LINK_TITLE,
-      'edit_id' => 'notes',
-      'label' => $this->t('Notes'),
-      'label_display' => BlockInterface::BLOCK_LABEL_VISIBLE,
-    ]);
-    $block->setContextValue('user', $contact);
-    $block->setContextValue('entity', $contact->profile_crm_notes->entity);
-    $build['#content']['right'] = [
-      '#theme' => 'block',
-      '#attributes' => [],
-      '#configuration' => $block->getConfiguration(),
-      '#plugin_id' => $block->getPluginId(),
-      '#base_plugin_id' => $block->getBaseId(),
-      '#derivative_plugin_id' => $block->getDerivativeId(),
-      '#block' => $block,
-      'content' => $block->build(),
-    ];
-    $build['#content']['right']['content']['#title'] = $block->label();
-
     return $build;
   }
 

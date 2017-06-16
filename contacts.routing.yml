@@ -28,3 +28,15 @@ contacts.add_org_form:
     _permission: 'add contacts'
   options:
     _admin_route: TRUE
+
+contacts.dash_block_move:
+  path: '/contacts_move_block/{tab}/{block}/{region}/{weight}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::moveBlock'
+    region: 'left'
+    weight: 0
+  options:
+    no_cache: TRUE
+  requirements:
+    _access: 'TRUE'
+#    _csrf_token: 'FALSE'

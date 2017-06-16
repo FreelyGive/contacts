@@ -6,10 +6,13 @@ label: Summary
 path: summary
 weight: -99
 relationships: {  }
-block:
-  id: contact_summary_tab
-  label: ''
-  provider: contacts
-  label_display: '0'
-  context_mapping:
-    user: user
+blocks:
+  contact_summary_tab:
+    id: contact_summary_tab
+    label: ''
+    provider: contacts
+    label_display: '0'
+    region: left
+    weight: 0
+    context_mapping:
+      user: user
