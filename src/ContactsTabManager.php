@@ -164,7 +164,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       // Get our block plugin, applying context if relevant..
       $block_configurations = $tab->getBlocks();
       $blocks = [];
-      foreach ($block_configurations as $block_configuration) {
+      foreach ($block_configurations as $key => $block_configuration) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         $block = $this->blockManager->createInstance($block_configuration['id'], $block_configuration);
         if ($contact && $block instanceof ContextAwarePluginInterface) {
@@ -192,7 +192,9 @@ class ContactsTabManager implements ContactsTabManagerInterface {
           }
         }
 
-        $blocks[] = $block;
+        // @todo Don't allow block to be added if relationships have not been
+        // satisfied.
+        $blocks[$key] = $block;
       }
 
       $tab->setBlockPlugins($blocks);

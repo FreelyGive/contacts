@@ -10,6 +10,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller routines for contact dashboard tabs and ajax.
@@ -106,7 +107,7 @@ class DashboardController extends ControllerBase {
   }
 
   /**
-   * Return the AJAX command for changing tab.
+   * Add a block to a tab.
    *
    * @param string $tab
    *   The id of the tab being updated.
@@ -117,23 +118,178 @@ class DashboardController extends ControllerBase {
    * @param int $weight
    *   The weight of the block in that region.
    *
-   * @todo return a http response code.
-   * @return array
-   *   The response commands.
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function addBlock($tab, $block, $region, $weight) {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    $profile_type = \Drupal::request()->request->get('profile_type');
+    $profile_relationship = \Drupal::request()->request->get('profile_relationship');
+    $type = $this->entityTypeManager()->getStorage('profile_type')->load($profile_type);
+    $block_config = [
+      'id' => 'contacts_entity:profile',
+      'label' => $type->label(),
+      'label_display' => 'visible',
+      'mode' => 'view',
+      'create' => $profile_type,
+      'edit_link' => 'title',
+      'region' => $region,
+      'weight' => $weight,
+      'context_mapping' => ['entity' => $profile_relationship],
+    ];
+
+    $relationships = $tab->getRelationships();
+
+    if (empty($relationships[$profile_relationship])) {
+      // @todo add new relationship.
+    }
+
+
+    $changed = TRUE;
+      $tab->setBlock($block, $block_config);
+      $tab->save();
+
+
+    $json = $tab->getBlocks();
+    $json['#updated'] = $changed;
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
+    return $response;
+  }
+
+  /**
+   * Update a block position in a tab.
+   *
+   * @param string $tab
+   *   The id of the tab being updated.
+   * @param string $block
+   *   The id of the block being moved.
+   * @param string $region
+   *   The region the block is being moved to.
+   * @param int $weight
+   *   The weight of the block in that region.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
    */
   public function moveBlock($tab, $block, $region, $weight) {
     /* @var \Drupal\contacts\Entity\ContactTab $tab */
     $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
 
     $block_config = $tab->getBlock($block);
-    $block_config['region'] = $region;
-    $block_config['weight'] = $weight;
 
-    $tab->setBlock($block, $block_config);
+    if (!$block_config) {
+      return $this->addBlock($tab->getOriginalId(), $block, $region, $weight);
+    }
 
-    $tab->save();
+    $changed = FALSE;
 
-    return [];
+    if ($block_config['region'] != $region) {
+      $changed = TRUE;
+      $block_config['region'] = $region;
+    }
+
+    if ($block_config['weight'] != $weight) {
+      $changed = TRUE;
+      $block_config['weight'] = $weight;
+    }
+
+    if ($changed) {
+      $tab->setBlock($block, $block_config);
+      $tab->save();
+    }
+
+    $json = $tab->getBlocks();
+    $json['#updated'] = $changed;
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
+    return $response;
+  }
+
+  /**
+   * Remove a block from a tab.
+   *
+   * @param string $tab
+   *   The id of the tab being updated.
+   * @param string $block
+   *   The id of the block being moved.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function removeBlock($tab, $block) {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    $blocks = $tab->getBlocks();
+
+    if ($changed = isset($blocks[$block])) {
+      unset($blocks[$block]);
+      $tab->setBlocks($blocks);
+      $tab->save();
+    }
+
+    $json = $tab->getBlocks();
+    $json['#updated'] = $changed;
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
+    return $response;
+  }
+
+  /**
+   * Update a block position in a tab.
+   *
+   * @param string $tab
+   *   The id of the tab being updated.
+   * @param string $block
+   *   The id of the block being updated.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function updateBlockTitle($tab, $block) {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    $block_config = $tab->getBlock($block);
+    $changed = FALSE;
+
+    // Get label from post data.
+    $label = \Drupal::request()->request->get('label');
+    if ($label && $block_config['label'] != $label) {
+      $changed = TRUE;
+      $block_config['label'] = $label;
+    }
+
+    if ($changed) {
+      $tab->setBlock($block, $block_config);
+      $tab->save();
+    }
+
+    $json = $tab->getBlocks();
+    $json['#updated'] = $changed;
+    $json['#label'] = $label;
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
+    return $response;
   }
 
 }

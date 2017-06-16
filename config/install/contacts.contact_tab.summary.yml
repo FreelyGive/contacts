@@ -5,14 +5,40 @@ id: summary
 label: Summary
 path: summary
 weight: -99
-relationships: {  }
+relationships:
+  profile_indiv:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
+    name: profile_indiv
+    source: user
+  profile_notes:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
+    name: profile_notes
+    source: user
 blocks:
-  contact_summary_tab:
-    id: contact_summary_tab
-    label: ''
+  contacts_entity_profile_indiv:
+    id: 'contacts_entity:profile'
+    label: 'Person Summary'
     provider: contacts
-    label_display: '0'
+    label_display: 'visible'
+    create: crm_indiv
+    mode: view_new
+    edit_link: title
+    edit_id: main
     region: left
     weight: 0
     context_mapping:
       user: user
+      entity: profile_indiv
+  contacts_entity_profile_notes:
+    id: 'contacts_entity:profile'
+    label: 'Notes'
+    provider: contacts
+    label_display: 'visible'
+    create: crm_notes
+    mode: view_new
+    edit_link: title
+    edit_id: notes
+    region: right
+    weight: 0
+    context_mapping:
+      entity: profile_notes

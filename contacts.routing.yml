@@ -29,6 +29,18 @@ contacts.add_org_form:
   options:
     _admin_route: TRUE
 
+contacts.dash_block_add:
+  path: '/contacts_add_block/{tab}/{block}/{region}/{weight}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::addBlock'
+    region: 'left'
+    weight: 0
+  options:
+    no_cache: TRUE
+  requirements:
+    _access: 'TRUE'
+#    _csrf_token: 'TRUE'
+
 contacts.dash_block_move:
   path: '/contacts_move_block/{tab}/{block}/{region}/{weight}'
   defaults:
@@ -39,4 +51,24 @@ contacts.dash_block_move:
     no_cache: TRUE
   requirements:
     _access: 'TRUE'
-#    _csrf_token: 'FALSE'
+#    _csrf_token: 'TRUE'
+
+contacts.dash_block_remove:
+  path: '/contacts_remove_block/{tab}/{block}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::removeBlock'
+  options:
+    no_cache: TRUE
+  requirements:
+    _access: 'TRUE'
+#    _csrf_token: 'TRUE'
+
+contacts.dash_block_title:
+  path: '/contacts_update_block/{tab}/{block}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlockTitle'
+  options:
+    no_cache: TRUE
+  requirements:
+    _access: 'TRUE'
+#    _csrf_token: 'TRUE'

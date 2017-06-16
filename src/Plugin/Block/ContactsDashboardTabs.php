@@ -131,6 +131,9 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
         $content['#tabs'][$url_stub]['link_attributes']['class'][] = 'use-ajax';
         $content['#tabs'][$url_stub]['link_attributes']['data-ajax-progress'] = 'fullscreen';
       }
+
+      // Add tab id to attributes.
+      $content['#tabs'][$url_stub]['link_attributes']['contacts_tab_id'] = $tab->getOriginalId();
     }
 
     // Add active class to current tab.
@@ -168,14 +171,14 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
           '#theme' => 'block',
           '#attributes' => [],
           '#configuration' => $block->getConfiguration(),
-          '#contacts_block_tab' => $tab->getOriginalId(),
-          '#contacts_block_id' => $key,
           '#plugin_id' => $block->getPluginId(),
           '#base_plugin_id' => $block->getBaseId(),
           '#derivative_plugin_id' => $block->getDerivativeId(),
           '#weight' => $block->getConfiguration()['weight'],
           'content' => $block->build(),
         ];
+        $block_content['#attributes']['contacts_block_tab'] = $tab->getOriginalId();
+        $block_content['#attributes']['contacts_block_id'] = $key;
         $block_content['content']['#title'] = $block->label();
         $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
       }

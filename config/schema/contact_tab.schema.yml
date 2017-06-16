@@ -23,6 +23,8 @@ contacts.contact_tab.*:
         type: contacts.relationship.[%name]
         label: 'Relationship'
     blocks:
+      type: sequence
+      label: 'Relationships'
       sequence:
         type: contacts.block_plugin.[id]
         label: 'Blocks'
