@@ -10,6 +10,10 @@ relationships:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
     name: profile_indiv
     source: user
+  profile_org:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_org'
+    name: profile_org
+    source: user
   profile_notes:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
     name: profile_notes
@@ -23,12 +27,26 @@ blocks:
     create: crm_indiv
     mode: view_new
     edit_link: title
-    edit_id: main
+    edit_id: indiv
     region: left
     weight: 0
     context_mapping:
       user: user
       entity: profile_indiv
+  contacts_entity_profile_org:
+    id: 'contacts_entity:profile'
+    label: 'Organisation Summary'
+    provider: contacts
+    label_display: 'visible'
+    create: crm_org
+    mode: view_new
+    edit_link: title
+    edit_id: org
+    region: left
+    weight: 0
+    context_mapping:
+      user: user
+      entity: profile_org
   contacts_entity_profile_notes:
     id: 'contacts_entity:profile'
     label: 'Notes'
