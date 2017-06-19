@@ -282,6 +282,11 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    // Check create access.
+    if (!$this->entityTypeManager->getAccessControlHandler($definition['_entity_type_id'])->createAccess($definition['_bundle_key'] ? $config['create'] : NULL)) {
+      return FALSE;
+    }
+
     // Build our values.
     $values = [];
 
