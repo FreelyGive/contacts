@@ -282,6 +282,17 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    // Check create access.
+    $bundle = $definition['_bundle_key'] ? $config['create'] : NULL;
+    $context = [];
+    if (is_a($this->entityTypeManager->getDefinition($definition['_entity_type_id'])->getClass(), EntityOwnerInterface::class, TRUE)) {
+      $user = $this->getContextValue('user');
+      $context['owner'] = $user;
+    }
+    if (!$this->entityTypeManager->getAccessControlHandler($definition['_entity_type_id'])->createAccess($bundle, NULL, $context)) {
+      return FALSE;
+    }
+
     // Build our values.
     $values = [];
 
@@ -295,7 +306,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
     // If this has an owner, set it.
     if ($entity instanceof EntityOwnerInterface) {
-      $entity->setOwner($this->getContextValue('user'));
+      $entity->setOwner($user);
     }
 
     return $entity;

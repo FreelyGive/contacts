@@ -203,6 +203,11 @@ class ContactsTabManager implements ContactsTabManagerInterface {
     // Verify the tab unless we've been asked not to.
     if ($verify) {
       $this->verifyTab($tab, $contact, $blocks);
+
+      // Filter our blocks that don't verify.
+      $blocks = array_filter($blocks, function($block) {
+        return $block->_contactTabVerified;
+      });
     }
 
     return $blocks;
@@ -220,21 +225,25 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       }
     }
 
-    // See if we have already verified.
-    $verified = TRUE;
+    // Make sure each block is verified and capture if any have.
+    $verified = FALSE;
     foreach ($blocks as $block) {
       /* @var $block \Drupal\Core\Block\BlockPluginInterface */
-      if (isset($block->_contactTabVerified) && !$block->_contactTabVerified) {
-        $verified = FALSE;
+      if (!isset($block->_contactTabVerified)) {
+        // Check access on the block.
+        if (!$block->access($this->currentUser)) {
+          $verified = $block->_contactTabVerified = FALSE;
+          continue;
+        }
+
+        // @todo: Add additional checks...
+        $block->_contactTabVerified = TRUE;
       }
 
-      // Check access on the block.
-      if (!$block->access($this->currentUser)) {
-        $verified = $block->_contactTabVerified = FALSE;
+      // If any blocks verify, the tab verifies.
+      if ($block->_contactTabVerified) {
+        $verified = TRUE;
       }
-
-      // @todo: Add additional checks...
-      $block->_contactTabVerified = TRUE;
     }
 
     return $verified;
