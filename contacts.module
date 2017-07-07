@@ -38,6 +38,21 @@ function contacts_theme() {
       'variables' => ['user' => NULL],
       'template' => 'contacts-dash-summary',
     ],
+    'contacts_dash_manage' => [
+      'variables' => ['content' => [], 'types' => [], 'attributes' => []],
+      'template' => 'contacts-dash-manage',
+    ],
+    'contacts_dnd_card' => [
+      'variables' => [
+        'entity' => '',
+        'bundle' => '',
+        'key' => '',
+        'label' => '',
+        'description' => '',
+        'link' => [],
+      ],
+      'template' => 'contacts-dnd-card',
+    ],
     'user__contacts_dashboard_row' => [
       'base hook' => 'user',
       'template' => 'user--contacts-dashboard-row',
