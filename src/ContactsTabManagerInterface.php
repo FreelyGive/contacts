@@ -31,7 +31,7 @@ interface ContactsTabManagerInterface {
    * @param string $path
    *   The path for the tab.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\contacts\Entity\ContactTab|null
    *   The tab, if it exists.
    */
   public function getTabByPath(UserInterface $contact, $path);
