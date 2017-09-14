@@ -1,8 +1,8 @@
 <div {{ attributes.addClass('dash-summary') }}>
-<div class="dash-left">
+<div {{ region_attributes.addClass('dash-left') }}>
     {{ content.left }}
   </div>
-  <div class="dash-right">
+  <div {{ region_attributes.addClass('dash-right') }}>
     {{ content.right }}
   </div>
 </div>
