@@ -5,6 +5,7 @@ namespace Drupal\contacts\Controller;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Url;
@@ -43,6 +44,27 @@ class DashboardController extends ControllerBase {
     );
   }
 
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param boolean|null $manage_mode
+   *   The user we are viewing.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageMode($user, $subpage, $manage_mode = NULL) {
+    if (is_null($manage_mode)) {
+      // Toggle manage mode.
+      $manage_mode = !\Drupal::state()->get('manage_mode');
+    }
+
+    \Drupal::state()->set('manage_mode', $manage_mode);
+
+    return $this->ajaxTab($user, $subpage);
+  }
+
   /**
    * Return the AJAX command for changing tab.
    *
@@ -55,6 +77,8 @@ class DashboardController extends ControllerBase {
    *   The response commands.
    */
   public function ajaxTab(UserInterface $user, $subpage) {
+    $manage_mode = \Drupal::state()->get('manage_mode');
+
     $url = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
       'user' => $user->id(),
       'subpage' => $subpage,
@@ -62,11 +86,13 @@ class DashboardController extends ControllerBase {
 
     $content = [
       '#theme' => 'contacts_dash_tab_content',
+      '#region_attributes' => ['class' => ['drag-area']],
       '#content' => [
         'left' => [],
         'right' => [],
       ],
     ];
+    $content['#attached']['drupalSettings']['dragMode'] = $manage_mode;
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
     if ($tab && $blocks = $this->tabManager->getBlocks($tab, $user)) {
@@ -84,11 +110,56 @@ class DashboardController extends ControllerBase {
           'content' => $block->build(),
         ];
         $block_content['content']['#title'] = $block->label();
+
+
+        if ($manage_mode) {
+          $block_content['#attributes']['class'][] = 'ui-sortable-handle';
+          $block_content['#attributes']['class'][] = 'draggable-active';
+          $block_content['#attributes']['class'][] = 'card';
+          $block_content['content']['#title'] = '';
+
+          $block_content['content']['header'] = [
+            '#type' => 'form',
+            '#attributes' => ['class' => ['form-inline', 'card-header']],
+            'label' => [
+              '#type' => 'textfield',
+              '#default_value' => 'test',
+              '#disabled' => TRUE,
+            ],
+            'edit_link' => [
+              '#type' => 'html_tag',
+              '#tag' => 'a',
+              '#value' => '',
+              '#attributes' => [
+                'href' => '#',
+                'class' => ['ml-auto', 'align-self-center', 'card-link', 'edit-draggable'],
+              ],
+            ],
+            'delete_link' => [
+              '#type' => 'html_tag',
+              '#tag' => 'a',
+              '#value' => '',
+              '#attributes' => [
+                'href' => '#',
+                'class' => ['card-link', 'delete-draggable'],
+              ],
+            ],
+          ];
+
+          $view = $block_content['content']['view'];
+          unset($block_content['content']['view']);
+          $block_content['content']['view'] = $view;
+        }
+
         $content['#content'][$block->getConfiguration()['region']][] = $block_content;
       }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
+    }
+
+    if ($manage_mode) {
+      $content['#region_attributes']['class'][] = 'show';
     }
 
     // Prepend the content with system messages.
@@ -100,6 +171,7 @@ class DashboardController extends ControllerBase {
     // Create AJAX Response object.
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
+    $response->addCommand(new SettingsCommand(['dragMode' => $manage_mode], TRUE));
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
     // Return ajax response.

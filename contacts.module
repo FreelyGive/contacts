@@ -27,7 +27,11 @@ function contacts_theme() {
       'template' => 'contacts-dash-tabs',
     ],
     'contacts_dash_tab_content' => [
-      'variables' => ['content' => []],
+      'variables' => [
+        'content' => [],
+        'attributes' => [],
+        'region_attributes' => [],
+      ],
       'template' => 'contacts-dash-tab-content',
     ],
     'contacts_summary' => [
@@ -39,7 +43,13 @@ function contacts_theme() {
       'template' => 'contacts-dash-summary',
     ],
     'contacts_dash_manage' => [
-      'variables' => ['content' => [], 'types' => [], 'attributes' => []],
+      'variables' => [
+        'content' => [],
+        'types' => [],
+        'attributes' => [],
+        'user' => NULL,
+        'subpage' => NULL,
+      ],
       'template' => 'contacts-dash-manage',
     ],
     'contacts_dnd_card' => [
@@ -86,6 +96,20 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
     $tab['attributes'] = !empty($tab['attributes']) ? new Attribute($tab['attributes']) : new Attribute();
     $tab['link_attributes'] = !empty($tab['link_attributes']) ? new Attribute($tab['link_attributes']) : new Attribute();
   }
+}
+
+/**
+ * Prepares variables for contact dashboard tab content.
+ *
+ * Default template: contacts-dash-tab-content.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_dash_tab_content(array &$variables) {
+  $variables['region_attributes'] = new Attribute($variables['region_attributes']);
 }
 
 /**

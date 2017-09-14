@@ -87,8 +87,10 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $this->subpage = $this->getContextValue('subpage');
     $this->user = $this->getContextValue('user');
 
+    $manage_mode = \Drupal::state()->get('manage_mode');
+
     $this->buildTabs($build);
-    $this->buildContent($build);
+    $this->buildContent($build, $manage_mode);
 
     return $build;
   }
@@ -133,7 +135,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       }
 
       // Add tab id to attributes.
-      $content['#tabs'][$url_stub]['link_attributes']['contacts_tab_id'] = $tab->getOriginalId();
+      $content['#tabs'][$url_stub]['link_attributes']['data-contacts-tab-id'] = $tab->getOriginalId();
     }
 
     // Add active class to current tab.
@@ -151,11 +153,14 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @param array $build
    *   Drupal renderable array being added to.
    */
-  public function buildContent(array &$build) {
+  public function buildContent(array &$build, $manage_mode = FALSE) {
+    $build['#attached']['drupalSettings']['dragMode'] = $manage_mode;
+
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
       '#theme' => 'contacts_dash_tab_content',
+      '#region_attributes' => ['class' => ['drag-area']],
       '#content' => [
         'left' => [],
         'right' => [],
@@ -180,11 +185,54 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
         $block_content['#attributes']['contacts_block_tab'] = $tab->getOriginalId();
         $block_content['#attributes']['contacts_block_id'] = $key;
         $block_content['content']['#title'] = $block->label();
+
+        if ($manage_mode) {
+          $block_content['#attributes']['class'][] = 'ui-sortable-handle';
+          $block_content['#attributes']['class'][] = 'draggable-active';
+          $block_content['#attributes']['class'][] = 'card';
+          $block_content['content']['#title'] = '';
+
+          $block_content['content']['header'] = [
+            '#type' => 'form',
+            '#attributes' => ['class' => ['form-inline', 'card-header']],
+            'label' => [
+              '#type' => 'textfield',
+              '#default_value' => 'test',
+              '#disabled' => TRUE,
+            ],
+            'edit_link' => [
+              '#type' => 'html_tag',
+              '#tag' => 'a',
+              '#value' => '',
+              '#attributes' => [
+                'href' => '#',
+                'class' => ['ml-auto', 'align-self-center', 'card-link', 'edit-draggable'],
+              ],
+            ],
+            'delete_link' => [
+              '#type' => 'html_tag',
+              '#tag' => 'a',
+              '#value' => '',
+              '#attributes' => [
+                'href' => '#',
+                'class' => ['card-link', 'delete-draggable'],
+              ],
+            ],
+          ];
+
+          $view = $block_content['content']['view'];
+          unset($block_content['content']['view']);
+          $block_content['content']['view'] = $view;
+        }
         $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
       }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
+    }
+
+    if ($manage_mode) {
+      $build['content']['#region_attributes']['class'][] = 'show';
     }
 
     $build['content']['#content']['messages'] = [

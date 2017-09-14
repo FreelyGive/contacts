@@ -9,6 +9,17 @@ contacts.ajax_subpage:
   requirements:
     _permission: 'view contacts'
 
+contacts.ajax_manage_mode:
+  path: '/admin/contacts-ajax/manage-mode/{user}/{subpage}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageMode'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+
 contacts.add_indiv_form:
   path: '/admin/contacts/add/indiv'
   defaults:
