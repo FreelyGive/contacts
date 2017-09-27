@@ -57,10 +57,10 @@ class DashboardController extends ControllerBase {
   public function ajaxManageMode($user, $subpage, $manage_mode = NULL) {
     if (is_null($manage_mode)) {
       // Toggle manage mode.
-      $manage_mode = !\Drupal::state()->get('manage_mode');
+      $manage_mode = \Drupal::state()->get('manage_mode');
     }
 
-    \Drupal::state()->set('manage_mode', $manage_mode);
+    \Drupal::state()->set('manage_mode', !$manage_mode);
 
     return $this->ajaxTab($user, $subpage);
   }
@@ -96,7 +96,7 @@ class DashboardController extends ControllerBase {
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
     if ($tab && $blocks = $this->tabManager->getBlocks($tab, $user)) {
-      foreach ($blocks as $block) {
+      foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         // @todo fix weight.
         $block_content = [
@@ -109,8 +109,10 @@ class DashboardController extends ControllerBase {
           '#weight' => $block->getConfiguration()['weight'],
           'content' => $block->build(),
         ];
-        $block_content['content']['#title'] = $block->label();
 
+        $block_content['#attributes']['data-dnd-contacts-block-tab'] = $tab->getOriginalId();
+        $block_content['#attributes']['data-dnd-contacts-block-id'] = $key;
+        $block_content['content']['#title'] = $block->label();
 
         if ($manage_mode) {
           $block_content['#attributes']['class'][] = 'ui-sortable-handle';
@@ -168,13 +170,65 @@ class DashboardController extends ControllerBase {
       '#weight' => -99,
     ];
 
+    // Also update the manage sidebar content.
+    $sidebar_content = contacts_theme_dashboard_manage_sidebar_content();
+
     // Create AJAX Response object.
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
     $response->addCommand(new SettingsCommand(['dragMode' => $manage_mode], TRUE));
+    $response->addCommand(new HtmlCommand('.sidebar-manage-content', $sidebar_content));
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
     // Return ajax response.
+    return $response;
+  }
+
+  /**
+   * Update a block position in a tab.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function updateBlocks() {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $blocks = \Drupal::request()->request->get('block_data');
+    $tab = \Drupal::request()->request->get('tab');
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    foreach ($blocks as $region_data) {
+      foreach ($region_data['blocks'] as $weight => $block) {
+        $changed = FALSE;
+        $block_config = $tab->getBlock($block['id']);
+
+        if (!$block_config) {
+          $block_config = $this->addBlock($tab->getOriginalId(), $block, $region_data['region'], $weight);
+          $changed = TRUE;
+        }
+
+        if ($block_config['region'] != $region_data['region']) {
+          $changed = TRUE;
+          $block_config['region'] = $region_data['region'];
+        }
+
+        if ($block_config['weight'] != $weight) {
+          $changed = TRUE;
+          $block_config['weight'] = $weight;
+        }
+
+        if ($changed) {
+          $tab->setBlock($block['id'], $block_config);
+          $tab->save();
+        }
+      }
+    }
+
+    $json = $tab->getBlocks();
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
     return $response;
   }
 
@@ -197,8 +251,8 @@ class DashboardController extends ControllerBase {
     /* @var \Drupal\contacts\Entity\ContactTab $tab */
     $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
 
-    $profile_type = \Drupal::request()->request->get('profile_type');
-    $profile_relationship = \Drupal::request()->request->get('profile_relationship');
+    $profile_type = $block['profile_type'];
+    $profile_relationship = $block['profile_relationship'];
     $type = $this->entityTypeManager()->getStorage('profile_type')->load($profile_type);
     $block_config = [
       'id' => 'contacts_entity:profile',
@@ -218,72 +272,7 @@ class DashboardController extends ControllerBase {
       // @todo add new relationship.
     }
 
-    $changed = TRUE;
-    $tab->setBlock($block, $block_config);
-    $tab->save();
-
-    $json = $tab->getBlocks();
-    $json['#updated'] = $changed;
-
-    $response = new Response();
-    $response->setContent(json_encode($json));
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setStatusCode(Response::HTTP_OK);
-
-    return $response;
-  }
-
-  /**
-   * Update a block position in a tab.
-   *
-   * @param string $tab
-   *   The id of the tab being updated.
-   * @param string $block
-   *   The id of the block being moved.
-   * @param string $region
-   *   The region the block is being moved to.
-   * @param int $weight
-   *   The weight of the block in that region.
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   *   The response.
-   */
-  public function moveBlock($tab, $block, $region, $weight) {
-    /* @var \Drupal\contacts\Entity\ContactTab $tab */
-    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
-
-    $block_config = $tab->getBlock($block);
-
-    if (!$block_config) {
-      return $this->addBlock($tab->getOriginalId(), $block, $region, $weight);
-    }
-
-    $changed = FALSE;
-
-    if ($block_config['region'] != $region) {
-      $changed = TRUE;
-      $block_config['region'] = $region;
-    }
-
-    if ($block_config['weight'] != $weight) {
-      $changed = TRUE;
-      $block_config['weight'] = $weight;
-    }
-
-    if ($changed) {
-      $tab->setBlock($block, $block_config);
-      $tab->save();
-    }
-
-    $json = $tab->getBlocks();
-    $json['#updated'] = $changed;
-
-    $response = new Response();
-    $response->setContent(json_encode($json));
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setStatusCode(Response::HTTP_OK);
-
-    return $response;
+    return $block_config;
   }
 
   /**

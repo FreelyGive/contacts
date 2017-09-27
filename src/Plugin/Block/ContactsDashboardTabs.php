@@ -182,8 +182,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
           '#weight' => $block->getConfiguration()['weight'],
           'content' => $block->build(),
         ];
-        $block_content['#attributes']['contacts_block_tab'] = $tab->getOriginalId();
-        $block_content['#attributes']['contacts_block_id'] = $key;
+        $block_content['#attributes']['data-dnd-contacts-block-tab'] = $tab->getOriginalId();
+        $block_content['#attributes']['data-dnd-contacts-block-id'] = $key;
         $block_content['content']['#title'] = $block->label();
 
         if ($manage_mode) {
@@ -220,9 +220,11 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
             ],
           ];
 
-          $view = $block_content['content']['view'];
-          unset($block_content['content']['view']);
-          $block_content['content']['view'] = $view;
+          if (isset($block_content['content']['view'])) {
+            $view = $block_content['content']['view'];
+            unset($block_content['content']['view']);
+            $block_content['content']['view'] = $view;
+          }
         }
         $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
       }

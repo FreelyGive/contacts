@@ -19,6 +19,15 @@ contacts.ajax_manage_mode:
         type: entity:user
   requirements:
     _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
+contacts.ajax_update_blocks:
+  path: '/admin/contacts-ajax/update-layout'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlocks'
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
 
 contacts.add_indiv_form:
   path: '/admin/contacts/add/indiv'
@@ -40,30 +49,6 @@ contacts.add_org_form:
   options:
     _admin_route: TRUE
 
-contacts.dash_block_add:
-  path: '/contacts_add_block/{tab}/{block}/{region}/{weight}'
-  defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::addBlock'
-    region: 'left'
-    weight: 0
-  options:
-    no_cache: TRUE
-  requirements:
-    _access: 'TRUE'
-#    _csrf_token: 'TRUE'
-
-contacts.dash_block_move:
-  path: '/contacts_move_block/{tab}/{block}/{region}/{weight}'
-  defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::moveBlock'
-    region: 'left'
-    weight: 0
-  options:
-    no_cache: TRUE
-  requirements:
-    _access: 'TRUE'
-#    _csrf_token: 'TRUE'
-
 contacts.dash_block_remove:
   path: '/contacts_remove_block/{tab}/{block}'
   defaults:
@@ -72,7 +57,6 @@ contacts.dash_block_remove:
     no_cache: TRUE
   requirements:
     _access: 'TRUE'
-#    _csrf_token: 'TRUE'
 
 contacts.dash_block_title:
   path: '/contacts_update_block/{tab}/{block}'
@@ -82,4 +66,3 @@ contacts.dash_block_title:
     no_cache: TRUE
   requirements:
     _access: 'TRUE'
-#    _csrf_token: 'TRUE'

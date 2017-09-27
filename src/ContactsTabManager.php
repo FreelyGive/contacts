@@ -232,7 +232,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       if (!isset($block->_contactTabVerified)) {
         // Check access on the block.
         if (!$block->access($this->currentUser)) {
-          $verified = $block->_contactTabVerified = FALSE;
+          $block->_contactTabVerified = FALSE;
           continue;
         }
 
