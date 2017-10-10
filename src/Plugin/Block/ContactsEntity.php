@@ -5,11 +5,13 @@ namespace Drupal\contacts\Plugin\Block;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Entity\EntityDisplayRepository;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Form\FormBuilder;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
@@ -20,12 +22,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Provides a block to view a custom text content.
+ * Provides a block the user entity and any entity implementing ownership.
+ *
+ * Entity classes need to implement the EntityOwnerInterface and block
+ * annotation/definition should contain the dashboard_block property.
  *
  * @Block(
  *   id = "contacts_entity",
  *   category = @Translation("Contacts"),
  *   deriver = "Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver",
+ *   dashboard_block = TRUE,
  * )
  */
 class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface {
@@ -66,6 +72,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $request;
 
   /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepository
+   */
+  protected $entityDisplayRepository;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -73,7 +86,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
       $container->get('current_route_match'),
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('entity_display.repository')
     );
   }
 
@@ -94,13 +108,16 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The current route match.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
+   * @param \Drupal\Core\Entity\EntityDisplayRepository
+   *   The entity display repository.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
     $this->routeMatch = $route_match;
     $this->request = $request_stack->getCurrentRequest();
+    $this->entityDisplayRepository = $entity_display_repository;
   }
 
   /**
@@ -135,10 +152,10 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   /**
    * {@inheritdoc}
    */
-  public function label() {
+  public function label($edit_link = FALSE) {
     $label = parent::label();
 
-    if ($link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
+    if ($edit_link && $link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
       if ($label) {
         $label = new FormattableMarkup('@label [@link]', [
           '@label' => $label,
@@ -151,6 +168,42 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     return $label;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockForm($form, FormStateInterface $form_state) {
+    $form['mode'] = [
+      '#type' => 'select',
+      '#options' => [self::MODE_FORM => 'Form', self::MODE_VIEW => 'View'],
+      '#title' => $this->t('Show as'),
+      '#default_value' => $this->configuration['mode'],
+    ];
+
+    // @todo figure out how we can get the parent form structure.
+    $form['view_mode'] = [
+      '#type' => 'select',
+      '#options' => $this->entityDisplayRepository->getViewModeOptions($this->pluginDefinition['_entity_type_id']),
+      '#title' => $this->t('View mode'),
+      '#default_value' => $this->configuration['view_mode'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="settings[mode]"]' => array(
+            'value' => self::MODE_VIEW,
+          ),
+        ),
+      ),
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['view_mode'] = $form_state->getValue('view_mode');
+    $this->configuration['mode'] = $form_state->getValue('mode');
   }
 
   /**
@@ -282,6 +335,17 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    // Check create access.
+    $bundle = $definition['_bundle_key'] ? $config['create'] : NULL;
+    $context = [];
+    if (is_a($this->entityTypeManager->getDefinition($definition['_entity_type_id'])->getClass(), EntityOwnerInterface::class, TRUE)) {
+      $user = $this->getContextValue('user');
+      $context['owner'] = $user;
+    }
+    if (!$this->entityTypeManager->getAccessControlHandler($definition['_entity_type_id'])->createAccess($bundle, NULL, $context)) {
+      return FALSE;
+    }
+
     // Build our values.
     $values = [];
 
@@ -295,7 +359,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
     // If this has an owner, set it.
     if ($entity instanceof EntityOwnerInterface) {
-      $entity->setOwner($this->getContextValue('user'));
+      $entity->setOwner($user);
     }
 
     return $entity;

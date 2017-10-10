@@ -6,13 +6,17 @@ dependencies:
 id: account
 label: 'User account'
 path: account
+layout: contacts_tab_content.stacked
 weight: 90
 relationships: {  }
-block:
-  id: 'contacts_entity:user'
-  label: ''
-  provider: contacts
-  label_display: '0'
-  mode: form
-  context_mapping:
-    entity: user
+blocks:
+  contacts_entity_user_user:
+    id: 'contacts_entity:user-user'
+    label: ''
+    provider: contacts
+    label_display: '0'
+    mode: form
+    region: left
+    weight: 0
+    context_mapping:
+      entity: user

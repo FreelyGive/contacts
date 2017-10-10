@@ -1,6 +1,12 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - contacts
+third_party_settings:
+  contacts:
+    user_role_color: 97544F
+    user_role_icon: user
 id: crm_indiv
 label: Person
 weight: 3

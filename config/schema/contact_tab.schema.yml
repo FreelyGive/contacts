@@ -13,6 +13,9 @@ contacts.contact_tab.*:
     path:
       type: string
       label: 'Path'
+    layout:
+      type: string
+      label: 'Layout'
     weight:
       type: integer
       label: 'Weight'
@@ -22,6 +25,15 @@ contacts.contact_tab.*:
       sequence:
         type: contacts.relationship.[%name]
         label: 'Relationship'
-    block:
-      type: contacts.block_plugin.[id]
-      label: 'Block'
+    roles:
+      type: sequence
+      label: 'Roles'
+      sequence:
+        type: string
+        label: 'Role'
+    blocks:
+      type: sequence
+      label: 'Relationships'
+      sequence:
+        type: contacts.block_plugin.[id]
+        label: 'Blocks'

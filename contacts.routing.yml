@@ -9,6 +9,51 @@ contacts.ajax_subpage:
   requirements:
     _permission: 'view contacts'
 
+contacts.ajax_manage_mode:
+  path: '/admin/contacts-ajax/manage-mode/{user}/{subpage}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageMode'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
+contacts.ajax_manage_mode_tab:
+  path: '/admin/contacts-ajax/manage-mode-tab/{user}/{subpage}/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeTab'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
+contacts.ajax_manage_mode_configure_block:
+  path: '/admin/contacts-ajax/manage-configure-block/{user}/{subpage}/{block}/{mode}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeConfigureBlock'
+    mode: 'configure'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
+contacts.ajax_update_blocks:
+  path: '/admin/contacts-ajax/update-layout'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlocks'
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
 contacts.add_indiv_form:
   path: '/admin/contacts/add/indiv'
   defaults:

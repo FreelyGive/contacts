@@ -31,7 +31,7 @@ interface ContactsTabManagerInterface {
    * @param string $path
    *   The path for the tab.
    *
-   * @return \Drupal\Core\Entity\EntityInterface|null
+   * @return \Drupal\contacts\Entity\ContactTab|null
    *   The tab, if it exists.
    */
   public function getTabByPath(UserInterface $contact, $path);
@@ -48,10 +48,10 @@ interface ContactsTabManagerInterface {
   public function getTabs(UserInterface $contact);
 
   /**
-   * Get the block plugin for a tab.
+   * Get the block plugins for a tab.
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
-   *   The tab entity to retrieve the block for.
+   *   The tab entity to retrieve the blocks for.
    * @param \Drupal\user\UserInterface|null $contact
    *   (Optional) The contact we are retrieving the tab for. Required if we are
    *   to verify the tab.
@@ -59,10 +59,10 @@ interface ContactsTabManagerInterface {
    *   Whether to verify the tab. This may require the contact for context.
    *   Defaults to TRUE.
    *
-   * @return \Drupal\Core\Block\BlockPluginInterface|false
+   * @return \Drupal\Core\Block\BlockPluginInterface[]|false
    *   The build render array or FALSE if we cannot build it.
    */
-  public function getBlock(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE);
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE);
 
   /**
    * Verify that a tab is valid for the given contact.

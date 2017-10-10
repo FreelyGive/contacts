@@ -6,6 +6,7 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
 
@@ -28,6 +29,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $tabManager;
 
   /**
+   * The layout plugin manager.
+   *
+   * @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager
+   */
+  protected $layoutManager;
+
+  /**
    * Whether we are building tabs via AJAX.
    *
    * @var bool
@@ -35,7 +43,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $ajax;
 
   /**
-   * The block machine name.
+   * The subpage machine name.
    *
    * @var string
    */
@@ -59,10 +67,15 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   The plugin implementation definition.
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager $layout_manager
+   *   The layout plugin manager.
+   *
+   * @todo Switch to core layout manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, LayoutPluginManager $layout_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tabManager = $tab_manager;
+    $this->layoutManager = $layout_manager;
     $this->ajax = TRUE;
   }
 
@@ -74,7 +87,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
@@ -87,8 +101,10 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $this->subpage = $this->getContextValue('subpage');
     $this->user = $this->getContextValue('user');
 
+    $manage_mode = \Drupal::state()->get('manage_mode');
+
     $this->buildTabs($build);
-    $this->buildContent($build);
+    $this->buildContent($build, $manage_mode);
 
     return $build;
   }
@@ -131,6 +147,9 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
         $content['#tabs'][$url_stub]['link_attributes']['class'][] = 'use-ajax';
         $content['#tabs'][$url_stub]['link_attributes']['data-ajax-progress'] = 'fullscreen';
       }
+
+      // Add tab id to attributes.
+      $content['#tabs'][$url_stub]['link_attributes']['data-contacts-tab-id'] = $tab->getOriginalId();
     }
 
     // Add active class to current tab.
@@ -148,30 +167,73 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @param array $build
    *   Drupal renderable array being added to.
    */
-  public function buildContent(array &$build) {
+  public function buildContent(array &$build, $manage_mode = FALSE) {
+    $build['#attached']['drupalSettings']['dragMode'] = $manage_mode;
+
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
+      '#theme' => 'contacts_dash_tab_content',
+      '#subpage' => $this->subpage,
+      '#manage_mode' => $manage_mode,
+      '#region_attributes' => ['class' => ['drag-area']],
+      '#content' => [],
     ];
-
+    
     $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
-    if ($tab && $block = $this->tabManager->getBlock($tab, $this->user)) {
-      $build['content']['block'] = [
-        '#theme' => 'block',
-        '#attributes' => [],
-        '#configuration' => $block->getConfiguration(),
-        '#plugin_id' => $block->getPluginId(),
-        '#base_plugin_id' => $block->getBaseId(),
-        '#derivative_plugin_id' => $block->getDerivativeId(),
-        'content' => $block->build(),
-      ];
-      $build['content']['block']['content']['#title'] = $block->label();
+    if ($tab) {
+      $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
+      $layoutInstance = $this->layoutManager->createInstance($layout, []);
+
+      // Get available regions from tab.
+      foreach (array_keys($layoutInstance->getPluginDefinition()['regions']) as $region) {
+        $build['content']['#content'][$region] = [];
+      }
+
+      $blocks = $this->tabManager->getBlocks($tab, $this->user);
+      foreach ($blocks as $key => $block) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        if ($manage_mode) {
+          $block_content = [
+            '#theme' => 'contacts_dnd_card',
+            '#attributes' => [
+              'class' => ['draggable', 'draggable-active', 'card'],
+              'data-dnd-contacts-block-tab' => $tab->id(),
+            ],
+            '#id' => $block->getPluginId(),
+            '#block' => $block,
+            '#user' => $this->user->id(),
+            '#subpage' => $this->subpage,
+            '#mode' => 'manage',
+          ];
+        }
+        else {
+          // @todo Order blocks by weight.
+          $block_content = [
+            '#theme' => 'block',
+            '#attributes' => [],
+            '#configuration' => $block->getConfiguration(),
+            '#plugin_id' => $block->getPluginId(),
+            '#base_plugin_id' => $block->getBaseId(),
+            '#derivative_plugin_id' => $block->getDerivativeId(),
+            '#weight' => $block->getConfiguration()['weight'],
+            'content' => $block->build(),
+          ];
+          $block_content['content']['#title'] = $block->label();
+        }
+
+        $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
+      }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
     }
 
-    $build['content']['messages'] = [
+    if ($manage_mode) {
+      $build['content']['#region_attributes']['class'][] = 'show';
+    }
+
+    $build['content']['#content']['messages'] = [
       '#type' => 'status_messages',
       '#weight' => -99,
     ];

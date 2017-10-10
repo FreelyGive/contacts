@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Entity;
 
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
@@ -14,6 +13,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   handlers = {
  *     "list_builder" = "Drupal\contacts\ContactTabListBuilder",
  *     "form" = {
+ *       "add" = "Drupal\contacts\Form\ContactTabForm",
  *       "edit" = "Drupal\contacts\Form\ContactTabForm",
  *       "delete" = "Drupal\contacts\Form\ContactTabDeleteForm"
  *     },
@@ -30,6 +30,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   },
  *   links = {
  *     "canonical" = "/admin/structure/contact-tabs/{contact_tab}",
+ *     "add-form" = "/admin/structure/contact-tabs/add",
  *     "edit-form" = "/admin/structure/contact-tabs/{contact_tab}/edit",
  *     "delete-form" = "/admin/structure/contact-tabs/{contact_tab}/delete",
  *     "collection" = "/admin/structure/contact-tabs"
@@ -79,6 +80,17 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   protected $relationships = [];
 
   /**
+   * The roles required for the tab.
+   *
+   * An array including:
+   *   - id: The relationship plugin id.
+   *   - name: The name for the context.
+   *
+   * @var array
+   */
+  protected $roles = [];
+
+  /**
    * The block configuration.
    *
    * An array including:
@@ -87,14 +99,14 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    *
    * @var array
    */
-  protected $block;
+  protected $blocks = [];
 
   /**
    * The block plugin for this tab.
    *
    * @var \Drupal\Core\Block\BlockPluginInterface
    */
-  protected $blockPlugin;
+  protected $blockPlugins = [];
 
   /**
    * {@inheritdoc}
@@ -129,33 +141,71 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlock() {
-    return $this->block;
+  public function getRoles() {
+    return $this->roles;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlock(array $block) {
-    if (empty($block['id'])) {
-      throw new \InvalidArgumentException('Missing required ID for block settings.');
-    }
-    $this->block = $block;
+  public function setRoles(array $roles) {
+    $this->roles = $roles;
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBlockPlugin() {
-    return $this->blockPlugin;
+  public function getBlock($id) {
+    if (isset($this->blocks[$id])) {
+      return $this->blocks[$id];
+    }
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlockPlugin(BlockPluginInterface $block) {
-    $this->blockPlugin = $block;
+  public function getBlocks() {
+    return $this->blocks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlock($id, array $block) {
+    if (empty($block['id'])) {
+      throw new \InvalidArgumentException('Missing required ID for block settings.');
+    }
+    $this->blocks[$id] = $block;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlocks(array $blocks) {
+    foreach ($blocks as $block) {
+      if (empty($block['id'])) {
+        throw new \InvalidArgumentException('Missing required ID for block settings.');
+      }
+    }
+    $this->blocks = $blocks;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBlockPlugins() {
+    return $this->blockPlugins;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockPlugins(array $blocks) {
+    $this->blockPlugins = $blocks;
     return $this;
   }
 
@@ -182,9 +232,11 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   public function calculateDependencies() {
     parent::calculateDependencies();
 
-    $config = $this->getBlock();
-    $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
-    $this->calculatePluginDependencies($block);
+    $configs = $this->getBlocks();
+    foreach ($configs as $config) {
+      $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
+      $this->calculatePluginDependencies($block);
+    }
 
     return $this;
   }
