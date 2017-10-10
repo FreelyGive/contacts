@@ -1,11 +1,59 @@
-<div class="card">
-  <div data-dnd-contacts-block-id="contacts_entity_{{ entity }}_{{ key }}" data-dnd-contacts-profile-type="{{ bundle }}" data-dnd-contacts-profile-relationship="{{ entity }}_{{ key }}" class="draggable">
-    <div class="menu-content">
-      <div class="card-header">{{ label }}</div>
-      <div class="card-block">
-        <div class="card-text">{{ description }}</div>
-        <a href="{{ link.url }}" target="_blank" class="card-link">{{ link.text }}</a>
+<div {{ attributes }}>
+  <div class="card-header d-flex align-items-center">
+    <i class="fa fa-arrows fa-lg mr-3 ui-sortable-handle" aria-hidden="true"></i>
+    <h5 class="mb-0">{{ label }}</h5>
+    <div class="ml-auto align-self-center manage-links">
+    {% if configure_link %}
+      <a href="#" class="use-ajax text-color-default" data-ajax-url="{{ configure_link }}"><i title="Configure" class="fa fa-cog fa-lg" aria-hidden="true"></i></a>
+    {% endif %}
       </div>
-    </div>
   </div>
+  {% if pseudo_content %}
+    <div class="dnd-content">
+      <div class="card-text field"></div>
+      <div class="card-text field"></div>
+    </div>
+  {% endif %}
+  {% if content %}
+  <div class="card-block">
+    {% if content.description %}
+      <div class="card-text"><strong>{{ content.description }}</strong></div>
+    {% endif %}
+    {% if content.needed_hats %}
+      <hr>
+      <div class="small card-text">
+        Allowed for users with hats:<br>
+        {%- for hat in content.needed_hats -%}
+          {{ hat }}
+        {%- endfor -%}
+      </div>
+    {% endif %}
+    {% if content.placed_tabs %}
+      <hr>
+      <div class="small card-text">
+        Currently placed on tabs:<br>
+        {%- for tab in content.placed_tabs -%}
+          <span class="btn btn-outline-primary btn-sm mr-2">{{ tab|raw }}</span>
+        {%- endfor -%}
+      </div>
+    {% endif %}
+    {% if content.configure_form %}
+      {{ content.configure_form }}
+    {% endif %}
+    {% if content.links %}
+      <hr>
+      {%- for link in content.links -%}
+        <a href="{{ link.url }}" target="_blank" class="card-link">{{ link.text }}</a>
+      {%- endfor -%}
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if footer %}
+    <div class="card-footer text-muted">
+      {% if footer.visible_hats %}
+        <span>Visible for:</span>
+        {{ footer.visible_hats }}
+      {% endif %}
+    </div>
+  {% endif %}
 </div>

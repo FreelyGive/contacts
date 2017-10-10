@@ -28,6 +28,24 @@ interface ContactTabInterface extends ConfigEntityInterface {
   public function setPath($path);
 
   /**
+   * Get the roles required by the tab.
+   *
+   * @return array
+   *   An array of role ids.
+   */
+  public function getRoles();
+
+  /**
+   * Set the roles required by the tab.
+   *
+   * @param array $roles
+   *   An array of role ids.
+   *
+   * @return $this
+   */
+  public function setRoles(array $roles);
+
+  /**
    * Get the relationship definitions.
    *
    * @return array
@@ -98,8 +116,8 @@ interface ContactTabInterface extends ConfigEntityInterface {
   /**
    * Get all the block plugins for the tab.
    *
-   * @return \Drupal\Core\Block\BlockPluginInterface|null
-   *   The block plugin or NULL if it's not been set.
+   * @return \Drupal\Core\Block\BlockPluginInterface[]|null
+   *   The block plugins or NULL if it's not been set.
    */
   public function getBlockPlugins();
 

@@ -5,10 +5,13 @@ namespace Drupal\contacts\Controller;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Ajax\SettingsCommand;
+use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Url;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,13 +29,35 @@ class DashboardController extends ControllerBase {
   protected $tabManager;
 
   /**
+   * The block plugin manager.
+   *
+   * @var \Drupal\Core\Block\BlockManager
+   */
+  protected $blockManager;
+
+  /**
+   * The layout plugin manager.
+   *
+   * @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager
+   */
+  protected $layoutManager;
+
+  /**
    * Construct the dashboard controller.
    *
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\Core\Block\BlockManager $block_manager
+   *   The block plugin manager.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager $layout_manager
+   *   The layout plugin manager.
+   *
+   * @todo Switch to core layout manager.
    */
-  public function __construct(ContactsTabManager $tab_manager) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, LayoutPluginManager $layout_manager) {
     $this->tabManager = $tab_manager;
+    $this->blockManager = $block_manager;
+    $this->layoutManager = $layout_manager;
   }
 
   /**
@@ -40,7 +65,9 @@ class DashboardController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('plugin.manager.block'),
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
@@ -48,6 +75,10 @@ class DashboardController extends ControllerBase {
   /**
    * Return the AJAX command for changing tab.
    *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
    * @param boolean|null $manage_mode
    *   The user we are viewing.
    *
@@ -72,9 +103,96 @@ class DashboardController extends ControllerBase {
    *   The user we are viewing.
    * @param string $subpage
    *   The subpage we want to view.
+   * @param string|null $tab
+   *   The user we are viewing.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
+   */
+  public function ajaxManageModeTab($user, $subpage, $tab = NULL) {
+    if (is_null($tab)) {
+      // Toggle manage mode.
+      \Drupal::state()->set('manage_mode_tab', 'blocks');
+    }
+    else {
+      \Drupal::state()->set('manage_mode_tab', $tab);
+    }
+
+    return $this->ajaxTab($user, $subpage);
+  }
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
+   * @param string $block
+   *   The user we are viewing.
+   * @param string $mode
+   *   The mode to render the block for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageModeConfigureBlock($user, $subpage, $block, $mode = 'configure') {
+    $tab = $this->tabManager->getTabByPath($user, $subpage);
+    if ($tab) {
+      $blocks = $this->tabManager->getBlocks($tab, $user);
+
+      if (isset($blocks[$block])) {
+        $key = $block;
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        $block = $blocks[$key];
+
+        $block_content = [
+          '#theme' => 'contacts_dnd_card',
+          '#attributes' => [
+            'class' => ['draggable', 'draggable-active', 'card'],
+            'data-dnd-contacts-block-tab' => $tab->id(),
+          ],
+          '#id' => $block->getPluginId(),
+          '#block' => $block,
+          '#user' => $user->id(),
+          '#subpage' => $subpage,
+          '#mode' => $mode,
+        ];
+      }
+      else {
+        drupal_set_message($this->t('Page not found.'), 'warning');
+
+      }
+    }
+
+    else {
+      drupal_set_message($this->t('Page not found.'), 'warning');
+    }
+
+    // Create AJAX Response object.
+    $response = new AjaxResponse();
+
+    if (!empty($block_content)) {
+      $response->addCommand(new ReplaceCommand("div[data-dnd-contacts-block-id='{$key}'][data-dnd-block-mode!='meta']", $block_content));
+    }
+
+    // Return ajax response.
+    return $response;
+
+  }
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   *
+   * @todo Combine this method with \Drupal\contacts\Plugin\Block\ContactsDashboardTabs::buildContent().
    */
   public function ajaxTab(UserInterface $user, $subpage) {
     $manage_mode = \Drupal::state()->get('manage_mode');
@@ -87,70 +205,55 @@ class DashboardController extends ControllerBase {
     $content = [
       '#theme' => 'contacts_dash_tab_content',
       '#region_attributes' => ['class' => ['drag-area']],
-      '#content' => [
-        'left' => [],
-        'right' => [],
-      ],
+      '#subpage' => $subpage,
+      '#manage_mode' => $manage_mode,
+      '#content' => [],
     ];
     $content['#attached']['drupalSettings']['dragMode'] = $manage_mode;
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
-    if ($tab && $blocks = $this->tabManager->getBlocks($tab, $user)) {
+    if ($tab) {
+      $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
+      $layoutInstance = $this->layoutManager->createInstance($layout, []);
+
+      // Get available regions from tab.
+      foreach (array_keys($layoutInstance->getPluginDefinition()['regions']) as $region) {
+        $content['#content'][$region] = [];
+      }
+
+      $blocks = $this->tabManager->getBlocks($tab, $user);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // @todo fix weight.
-        $block_content = [
-          '#theme' => 'block',
-          '#attributes' => [],
-          '#configuration' => $block->getConfiguration(),
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#weight' => $block->getConfiguration()['weight'],
-          'content' => $block->build(),
-        ];
-
-        $block_content['#attributes']['data-dnd-contacts-block-tab'] = $tab->getOriginalId();
-        $block_content['#attributes']['data-dnd-contacts-block-id'] = $key;
-        $block_content['content']['#title'] = $block->label();
-
+        // For some reason this brings in the theme hooks required...
+        $block->build();
         if ($manage_mode) {
-          $block_content['#attributes']['class'][] = 'ui-sortable-handle';
-          $block_content['#attributes']['class'][] = 'draggable-active';
-          $block_content['#attributes']['class'][] = 'card';
-          $block_content['content']['#title'] = '';
-
-          $block_content['content']['header'] = [
-            '#type' => 'form',
-            '#attributes' => ['class' => ['form-inline', 'card-header']],
-            'label' => [
-              '#type' => 'textfield',
-              '#default_value' => 'test',
-              '#disabled' => TRUE,
+          $block_content = [
+            '#theme' => 'contacts_dnd_card',
+            '#attributes' => [
+              'class' => ['draggable', 'draggable-active', 'card'],
+              'data-dnd-contacts-block-tab' => $tab->id(),
             ],
-            'edit_link' => [
-              '#type' => 'html_tag',
-              '#tag' => 'a',
-              '#value' => '',
-              '#attributes' => [
-                'href' => '#',
-                'class' => ['ml-auto', 'align-self-center', 'card-link', 'edit-draggable'],
-              ],
-            ],
-            'delete_link' => [
-              '#type' => 'html_tag',
-              '#tag' => 'a',
-              '#value' => '',
-              '#attributes' => [
-                'href' => '#',
-                'class' => ['card-link', 'delete-draggable'],
-              ],
-            ],
+            '#id' => $block->getPluginId(),
+            '#block' => $block,
+            '#user' => $user->id(),
+            '#subpage' => $subpage,
+            '#mode' => 'manage',
+          ];
+        }
+        else {
+          // @todo fix weight.
+          $block_content = [
+            '#theme' => 'block',
+            '#attributes' => [],
+            '#configuration' => $block->getConfiguration(),
+            '#plugin_id' => $block->getPluginId(),
+            '#base_plugin_id' => $block->getBaseId(),
+            '#derivative_plugin_id' => $block->getDerivativeId(),
+            '#weight' => $block->getConfiguration()['weight'],
+            'content' => $block->build(),
           ];
 
-          $view = $block_content['content']['view'];
-          unset($block_content['content']['view']);
-          $block_content['content']['view'] = $view;
+          $block_content['content']['#title'] = $block->label();
         }
 
         $content['#content'][$block->getConfiguration()['region']][] = $block_content;
@@ -171,13 +274,21 @@ class DashboardController extends ControllerBase {
     ];
 
     // Also update the manage sidebar content.
-    $sidebar_content = contacts_theme_dashboard_manage_sidebar_content();
+    // @todo why does this break for empty tabs?
+    // Probably need to move sidebar out of theme.
+    if (function_exists('contacts_theme_dashboard_manage_sidebar_content')) {
+      $sidebar_content = contacts_theme_dashboard_manage_sidebar_content();
+    }
 
     // Create AJAX Response object.
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
     $response->addCommand(new SettingsCommand(['dragMode' => $manage_mode], TRUE));
-    $response->addCommand(new HtmlCommand('.sidebar-manage-content', $sidebar_content));
+
+    if (isset($sidebar_content)) {
+      $response->addCommand(new HtmlCommand('#sidebar-manage-content', $sidebar_content['content']));
+    }
+
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
     // Return ajax response.
@@ -202,7 +313,7 @@ class DashboardController extends ControllerBase {
         $block_config = $tab->getBlock($block['id']);
 
         if (!$block_config) {
-          $block_config = $this->addBlock($tab->getOriginalId(), $block, $region_data['region'], $weight);
+          $block_config = $this->addBlock($tab, $block, $region_data['region'], $weight);
           $changed = TRUE;
         }
 
@@ -235,10 +346,10 @@ class DashboardController extends ControllerBase {
   /**
    * Add a block to a tab.
    *
-   * @param string $tab
-   *   The id of the tab being updated.
-   * @param string $block
-   *   The id of the block being moved.
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to add the block to.
+   * @param string $block_data
+   *   The block data provided by post request.
    * @param string $region
    *   The region the block is being moved to.
    * @param int $weight
@@ -247,108 +358,65 @@ class DashboardController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\Response
    *   The response.
    */
-  public function addBlock($tab, $block, $region, $weight) {
-    /* @var \Drupal\contacts\Entity\ContactTab $tab */
-    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+  public function addBlock(&$tab, $block_data, $region, $weight) {
+    $entity_type = $block_data['entity_type'];
+    $entity_bundle = $block_data['entity_bundle'];
 
-    $profile_type = $block['profile_type'];
-    $profile_relationship = $block['profile_relationship'];
-    $type = $this->entityTypeManager()->getStorage('profile_type')->load($profile_type);
-    $block_config = [
-      'id' => 'contacts_entity:profile',
-      'label' => $type->label(),
-      'label_display' => 'visible',
-      'mode' => 'view',
-      'create' => $profile_type,
-      'edit_link' => 'title',
+    switch ($entity_type) {
+      case 'view':
+        list($view_id, $view_display) = explode(':', $entity_bundle);
+        $plugin_id = "views_block:{$view_id}-{$view_display}";
+        break;
+
+      case 'user':
+      case 'profile':
+        $plugin_id = "contacts_entity:{$entity_type}-{$entity_bundle}";
+        break;
+    }
+
+    if (!isset($plugin_id)) {
+      return FALSE;
+    }
+
+    $default_config = [
       'region' => $region,
       'weight' => $weight,
-      'context_mapping' => ['entity' => $profile_relationship],
     ];
 
-    $relationships = $tab->getRelationships();
+    /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+    $block = $this->blockManager->createInstance($plugin_id, $default_config);
+    $block_config = $block->getConfiguration();
 
-    if (empty($relationships[$profile_relationship])) {
-      // @todo add new relationship.
+    if (!empty($block_data['entity_relationship'])) {
+      // Give everything the user.
+      if ($entity_type !== 'user') {
+        $block_config['context_mapping'] = ['user' => 'user'];
+
+        $entity_relationship = $block_data['entity_relationship'];
+        $relationships = $tab->getRelationships();
+
+        // @todo relationship name maps.
+        $block_config['context_mapping'] = ['entity' => $entity_relationship];
+
+        if (empty($relationships[$entity_relationship])) {
+          // @todo this needs abstracting.
+          if ($entity_type == 'profile') {
+            $key = "{$entity_type}_{$entity_bundle}";
+            $relationships[$entity_relationship] = [
+              'id' => "typed_data_entity_relationship:entity:user:{$key}",
+              'name' => $key,
+              'source' => 'user',
+            ];
+          }
+          $tab->setRelationships($relationships);
+        }
+      }
+      else {
+        $block_config['context_mapping'] = ['entity' => 'user'];
+      }
     }
 
     return $block_config;
-  }
-
-  /**
-   * Remove a block from a tab.
-   *
-   * @param string $tab
-   *   The id of the tab being updated.
-   * @param string $block
-   *   The id of the block being moved.
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   *   The response.
-   */
-  public function removeBlock($tab, $block) {
-    /* @var \Drupal\contacts\Entity\ContactTab $tab */
-    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
-
-    $blocks = $tab->getBlocks();
-
-    if ($changed = isset($blocks[$block])) {
-      unset($blocks[$block]);
-      $tab->setBlocks($blocks);
-      $tab->save();
-    }
-
-    $json = $tab->getBlocks();
-    $json['#updated'] = $changed;
-
-    $response = new Response();
-    $response->setContent(json_encode($json));
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setStatusCode(Response::HTTP_OK);
-
-    return $response;
-  }
-
-  /**
-   * Update a block position in a tab.
-   *
-   * @param string $tab
-   *   The id of the tab being updated.
-   * @param string $block
-   *   The id of the block being updated.
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   *   The response.
-   */
-  public function updateBlockTitle($tab, $block) {
-    /* @var \Drupal\contacts\Entity\ContactTab $tab */
-    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
-
-    $block_config = $tab->getBlock($block);
-    $changed = FALSE;
-
-    // Get label from post data.
-    $label = \Drupal::request()->request->get('label');
-    if ($label && $block_config['label'] != $label) {
-      $changed = TRUE;
-      $block_config['label'] = $label;
-    }
-
-    if ($changed) {
-      $tab->setBlock($block, $block_config);
-      $tab->save();
-    }
-
-    $json = $tab->getBlocks();
-    $json['#updated'] = $changed;
-    $json['#label'] = $label;
-
-    $response = new Response();
-    $response->setContent(json_encode($json));
-    $response->headers->set('Content-Type', 'application/json');
-    $response->setStatusCode(Response::HTTP_OK);
-
-    return $response;
   }
 
 }

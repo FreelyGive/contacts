@@ -59,7 +59,30 @@ class ContactTabForm extends EntityForm {
       'standalone' => TRUE,
     ];
 
+    $options = [];
+    $roles = user_roles(TRUE);
+    foreach ($roles as $id => $role) {
+      $options[$id] = $role->label();
+    }
+
+    $form['required_hats'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Require hats'),
+      '#description' => $this->t('Require that a user has at least one of these hats to show this tab.'),
+      '#options' => $options,
+      '#default_value' => array_keys($this->entity->getRoles()),
+    ];
+
     return $form;
+  }
+
+  public function buildEntity(array $form, FormStateInterface $form_state) {
+    $entity = parent::buildEntity($form, $form_state);
+
+    $required_hats = $form_state->getValue('required_hats');
+    $entity->set('roles', array_filter($required_hats));
+
+    return $entity;
   }
 
   /**

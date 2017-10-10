@@ -6,6 +6,7 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
 
@@ -28,6 +29,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $tabManager;
 
   /**
+   * The layout plugin manager.
+   *
+   * @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager
+   */
+  protected $layoutManager;
+
+  /**
    * Whether we are building tabs via AJAX.
    *
    * @var bool
@@ -35,7 +43,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $ajax;
 
   /**
-   * The block machine name.
+   * The subpage machine name.
    *
    * @var string
    */
@@ -59,10 +67,15 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   The plugin implementation definition.
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager $layout_manager
+   *   The layout plugin manager.
+   *
+   * @todo Switch to core layout manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, LayoutPluginManager $layout_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tabManager = $tab_manager;
+    $this->layoutManager = $layout_manager;
     $this->ajax = TRUE;
   }
 
@@ -74,7 +87,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
@@ -160,72 +174,54 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
       '#theme' => 'contacts_dash_tab_content',
+      '#subpage' => $this->subpage,
+      '#manage_mode' => $manage_mode,
       '#region_attributes' => ['class' => ['drag-area']],
-      '#content' => [
-        'left' => [],
-        'right' => [],
-      ],
+      '#content' => [],
     ];
-
+    
     $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
-    if ($tab && $blocks = $this->tabManager->getBlocks($tab, $this->user)) {
+    if ($tab) {
+      $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
+      $layoutInstance = $this->layoutManager->createInstance($layout, []);
+
+      // Get available regions from tab.
+      foreach (array_keys($layoutInstance->getPluginDefinition()['regions']) as $region) {
+        $build['content']['#content'][$region] = [];
+      }
+
+      $blocks = $this->tabManager->getBlocks($tab, $this->user);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // @todo Order blocks by weight.
-        $block_content = [
-          '#theme' => 'block',
-          '#attributes' => [],
-          '#configuration' => $block->getConfiguration(),
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#weight' => $block->getConfiguration()['weight'],
-          'content' => $block->build(),
-        ];
-        $block_content['#attributes']['data-dnd-contacts-block-tab'] = $tab->getOriginalId();
-        $block_content['#attributes']['data-dnd-contacts-block-id'] = $key;
-        $block_content['content']['#title'] = $block->label();
-
         if ($manage_mode) {
-          $block_content['#attributes']['class'][] = 'ui-sortable-handle';
-          $block_content['#attributes']['class'][] = 'draggable-active';
-          $block_content['#attributes']['class'][] = 'card';
-          $block_content['content']['#title'] = '';
-
-          $block_content['content']['header'] = [
-            '#type' => 'form',
-            '#attributes' => ['class' => ['form-inline', 'card-header']],
-            'label' => [
-              '#type' => 'textfield',
-              '#default_value' => 'test',
-              '#disabled' => TRUE,
+          $block_content = [
+            '#theme' => 'contacts_dnd_card',
+            '#attributes' => [
+              'class' => ['draggable', 'draggable-active', 'card'],
+              'data-dnd-contacts-block-tab' => $tab->id(),
             ],
-            'edit_link' => [
-              '#type' => 'html_tag',
-              '#tag' => 'a',
-              '#value' => '',
-              '#attributes' => [
-                'href' => '#',
-                'class' => ['ml-auto', 'align-self-center', 'card-link', 'edit-draggable'],
-              ],
-            ],
-            'delete_link' => [
-              '#type' => 'html_tag',
-              '#tag' => 'a',
-              '#value' => '',
-              '#attributes' => [
-                'href' => '#',
-                'class' => ['card-link', 'delete-draggable'],
-              ],
-            ],
+            '#id' => $block->getPluginId(),
+            '#block' => $block,
+            '#user' => $this->user->id(),
+            '#subpage' => $this->subpage,
+            '#mode' => 'manage',
           ];
-
-          if (isset($block_content['content']['view'])) {
-            $view = $block_content['content']['view'];
-            unset($block_content['content']['view']);
-            $block_content['content']['view'] = $view;
-          }
         }
+        else {
+          // @todo Order blocks by weight.
+          $block_content = [
+            '#theme' => 'block',
+            '#attributes' => [],
+            '#configuration' => $block->getConfiguration(),
+            '#plugin_id' => $block->getPluginId(),
+            '#base_plugin_id' => $block->getBaseId(),
+            '#derivative_plugin_id' => $block->getDerivativeId(),
+            '#weight' => $block->getConfiguration()['weight'],
+            'content' => $block->build(),
+          ];
+          $block_content['content']['#title'] = $block->label();
+        }
+
         $build['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
       }
     }

@@ -21,6 +21,31 @@ contacts.ajax_manage_mode:
     _permission: 'view contacts'
 #    _csrf_token: 'TRUE'
 
+contacts.ajax_manage_mode_tab:
+  path: '/admin/contacts-ajax/manage-mode-tab/{user}/{subpage}/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeTab'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
+contacts.ajax_manage_mode_configure_block:
+  path: '/admin/contacts-ajax/manage-configure-block/{user}/{subpage}/{block}/{mode}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeConfigureBlock'
+    mode: 'configure'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'
+#    _csrf_token: 'TRUE'
+
 contacts.ajax_update_blocks:
   path: '/admin/contacts-ajax/update-layout'
   defaults:
@@ -48,21 +73,3 @@ contacts.add_org_form:
     _permission: 'add contacts'
   options:
     _admin_route: TRUE
-
-contacts.dash_block_remove:
-  path: '/contacts_remove_block/{tab}/{block}'
-  defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::removeBlock'
-  options:
-    no_cache: TRUE
-  requirements:
-    _access: 'TRUE'
-
-contacts.dash_block_title:
-  path: '/contacts_update_block/{tab}/{block}'
-  defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlockTitle'
-  options:
-    no_cache: TRUE
-  requirements:
-    _access: 'TRUE'

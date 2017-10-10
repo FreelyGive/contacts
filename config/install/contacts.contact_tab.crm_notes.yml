@@ -8,21 +8,27 @@ dependencies:
 id: crm_notes
 label: Notes
 path: notes
+layout: contacts_tab_content.stacked
 weight: 99
 relationships:
-  profile:
+  profile_crm_notes:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
-    name: profile
+    name: profile_crm_notes
     source: user
+roles: {  }
 blocks:
-  contacts_entity_profile:
-    id: 'contacts_entity:profile'
-    label: ''
+  contacts_entity_profile_crm_notes:
+    id: 'contacts_entity:profile-crm_notes'
+    label: Notes
     provider: contacts
     label_display: '0'
     mode: form
     create: crm_notes
+    operation: crm_dashboard
+    view_mode: default
+    edit_link: title
+    edit_id: notes
     region: left
     weight: 0
     context_mapping:
-      entity: profile
+      entity: profile_crm_notes

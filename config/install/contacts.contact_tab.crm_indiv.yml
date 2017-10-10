@@ -8,21 +8,24 @@ dependencies:
 id: crm_indiv
 label: Individual
 path: indiv
+layout: contacts_tab_content.stacked
 weight: -10
 relationships:
-  profile:
+  profile_crm_indiv:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
-    name: profile
+    name: profile_crm_indiv
     source: user
+roles:
+  crm_indiv: crm_indiv
 blocks:
-  contacts_entity_profile:
-    id: 'contacts_entity:profile'
-    label: ''
-    provider: contacts
-    label_display: '0'
-    create: crm_indiv
+  contacts_entity_profile_crm_indiv:
+    label: Individual
+    label_display: visible
+    mode: view
     region: left
     weight: 0
+    id: 'contacts_entity:profile-crm_indiv'
+    create: crm_indiv
+    edit_link: title
     context_mapping:
-      entity: profile
-      user: user
+      entity: profile_crm_indiv

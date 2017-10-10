@@ -1,6 +1,12 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - contacts
+third_party_settings:
+  contacts:
+    user_role_color: AAD272
+    user_role_icon: building
 id: crm_org
 label: Organisation
 weight: 4

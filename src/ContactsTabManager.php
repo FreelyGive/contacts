@@ -114,24 +114,52 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   }
 
   /**
+   * Gets a list of tabs that have a block in them.
+   *
+   * @param string $block_id
+   *   The id of the block being searched for.
+   *
+   * @return array
+   *   Array of tab labels keyed by tab id.
+   */
+  public function getTabsWithBlock($block_id) {
+    $tabs = $this->getTabs();
+
+    $found = [];
+    foreach ($tabs as $id => $tab) {
+      $blocks = $this->getBlocks($tab, NULL, FALSE);
+      if (in_array($block_id, array_keys($blocks))) {
+        $found[$id] = $tab->label();
+      }
+    }
+
+    return $found;
+  }
+  
+  /**
    * {@inheritdoc}
    */
-  public function getTabByPath(UserInterface $contact, $path) {
+  public function getTabByPath(UserInterface $contact = NULL, $path) {
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['path' => $path]);
     $tab = reset($tabs);
 
-    // Check this tab is valid for the contact.
-    if ($tab && $this->verifyTab($tab, $contact)) {
-      return $tab;
+    if (!$tab) {
+      return NULL;
     }
 
-    return NULL;
+    // Check this tab is valid for the contact.
+    $manage_mode = \Drupal::state()->get('manage_mode');
+    if ($contact && !$manage_mode && !$this->verifyTab($tab, $contact)) {
+      return NULL;
+    }
+
+    return $tab;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTabs(UserInterface $contact) {
+  public function getTabs(UserInterface $contact = NULL) {
     // Load all our active tabs.
     /* @var \Drupal\contacts\Entity\ContactTabInterface[] $tabs */
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['status' => TRUE]);
@@ -141,8 +169,16 @@ class ContactsTabManager implements ContactsTabManagerInterface {
 
     // Remove any tabs that are not for this contact.
     foreach ($tabs as $id => $tab) {
-      if (!$this->verifyTab($tab, $contact)) {
+      $manage_mode = \Drupal::state()->get('manage_mode');
+
+      if ($contact && !$manage_mode && !$this->verifyTab($tab, $contact)) {
         unset($tabs[$id]);
+      }
+
+      if ($contact && !empty($tab->getRoles())) {
+        if (empty(array_intersect($contact->getRoles(), $tab->getRoles()))) {
+          unset($tabs[$id]);
+        }
       }
     }
 
@@ -159,10 +195,10 @@ class ContactsTabManager implements ContactsTabManagerInterface {
    */
   public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE) {
     $blocks = $tab->getBlockPlugins();
-
     if (empty($blocks)) {
       // Get our block plugin, applying context if relevant..
-      $block_configurations = $tab->getBlocks();
+      $block_configurations = $tab->getBlocks() ?: [];
+
       $blocks = [];
       foreach ($block_configurations as $key => $block_configuration) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */

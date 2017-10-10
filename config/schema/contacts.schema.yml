@@ -48,3 +48,14 @@ block.settings.contacts_entity:*:
     weight:
       type: integer
       label: 'Weight'
+
+user.role.*.third_party.contacts:
+  type: mapping
+  label: 'Contacts fields'
+  mapping:
+    user_role_color:
+      type: text
+      label: 'Role Color'
+    user_role_icon:
+      type: text
+      label: 'Role Icon'

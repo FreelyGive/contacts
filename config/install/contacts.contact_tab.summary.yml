@@ -1,29 +1,37 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  config:
+    - profile.type.crm_indiv
+    - profile.type.crm_org
+    - profile.type.crm_notes
+  module:
+    - profile
 id: summary
 label: Summary
 path: summary
+layout: contacts_tab_content.stacked
 weight: -99
 relationships:
-  profile_indiv:
+  profile_crm_indiv:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_indiv'
-    name: profile_indiv
+    name: profile_crm_indiv
     source: user
-  profile_org:
+  profile_crm_org:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_org'
-    name: profile_org
+    name: profile_crm_org
     source: user
-  profile_notes:
+  profile_crm_notes:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
-    name: profile_notes
+    name: profile_crm_notes
     source: user
+roles: {  }
 blocks:
-  contacts_entity_profile_indiv:
-    id: 'contacts_entity:profile'
+  contacts_entity_profile_crm_indiv:
+    id: 'contacts_entity:profile-crm_indiv'
     label: 'Person Summary'
     provider: contacts
-    label_display: 'visible'
+    label_display: visible
     create: crm_indiv
     mode: view_new
     edit_link: title
@@ -32,23 +40,23 @@ blocks:
     weight: 0
     context_mapping:
       user: user
-      entity: profile_indiv
-  contacts_entity_profile_org:
-    id: 'contacts_entity:profile'
+      entity: profile_crm_indiv
+  contacts_entity_profile_crm_org:
+    id: 'contacts_entity:profile-crm_org'
     label: 'Organisation Summary'
     provider: contacts
-    label_display: 'visible'
+    label_display: visible
     create: crm_org
     mode: view_new
     edit_link: title
     edit_id: org
     region: left
-    weight: 0
+    weight: 1
     context_mapping:
       user: user
-      entity: profile_org
-  contacts_entity_profile_notes:
-    id: 'contacts_entity:profile'
+      entity: profile_crm_org
+  contacts_entity_profile_crm_notes:
+    id: 'contacts_entity:profile-crm_notes'
     label: 'Notes'
     provider: contacts
     label_display: 'visible'
@@ -59,4 +67,4 @@ blocks:
     region: right
     weight: 0
     context_mapping:
-      entity: profile_notes
+      entity: profile_crm_notes
