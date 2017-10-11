@@ -205,7 +205,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       $this->verifyTab($tab, $contact, $blocks);
 
       // Filter our blocks that don't verify.
-      $blocks = array_filter($blocks, function($block) {
+      $blocks = array_filter($blocks, function ($block) {
         return $block->_contactTabVerified;
       });
     }
