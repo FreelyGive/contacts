@@ -10,15 +10,18 @@ label: Organisation
 path: org
 weight: -10
 relationships:
-  profile:
+  profile_crm_org:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_org'
-    name: profile
+    name: profile_crm_org
     source: user
-block:
-  id: 'contacts_entity:profile'
-  label: ''
-  provider: contacts
-  label_display: '0'
-  create: crm_org
-  context_mapping:
-    entity: profile
+blocks:
+  contacts_entity_profile_crm_org:
+    id: 'contacts_entity:profile'
+    label: ''
+    provider: contacts
+    label_display: '0'
+    create: crm_org
+    region: left
+    weight: 0
+    context_mapping:
+      entity: profile_crm_org

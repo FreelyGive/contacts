@@ -5,11 +5,16 @@ namespace Drupal\contacts\Controller;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Ajax\SettingsCommand;
+use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Url;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller routines for contact dashboard tabs and ajax.
@@ -24,13 +29,25 @@ class DashboardController extends ControllerBase {
   protected $tabManager;
 
   /**
+   * The block plugin manager.
+   *
+   * @var \Drupal\Core\Block\BlockManager
+   */
+  protected $blockManager;
+
+  /**
    * Construct the dashboard controller.
    *
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\Core\Block\BlockManager $block_manager
+   *   The block plugin manager.
+   *
+   * @todo Switch to core layout manager.
    */
-  public function __construct(ContactsTabManager $tab_manager) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager) {
     $this->tabManager = $tab_manager;
+    $this->blockManager = $block_manager;
   }
 
   /**
@@ -38,7 +55,8 @@ class DashboardController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('plugin.manager.block')
     );
   }
 
@@ -52,6 +70,8 @@ class DashboardController extends ControllerBase {
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
+   *
+   * @todo Combine this method with \Drupal\contacts\Plugin\Block\ContactsDashboardTabs::buildContent().
    */
   public function ajaxTab(UserInterface $user, $subpage) {
     $url = Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
@@ -59,20 +79,39 @@ class DashboardController extends ControllerBase {
       'subpage' => $subpage,
     ]);
 
-    $content = [];
+    $content = [
+      '#type' => 'container',
+      'content' => [
+        '#theme' => 'contacts_dash_tab_content',
+        '#region_attributes' => ['class' => ['drag-area']],
+        '#subpage' => $subpage,
+        '#content' => [
+          'left' => [],
+          'right' => [],
+        ],
+      ],
+    ];
 
     $tab = $this->tabManager->getTabByPath($user, $subpage);
-    if ($tab && $block = $this->tabManager->getBlock($tab, $user)) {
-      $content['block'] = [
-        '#theme' => 'block',
-        '#attributes' => [],
-        '#configuration' => $block->getConfiguration(),
-        '#plugin_id' => $block->getPluginId(),
-        '#base_plugin_id' => $block->getBaseId(),
-        '#derivative_plugin_id' => $block->getDerivativeId(),
-        'content' => $block->build(),
-      ];
-      $content['block']['content']['#title'] = $block->label();
+    if ($tab) {
+      $blocks = $this->tabManager->getBlocks($tab, $user);
+      foreach ($blocks as $key => $block) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        // @todo fix weight.
+        $block_content = [
+          '#theme' => 'block',
+          '#attributes' => [],
+          '#configuration' => $block->getConfiguration(),
+          '#plugin_id' => $block->getPluginId(),
+          '#base_plugin_id' => $block->getBaseId(),
+          '#derivative_plugin_id' => $block->getDerivativeId(),
+          '#weight' => $block->getConfiguration()['weight'],
+          'content' => $block->build(),
+        ];
+
+        $block_content['content']['#title'] = $block->label();
+        $content['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
+      }
     }
     else {
       drupal_set_message($this->t('Page not found.'), 'warning');
@@ -86,6 +125,7 @@ class DashboardController extends ControllerBase {
 
     // Create AJAX Response object.
     $response = new AjaxResponse();
+    dpm($url->toString());
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 

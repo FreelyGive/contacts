@@ -22,6 +22,7 @@
    *   XMLHttpRequest status.
    */
   Drupal.AjaxCommands.prototype.contactsTab = function (ajax, response, status) {
+    
     if (response.activeTab) {
       $('.contacts-ajax-tabs .' + activeClass).removeClass(activeClass);
       $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass(activeClass);

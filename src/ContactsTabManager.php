@@ -4,7 +4,6 @@ namespace Drupal\contacts;
 
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\contacts\Entity\ContactTabInterface;
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -42,6 +41,13 @@ class ContactsTabManager implements ContactsTabManagerInterface {
    * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
    */
   protected $contextHandler;
+
+  /**
+   * The relationship manager.
+   *
+   * @var \Drupal\ctools\Plugin\RelationshipManagerInterface
+   */
+  protected $relationshipManager;
 
   /**
    * The current user.
@@ -96,6 +102,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
    * {@inheritdoc}
    */
   public function getTab(UserInterface $contact, $id) {
+    /* @var \Drupal\contacts\Entity\ContactTabInterface $tab */
     $tab = $this->entityTypeManager->getStorage('contact_tab')->load($id);
 
     // Check this tab is valid for the contact.
@@ -150,75 +157,97 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlock(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE) {
-    $block = $tab->getBlockPlugin();
-
-    if (!$block) {
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE) {
+    $blocks = $tab->getBlockPlugins();
+    if (empty($blocks)) {
       // Get our block plugin, applying context if relevant..
-      $block_configuration = $tab->getBlock();
-      /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-      $block = $this->blockManager->createInstance($block_configuration['id'], $block_configuration);
-      if ($contact && $block instanceof ContextAwarePluginInterface) {
-        try {
-          // Build our contexts.
-          $contexts = [
-            'user' => new Context(new ContextDefinition('entity:user'), $contact),
-          ];
+      $block_configurations = $tab->getBlocks() ?: [];
 
-          // Gather any relationships.
-          foreach ($tab->getRelationships() as $relationship) {
-            if (isset($contexts[$relationship['source']])) {
-              /* @var \Drupal\ctools\Plugin\RelationshipInterface $plugin */
-              $plugin = $this->relationshipManager->createInstance($relationship['id']);
-              $plugin->setContext('base', $contexts[$relationship['source']]);
-              $contexts[$relationship['name']] = $plugin->getRelationship();
+      $blocks = [];
+      foreach ($block_configurations as $key => $block_configuration) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        $block = $this->blockManager->createInstance($block_configuration['id'], $block_configuration);
+        if ($contact && $block instanceof ContextAwarePluginInterface) {
+          try {
+            // Build our contexts.
+            $contexts = [
+              'user' => new Context(new ContextDefinition('entity:user'), $contact),
+            ];
+
+            // Gather any relationships.
+            foreach ($tab->getRelationships() as $relationship) {
+              if (isset($contexts[$relationship['source']])) {
+                /* @var \Drupal\ctools\Plugin\RelationshipInterface $plugin */
+                $plugin = $this->relationshipManager->createInstance($relationship['id']);
+                $plugin->setContext('base', $contexts[$relationship['source']]);
+                $contexts[$relationship['name']] = $plugin->getRelationship();
+              }
             }
-          }
 
-          // Apply the mappings.
-          $this->contextHandler->applyContextMapping($block, $contexts);
+            // Apply the mappings.
+            $this->contextHandler->applyContextMapping($block, $contexts);
+          }
+          catch (ContextException $exception) {
+            return FALSE;
+          }
         }
-        catch (ContextException $exception) {
-          return FALSE;
-        }
+
+        // @todo Don't allow block to be added if relationships have not been
+        // satisfied.
+        $blocks[$key] = $block;
       }
 
-      $tab->setBlockPlugin($block);
+      $tab->setBlockPlugins($blocks);
     }
 
     // Verify the tab unless we've been asked not to.
     if ($verify) {
-      $this->verifyTab($tab, $contact, $block);
+      $this->verifyTab($tab, $contact, $blocks);
+
+      // Filter our blocks that don't verify.
+      $blocks = array_filter($blocks, function($block) {
+        return $block->_contactTabVerified;
+      });
     }
 
-    return $block;
+    return $blocks;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function verifyTab(ContactTabInterface $tab, UserInterface $contact, BlockPluginInterface $block = NULL) {
+  public function verifyTab(ContactTabInterface $tab, UserInterface $contact, array $blocks = []) {
     // Get the block if we don't already have it.
-    if (!$block) {
-      $block = $this->getBlock($tab, $contact, FALSE);
-      if (!$block) {
+    if (empty($blocks)) {
+      $blocks = $this->getBlocks($tab, $contact, FALSE);
+
+      if (empty($blocks)) {
         return FALSE;
       }
     }
 
-    // See if we have already verified.
-    if (isset($block->_contactTabVerified)) {
-      return $block->_contactTabVerified;
+    // Make sure each block is verified and capture if any have.
+    $verified = FALSE;
+    foreach ($blocks as $block) {
+      /* @var $block \Drupal\Core\Block\BlockPluginInterface */
+      if (!isset($block->_contactTabVerified)) {
+        // Check access on the block.
+        if (!$block->access($this->currentUser)) {
+          $block->_contactTabVerified = FALSE;
+          continue;
+        }
+
+        // @todo: Add additional checks...
+        $block->_contactTabVerified = TRUE;
+      }
+
+      // If any blocks verify, the tab verifies.
+      if ($block->_contactTabVerified) {
+        $verified = TRUE;
+      }
     }
 
-    // Check access on the block.
-    if (!$block->access($this->currentUser)) {
-      return $block->_contactTabVerified = FALSE;
-    }
-
-    // @todo: Add additional checks...
-
-    return $block->_contactTabVerified = TRUE;
+    return $verified;
   }
 
 }
