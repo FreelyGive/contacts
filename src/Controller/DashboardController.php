@@ -125,7 +125,6 @@ class DashboardController extends ControllerBase {
 
     // Create AJAX Response object.
     $response = new AjaxResponse();
-    dpm($url->toString());
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
