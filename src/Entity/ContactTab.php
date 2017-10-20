@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Entity;
 
-use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**
@@ -79,7 +78,7 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   protected $relationships = [];
 
   /**
-   * The block configuration.
+   * The blocks configuration.
    *
    * An array including:
    *   - id: The block plugin id.
@@ -87,14 +86,14 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    *
    * @var array
    */
-  protected $block;
+  protected $blocks = [];
 
   /**
-   * The block plugin for this tab.
+   * The block plugins for this tab.
    *
-   * @var \Drupal\Core\Block\BlockPluginInterface
+   * @var \Drupal\Core\Block\BlockPluginInterface[]
    */
-  protected $blockPlugin;
+  protected $blockPlugins = [];
 
   /**
    * {@inheritdoc}
@@ -129,33 +128,59 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlock() {
-    return $this->block;
+  public function getBlock($id) {
+    if (isset($this->blocks[$id])) {
+      return $this->blocks[$id];
+    }
+    return FALSE;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlock(array $block) {
-    if (empty($block['id'])) {
-      throw new \InvalidArgumentException('Missing required ID for block settings.');
-    }
-    $this->block = $block;
+  public function getBlocks() {
+    return $this->blocks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlock($id, array $block) {
+    $block['id'] = $id;
+    $this->blocks[$id] = $block;
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getBlockPlugin() {
-    return $this->blockPlugin;
+  public function setBlocks(array $blocks) {
+    $this->blocks = [];
+    foreach ($blocks as $key => $block) {
+      $id = $block['id'] ?: $key;
+
+      // Make sure we have an actual id and not just a numeric array key.
+      if (empty($id) || is_numeric($id)) {
+        throw new \InvalidArgumentException('Missing required ID for block settings.');
+      }
+
+      $this->setBlock($id, $block);
+    }
+    return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setBlockPlugin(BlockPluginInterface $block) {
-    $this->blockPlugin = $block;
+  public function getBlockPlugins() {
+    return $this->blockPlugins;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setBlockPlugins(array $blocks) {
+    $this->blockPlugins = $blocks;
     return $this;
   }
 
@@ -182,9 +207,11 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   public function calculateDependencies() {
     parent::calculateDependencies();
 
-    $config = $this->getBlock();
-    $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
-    $this->calculatePluginDependencies($block);
+    $configs = $this->getBlocks();
+    foreach ($configs as $config) {
+      $block = \Drupal::service('plugin.manager.block')->createInstance($config['id'], $config);
+      $this->calculatePluginDependencies($block);
+    }
 
     return $this;
   }

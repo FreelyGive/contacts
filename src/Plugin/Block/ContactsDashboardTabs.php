@@ -35,7 +35,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   protected $ajax;
 
   /**
-   * The block machine name.
+   * The subpage machine name.
    *
    * @var string
    */
@@ -131,6 +131,9 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
         $content['#tabs'][$url_stub]['link_attributes']['class'][] = 'use-ajax';
         $content['#tabs'][$url_stub]['link_attributes']['data-ajax-progress'] = 'fullscreen';
       }
+
+      // Add tab id to attributes.
+      $content['#tabs'][$url_stub]['link_attributes']['data-contacts-tab-id'] = $tab->getOriginalId();
     }
 
     // Add active class to current tab.
@@ -152,26 +155,18 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
+      '#type' => 'contact_tab_content',
+      '#tab' => $this->tabManager->getTabByPath($this->user, $this->subpage),
+      '#user' => $this->user,
+      '#subpage' => $this->subpage,
+      '#region_attributes' => [],
+      '#content' => [
+        'left' => [],
+        'right' => [],
+      ],
     ];
 
-    $tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
-    if ($tab && $block = $this->tabManager->getBlock($tab, $this->user)) {
-      $build['content']['block'] = [
-        '#theme' => 'block',
-        '#attributes' => [],
-        '#configuration' => $block->getConfiguration(),
-        '#plugin_id' => $block->getPluginId(),
-        '#base_plugin_id' => $block->getBaseId(),
-        '#derivative_plugin_id' => $block->getDerivativeId(),
-        'content' => $block->build(),
-      ];
-      $build['content']['block']['content']['#title'] = $block->label();
-    }
-    else {
-      drupal_set_message($this->t('Page not found.'), 'warning');
-    }
-
-    $build['content']['messages'] = [
+    $build['messages'] = [
       '#type' => 'status_messages',
       '#weight' => -99,
     ];
