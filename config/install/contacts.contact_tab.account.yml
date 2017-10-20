@@ -6,6 +6,7 @@ dependencies:
 id: account
 label: 'User account'
 path: account
+layout: contacts_tab_content.stacked
 weight: 90
 relationships: {  }
 blocks:

@@ -8,6 +8,7 @@ dependencies:
 id: crm_notes
 label: Notes
 path: notes
+layout: contacts_tab_content.stacked
 weight: 99
 relationships:
   profile_crm_notes:

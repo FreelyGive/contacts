@@ -10,6 +10,7 @@ dependencies:
 id: summary
 label: Summary
 path: summary
+layout: contacts_tab_content.stacked
 weight: -99
 relationships:
   profile_crm_indiv:

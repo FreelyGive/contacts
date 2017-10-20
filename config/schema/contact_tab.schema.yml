@@ -13,6 +13,9 @@ contacts.contact_tab.*:
     path:
       type: string
       label: 'Path'
+    layout:
+      type: string
+      label: 'Layout'
     weight:
       type: integer
       label: 'Weight'

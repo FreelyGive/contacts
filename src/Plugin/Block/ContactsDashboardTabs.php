@@ -159,11 +159,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#tab' => $this->tabManager->getTabByPath($this->user, $this->subpage),
       '#user' => $this->user,
       '#subpage' => $this->subpage,
-      '#region_attributes' => [],
-      '#content' => [
-        'left' => [],
-        'right' => [],
-      ],
+      '#attributes' => ['class' => ['dash-content']],
     ];
 
     $build['messages'] = [
