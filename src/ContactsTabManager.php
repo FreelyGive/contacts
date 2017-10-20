@@ -188,7 +188,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
             $this->contextHandler->applyContextMapping($block, $contexts);
           }
           catch (ContextException $exception) {
-            return FALSE;
+            continue;
           }
         }
 

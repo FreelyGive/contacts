@@ -78,40 +78,17 @@ class DashboardController extends ControllerBase {
     $content = [
       '#type' => 'container',
       'content' => [
-        '#theme' => 'contacts_dash_tab_content',
-        '#region_attributes' => ['class' => ['drag-area']],
+        '#type' => 'contact_tab_content',
+        '#region_attributes' => [],
         '#subpage' => $subpage,
+        '#user' => $user,
+        '#tab' => $this->tabManager->getTabByPath($user, $subpage),
         '#content' => [
           'left' => [],
           'right' => [],
         ],
       ],
     ];
-
-    $tab = $this->tabManager->getTabByPath($user, $subpage);
-    if ($tab) {
-      $blocks = $this->tabManager->getBlocks($tab, $user);
-      foreach ($blocks as $key => $block) {
-        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // @todo fix weight.
-        $block_content = [
-          '#theme' => 'block',
-          '#attributes' => [],
-          '#configuration' => $block->getConfiguration(),
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#weight' => $block->getConfiguration()['weight'],
-          'content' => $block->build(),
-        ];
-
-        $block_content['content']['#title'] = $block->label();
-        $content['content']['#content'][$block->getConfiguration()['region']][] = $block_content;
-      }
-    }
-    else {
-      drupal_set_message($this->t('Page not found.'), 'warning');
-    }
 
     // Prepend the content with system messages.
     $content['messages'] = [

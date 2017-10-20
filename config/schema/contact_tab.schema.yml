@@ -24,7 +24,7 @@ contacts.contact_tab.*:
         label: 'Relationship'
     blocks:
       type: sequence
-      label: 'Relationships'
+      label: 'Blocks'
       sequence:
         type: contacts.block_plugin.[id]
-        label: 'Blocks'
+        label: 'Block'
