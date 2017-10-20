@@ -1,0 +1,15 @@
+contacts_demo.generate:
+  path: '/admin/config/development/contacts-demo'
+  defaults:
+    _form: '\Drupal\contacts_demo\Form\GenerateForm'
+    _title: 'Generate Demo Contacts'
+  requirements:
+    _permission: 'administer site configuration'
+
+contacts_demo.generate_delete:
+  path: '/admin/config/development/contacts-demo/delete'
+  defaults:
+    _form: '\Drupal\contacts_demo\Form\GenerateDeleteForm'
+    _title: 'Delete Demo Contacts'
+  requirements:
+    _permission: 'administer site configuration'

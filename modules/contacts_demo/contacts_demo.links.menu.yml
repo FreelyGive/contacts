@@ -1,0 +1,5 @@
+contacts_demo.generate:
+  title: 'Generate demo contacts'
+  description: 'Generate and remove demo content for the contacts module.'
+  route_name: contacts_demo.generate
+  parent: 'system.admin_config_development'

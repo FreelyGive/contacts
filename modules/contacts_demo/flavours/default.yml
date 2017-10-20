@@ -1,0 +1,9 @@
+id: default
+label: Default
+description: "Default contacts manifest for simple demo."
+supported: true
+files:
+  user:
+    - content/entity/user.yml
+  file:
+    - content/entity/file.yml

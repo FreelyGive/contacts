@@ -1,0 +1,10 @@
+services:
+  contacts_demo.yaml_parser:
+    class: \Drupal\contacts_demo\DemoContentParser
+    arguments: ~
+  plugin.manager.demo_content:
+    class: \Drupal\contacts_demo\DemoContentManager
+    parent: default_plugin_manager
+  plugin.manager.demo_flavour:
+    class: Drupal\contacts_demo\DemoFlavourManager
+    arguments: ['@module_handler']
