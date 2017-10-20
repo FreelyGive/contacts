@@ -28,6 +28,24 @@ interface ContactTabInterface extends ConfigEntityInterface {
   public function setPath($path);
 
   /**
+   * Get the hats required by the tab.
+   *
+   * @return array
+   *   An array of hat ids.
+   */
+  public function getHats();
+
+  /**
+   * Set the hats required by the tab.
+   *
+   * @param array $hats
+   *   An array of hat ids.
+   *
+   * @return $this
+   */
+  public function setHats(array $hats);
+
+  /**
    * Get the relationship definitions.
    *
    * @return array

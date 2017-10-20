@@ -11,6 +11,13 @@ use Drupal\Core\Form\FormStateInterface;
 class ContactTabForm extends EntityForm {
 
   /**
+   * The contact tab entity being used by this form.
+   *
+   * @var \Drupal\contacts\Entity\ContactTab
+   */
+  protected $entity;
+
+  /**
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
@@ -59,7 +66,34 @@ class ContactTabForm extends EntityForm {
       'standalone' => TRUE,
     ];
 
+    $options = [];
+    $roles = user_roles(TRUE);
+    foreach ($roles as $id => $role) {
+      $options[$id] = $role->label();
+    }
+
+    $form['required_hats'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Require hats'),
+      '#description' => $this->t('Require that a user has at least one of these hats to show this tab.'),
+      '#options' => $options,
+      '#default_value' => array_keys($this->entity->getHats()),
+    ];
+
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildEntity(array $form, FormStateInterface $form_state) {
+    /* @var \Drupal\contacts\Entity\ContactTab $entity */
+    $entity = parent::buildEntity($form, $form_state);
+
+    $required_hats = $form_state->getValue('required_hats');
+    $entity->setHats(array_filter($required_hats));
+
+    return $entity;
   }
 
   /**
