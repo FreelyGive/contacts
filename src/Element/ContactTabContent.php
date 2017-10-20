@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Element;
 
-use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Render\Element\RenderElement;
 
 /**
@@ -57,9 +56,9 @@ class ContactTabContent extends RenderElement {
    * @return array
    *   The passed-in element containing the renderable regions in '#content'.
    */
-  public static function preRenderTabContent($element) {
+  public static function preRenderTabContent(array $element) {
     if ($element['#tab']) {
-      /* @var ContactsTabManager $tab_manager */
+      /* @var \Drupal\contacts\ContactsTabManager $tab_manager */
       $tab_manager = \Drupal::service('contacts.tab_manager');
       $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
       foreach ($blocks as $key => $block) {
