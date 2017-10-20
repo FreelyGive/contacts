@@ -143,6 +143,12 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       if (!$this->verifyTab($tab, $contact)) {
         unset($tabs[$id]);
       }
+
+      if (!empty($tab->getHats())) {
+        if (empty(array_intersect($contact->getRoles(), $tab->getHats()))) {
+          unset($tabs[$id]);
+        }
+      }
     }
 
     // Sort our tabs by weight.

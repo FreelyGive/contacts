@@ -25,6 +25,12 @@ contacts.contact_tab.*:
       sequence:
         type: contacts.relationship.[%name]
         label: 'Relationship'
+    hats:
+      type: sequence
+      label: 'Hats'
+      sequence:
+        type: string
+        label: 'Hat'
     blocks:
       type: sequence
       label: 'Blocks'

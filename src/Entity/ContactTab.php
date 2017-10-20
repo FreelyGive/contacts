@@ -13,6 +13,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   handlers = {
  *     "list_builder" = "Drupal\contacts\ContactTabListBuilder",
  *     "form" = {
+ *       "add" = "Drupal\contacts\Form\ContactTabForm",
  *       "edit" = "Drupal\contacts\Form\ContactTabForm",
  *       "delete" = "Drupal\contacts\Form\ContactTabDeleteForm"
  *     },
@@ -29,6 +30,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   },
  *   links = {
  *     "canonical" = "/admin/structure/contact-tabs/{contact_tab}",
+ *     "add-form" = "/admin/structure/contact-tabs/add",
  *     "edit-form" = "/admin/structure/contact-tabs/{contact_tab}/edit",
  *     "delete-form" = "/admin/structure/contact-tabs/{contact_tab}/delete",
  *     "collection" = "/admin/structure/contact-tabs"
@@ -78,7 +80,14 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   protected $relationships = [];
 
   /**
-   * The blocks configuration.
+   * The hats required for the tab.
+   *
+   * @var string[]
+   */
+  protected $hats = [];
+
+  /**
+   * The block configuration.
    *
    * An array including:
    *   - id: The block plugin id.
@@ -122,6 +131,21 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    */
   public function setRelationships(array $relationships) {
     $this->relationships = $relationships;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHats() {
+    return $this->hats;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setHats(array $hats) {
+    $this->hats = $hats;
     return $this;
   }
 

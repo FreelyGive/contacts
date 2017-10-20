@@ -40,3 +40,9 @@ contacts.contact_add_org:
         - 'use-ajax'
       data-dialog-type: 'modal'
       data-ajax-progress: 'fullscreen'
+
+contact_tab_add:
+  route_name: entity.contact_tab.add_form
+  title: 'Add contact tab'
+  appears_on:
+    - entity.contact_tab.collection
