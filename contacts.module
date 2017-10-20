@@ -26,15 +26,6 @@ function contacts_theme() {
       'variables' => ['tabs' => []],
       'template' => 'contacts-dash-tabs',
     ],
-    'contact_tab_content' => [
-      'variables' => [
-        'content' => [],
-        'attributes' => [],
-        'region_attributes' => [],
-        'subpage' => NULL,
-      ],
-      'template' => 'contact-tab-content',
-    ],
     'contacts_dash_summary' => [
       'variables' => ['user' => NULL],
       'template' => 'contacts-dash-summary',

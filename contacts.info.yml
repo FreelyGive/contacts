@@ -11,7 +11,7 @@ dependencies:
   - decoupled_auth:decoupled_auth_crm
   - profile:profile
   - page_manager:page_manager (>=8.x-1.0-alpha24)
-  - panels:panels (>=8.x-3.0-beta6)
+  - panels:panels (>=8.x-4.0)
   - ctools:ctools_views (>=8.x-3.0-beta1)
   - search_api:search_api_db (>=8.x-1.0-rc1)
   - facets

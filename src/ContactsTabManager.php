@@ -120,8 +120,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['path' => $path]);
     $tab = reset($tabs);
 
-    // Check this tab is valid for the contact.
-    if ($tab && $this->verifyTab($tab, $contact)) {
+    if ($tab) {
       return $tab;
     }
 

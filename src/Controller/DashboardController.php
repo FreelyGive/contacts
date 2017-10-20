@@ -38,8 +38,6 @@ class DashboardController extends ControllerBase {
    *   The tab manager.
    * @param \Drupal\Core\Block\BlockManager $block_manager
    *   The block plugin manager.
-   *
-   * @todo Switch to core layout manager.
    */
   public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager) {
     $this->tabManager = $tab_manager;
@@ -79,14 +77,10 @@ class DashboardController extends ControllerBase {
       '#type' => 'container',
       'content' => [
         '#type' => 'contact_tab_content',
-        '#region_attributes' => [],
+        '#attributes' => ['class' => ['dash-content']],
         '#subpage' => $subpage,
         '#user' => $user,
         '#tab' => $this->tabManager->getTabByPath($user, $subpage),
-        '#content' => [
-          'left' => [],
-          'right' => [],
-        ],
       ],
     ];
 
