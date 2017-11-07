@@ -4,6 +4,7 @@ namespace Drupal\contacts\Controller;
 
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Entity\ContactTab;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
@@ -111,7 +112,7 @@ class DashboardController extends ControllerBase {
    * @return mixed
    *   The block configuration array or FALSE if adding failed.
    */
-  public function addBlock(&$tab, $block_config) {
+  public function addBlock(ContactTab &$tab, $block_config) {
     if (empty($block_config['id'])) {
       // @todo Throw error - cannot create block without ID.
       return FALSE;
