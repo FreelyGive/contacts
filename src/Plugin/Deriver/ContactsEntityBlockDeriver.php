@@ -53,28 +53,53 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
+      // We are only interested in entity types that have been approved.
+      if (empty($entity_type->contacts_entity)) {
+        continue;
+      }
+
       // We are only interested in the user entity itself and entities that can
       // have owners.
       $has_owner = class_implements($entity_type->getClass(), EntityOwnerInterface::class);
       if ($entity_type_id == 'user' || $has_owner) {
         $has_forms = $entity_type->hasFormClasses();
 
-        // Basic definition.
-        $this->derivatives[$entity_type_id] = $base_plugin_definition;
-        $this->derivatives[$entity_type_id]['admin_label'] = $this->t('Contacts entity form (@label)', ['@label' => $entity_type->getLabel()]);
-
-        // The entity is required for the user or types that don't have forms.
-        $this->derivatives[$entity_type_id]['context']['entity'] = new ContextDefinition('entity:' . $entity_type_id, $entity_type->getLabel(), $entity_type_id == 'user' || !$has_forms);
-        // If this can have an owner, add the context so we can do create forms.
-        if ($has_owner && $has_forms) {
-          $this->derivatives[$entity_type_id]['context']['user'] = new ContextDefinition('entity:user', $this->t('User'), FALSE);
+        // Expand out a derivative per entity bundle.
+        if ($bundle_entity_type = $entity_type->getBundleEntityType()) {
+          $bundle_types = $this->entityTypeManager->getStorage($bundle_entity_type)->loadMultiple();
+          $bundles = array_keys($bundle_types);
+        }
+        else {
+          $bundles = [$entity_type_id];
         }
 
-        // Add a few other pieces of info.
-        $this->derivatives[$entity_type_id]['_entity_type_id'] = $entity_type_id;
-        $this->derivatives[$entity_type_id]['_has_forms'] = $has_forms;
-        $this->derivatives[$entity_type_id]['_allow_create'] = $has_owner && $has_forms;
-        $this->derivatives[$entity_type_id]['_bundle_key'] = $entity_type->getKey('bundle');
+        foreach ($bundles as $bundle) {
+          $derivative_key = "{$entity_type_id}-{$bundle}";
+
+          // Basic definition.
+          $this->derivatives[$derivative_key] = $base_plugin_definition;
+          $this->derivatives[$derivative_key]['admin_label'] = $this->t('Contacts entity form (@label)', ['@label' => $entity_type->getLabel()]);
+
+          // The entity is required for the user or types that don't have forms.
+          $this->derivatives[$derivative_key]['context']['entity'] = new ContextDefinition('entity:' . $entity_type_id, $entity_type->getLabel(), $entity_type_id == 'user' || !$has_forms);
+          // If this can have an owner, add the context so we can do create forms.
+          if ($has_owner && $has_forms) {
+            $this->derivatives[$derivative_key]['context']['user'] = new ContextDefinition('entity:user', $this->t('User'), FALSE);
+          }
+
+          // Add a few other pieces of info.
+          $this->derivatives[$derivative_key]['_entity_type_id'] = $entity_type_id;
+          $this->derivatives[$derivative_key]['_has_forms'] = $has_forms;
+          $this->derivatives[$derivative_key]['_allow_create'] = $has_owner && $has_forms;
+          $this->derivatives[$derivative_key]['_bundle_key'] = $entity_type->getKey('bundle');
+
+          // @todo Find better way to do access.
+          if ($entity_type_id == 'profile') {
+            /* @var \Drupal\profile\Entity\ProfileTypeInterface $profile_type */
+            $profile_type = $this->entityTypeManager->getStorage('profile_type')->load($bundle);
+            $this->derivatives[$derivative_key]['_required_hats'] = array_filter($profile_type->getRoles());
+          }
+        }
       }
     }
     return $this->derivatives;

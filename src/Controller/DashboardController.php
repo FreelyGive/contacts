@@ -11,6 +11,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Controller routines for contact dashboard tabs and ajax.
@@ -96,6 +97,68 @@ class DashboardController extends ControllerBase {
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
 
     // Return ajax response.
+    return $response;
+  }
+
+  /**
+   * Update a block position in a tab.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function updateBlocks() {
+    /* @var \Drupal\contacts\Entity\ContactTab $tab */
+    $regions = \Drupal::request()->request->get('regions');
+    $tab = \Drupal::request()->request->get('tab');
+    $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+
+    $changed = FALSE;
+    foreach ($regions as $region_data) {
+      foreach ($region_data['blocks'] as $weight => $block) {
+        if (!empty($block['name'])) {
+          $block_config = $tab->getBlock($block['name']);
+
+          if (!isset($block['weight'])) {
+            $block['weight'] = $weight;
+          }
+
+          if (!empty($region_data['region'])) {
+            $block['region'] = $region_data['region'];
+          }
+
+          $block += $block_config;
+        }
+        else {
+          if (empty($block['id'])) {
+            // @todo Throw error - cannot create block without ID.
+          }
+          else {
+            // @todo Add new block.
+          }
+          $block_config = $block;
+        }
+
+        // Check for changes to block config.
+        if (!empty(array_diff_assoc($block, $block_config))) {
+          $changed = TRUE;
+          $tab->setBlock($block['name'], $block);
+        }
+      }
+    }
+
+    // Return updated block configuration for verification.
+    $response_data = ['blocks' => $tab->getBlocks()];
+
+    // Save if anything has changed.
+    if ($changed) {
+      $tab->save();
+      $response_data['tab_changed'] = TRUE;
+    }
+
+    $response = new Response();
+    $response->setContent(json_encode($response_data));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
     return $response;
   }
 

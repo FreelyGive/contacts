@@ -353,6 +353,59 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
 }
 
 /**
+ * Implements hook_block_alter().
+ * 
+ * Allow dashboard placement of views blocks if they have the correct tag.
+ */
+function contacts_block_alter(&$definitions) {
+  foreach ($definitions as $key => &$definition) {
+    if ($definition['id'] === 'views_block') {
+      if (substr($key, 0, 12) == 'views_block:') {
+        // @fixme Do we need the display at this point?
+        list($view_id, $view_display) = explode('-', substr($key, 12));
+
+        $view = \Drupal\views\Entity\View::load($view_id);
+        if (in_array('contacts_dashboard', explode(', ', $view->get('tag')))) {
+          $definition['dashboard_block'] = TRUE;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ * 
+ * Update entity definitions of certain entity types to enable contacts Entity
+ * blocks and handle missing form operations.
+ * 
+ * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions().
+ */
+function contacts_entity_type_alter(array &$entity_types) {
+  // Approved entity types.
+  $dashboard_entity_types = [
+    'user',
+    'profile',
+  ];
+
+  foreach ($dashboard_entity_types as $type) {
+    if (isset($entity_types[$type])) {
+      $entity_types[$type]->contacts_entity = TRUE;
+    }
+
+    // Add form operations for missing form modes.
+    $form_modes = \Drupal::service('entity_display.repository')->getFormModes($type);
+    foreach ($form_modes as $name => $form_mode) {
+      /* @var \Drupal\Core\Entity\Entity\EntityFormMode $form_mode */
+      if (!$entity_types[$type]->getFormClass($name)) {
+        $default_handler_class = $entity_types[$type]->getHandlerClasses()['form']['default'];
+        $entity_types[$type]->setFormClass($name, $default_handler_class);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_preprocess().
  */
 function contacts_preprocess_block(&$variables, $hook) {

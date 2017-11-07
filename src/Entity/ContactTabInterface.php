@@ -86,14 +86,14 @@ interface ContactTabInterface extends ConfigEntityInterface {
   /**
    * Set the block settings.
    *
-   * @param string $id
-   *   The id of the block to set.
+   * @param string $name
+   *   The machine readable name of the block to set.
    * @param array $configuration
    *   The block configuration. Must contain at least the id.
    *
    * @return $this
    */
-  public function setBlock($id, array $configuration);
+  public function setBlock($name, array $configuration);
 
   /**
    * Get all the block plugins for the tab.

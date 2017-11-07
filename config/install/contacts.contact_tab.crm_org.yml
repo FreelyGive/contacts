@@ -17,7 +17,7 @@ relationships:
     source: user
 blocks:
   contacts_entity_profile_crm_org:
-    id: 'contacts_entity:profile'
+    id: 'contacts_entity:profile-crm_org'
     label: ''
     provider: contacts
     label_display: '0'
