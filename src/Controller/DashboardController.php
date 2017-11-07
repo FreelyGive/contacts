@@ -101,7 +101,47 @@ class DashboardController extends ControllerBase {
   }
 
   /**
-   * Update a block position in a tab.
+   * Add a block to a tab.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to add the block to.
+   * @param string $block_config
+   *   The block data provided by post request.
+   *
+   * @return mixed
+   *   The block configuration array or FALSE if adding failed.
+   */
+  public function addBlock(&$tab, $block_config) {
+    if (empty($block_config['id'])) {
+      // @todo Throw error - cannot create block without ID.
+      return FALSE;
+    }
+
+    /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+    $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+    $block_config = $block->getConfiguration();
+
+    // Give everything the tab's user context.
+    if ($block_config['id'] !== 'contacts_entity:user-user') {
+      $block_config['context_mapping'] = ['user' => 'user'];
+      $relationships = $tab->getRelationships();
+
+      // @todo Better relationship handling.
+      if (!empty($block_config['_entity_relationship']) && !empty($relationships[$block_config['_entity_relationship']])) {
+        $block_config['context_mapping'] = ['entity' => $block_config['_entity_relationship']];
+        unset($block_config['_entity_relationship']);
+      }
+    }
+    else {
+      $block_config['context_mapping'] = ['entity' => 'user'];
+    }
+
+    $tab->setBlock($block_config['name'], $block_config);
+    return $block_config;
+  }
+
+  /**
+   * Update a block regions and positions in a tab.
    *
    * @return \Symfony\Component\HttpFoundation\Response
    *   The response.
@@ -115,33 +155,29 @@ class DashboardController extends ControllerBase {
     $changed = FALSE;
     foreach ($regions as $region_data) {
       foreach ($region_data['blocks'] as $weight => $block) {
+        if (!isset($block['weight'])) {
+          $block['weight'] = $weight;
+        }
+
+        if (!empty($region_data['region'])) {
+          $block['region'] = $region_data['region'];
+        }
+
         if (!empty($block['name'])) {
           $block_config = $tab->getBlock($block['name']);
-
-          if (!isset($block['weight'])) {
-            $block['weight'] = $weight;
-          }
-
-          if (!empty($region_data['region'])) {
-            $block['region'] = $region_data['region'];
-          }
-
           $block += $block_config;
+
+          // Check for changes to block config.
+          if (!empty(array_diff_assoc($block, $block_config))) {
+            $changed = TRUE;
+            $tab->setBlock($block['name'], $block);
+          }
         }
         else {
-          if (empty($block['id'])) {
-            // @todo Throw error - cannot create block without ID.
+          // Add a new block.
+          if ($this->addBlock($tab, $block)) {
+            $changed = TRUE;
           }
-          else {
-            // @todo Add new block.
-          }
-          $block_config = $block;
-        }
-
-        // Check for changes to block config.
-        if (!empty(array_diff_assoc($block, $block_config))) {
-          $changed = TRUE;
-          $tab->setBlock($block['name'], $block);
         }
       }
     }
