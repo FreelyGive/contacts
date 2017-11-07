@@ -18,6 +18,7 @@ relationships:
 blocks:
   contacts_entity_profile_crm_indiv:
     id: 'contacts_entity:profile-crm_indiv'
+    name: 'contacts_entity_profile_crm_indiv'
     label: ''
     provider: 'contacts'
     label_display: '0'

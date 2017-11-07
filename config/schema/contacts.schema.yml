@@ -15,6 +15,9 @@ contacts.relationship.*:
 contacts.block_plugin.*:
   type: block.settings.[id]
   mapping:
+    name:
+      type: string
+      label: 'Name'
     context_mapping:
       type: sequence
       label: 'Context assignments'

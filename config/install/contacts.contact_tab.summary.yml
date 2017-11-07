@@ -28,6 +28,7 @@ relationships:
 blocks:
   contacts_entity_profile_crm_indiv:
     id: 'contacts_entity:profile-crm_indiv'
+    name: 'contacts_entity_profile_crm_indiv'
     label: 'Person Summary'
     provider: contacts
     label_display: visible
@@ -42,6 +43,7 @@ blocks:
       entity: profile_crm_indiv
   contacts_entity_profile_crm_org:
     id: 'contacts_entity:profile-crm_org'
+    name: 'contacts_entity_profile_crm_org'
     label: 'Organisation Summary'
     provider: contacts
     label_display: visible
@@ -56,6 +58,7 @@ blocks:
       entity: profile_crm_org
   contacts_entity_profile_crm_notes:
     id: 'contacts_entity:profile-crm_notes'
+    name: 'contacts_entity_profile_crm_notes'
     label: 'Notes'
     provider: contacts
     label_display: 'visible'
