@@ -82,7 +82,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
 
           // The entity is required for the user or types that don't have forms.
           $this->derivatives[$derivative_key]['context']['entity'] = new ContextDefinition('entity:' . $entity_type_id, $entity_type->getLabel(), $entity_type_id == 'user' || !$has_forms);
-          // If this can have an owner, add the context so we can do create forms.
+          // If this has an owner, add the context so we can do create forms.
           if ($has_owner && $has_forms) {
             $this->derivatives[$derivative_key]['context']['user'] = new ContextDefinition('entity:user', $this->t('User'), FALSE);
           }

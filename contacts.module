@@ -16,6 +16,7 @@ use Drupal\user\RoleInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
+use Drupal\views\Entity\View;
 
 /**
  * Implements hook_theme().
@@ -354,7 +355,7 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
 
 /**
  * Implements hook_block_alter().
- * 
+ *
  * Allow dashboard placement of views blocks if they have the correct tag.
  */
 function contacts_block_alter(&$definitions) {
@@ -364,7 +365,7 @@ function contacts_block_alter(&$definitions) {
         // @fixme Do we need the display at this point?
         list($view_id, $view_display) = explode('-', substr($key, 12));
 
-        $view = \Drupal\views\Entity\View::load($view_id);
+        $view = View::load($view_id);
         if (in_array('contacts_dashboard', explode(', ', $view->get('tag')))) {
           $definition['dashboard_block'] = TRUE;
         }
@@ -375,11 +376,11 @@ function contacts_block_alter(&$definitions) {
 
 /**
  * Implements hook_entity_type_alter().
- * 
+ *
  * Update entity definitions of certain entity types to enable contacts Entity
  * blocks and handle missing form operations.
- * 
- * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions().
+ *
+ * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions()
  */
 function contacts_entity_type_alter(array &$entity_types) {
   // Approved entity types.
