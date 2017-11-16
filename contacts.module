@@ -380,11 +380,10 @@ function contacts_block_alter(&$definitions) {
  * Update entity definitions of certain entity types to enable contacts Entity
  * blocks and handle missing form operations.
  *
- * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
- *
  * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions()
  */
 function contacts_entity_type_alter(array &$entity_types) {
+  /* @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
   // Approved entity types.
   $dashboard_entity_types = [
     'user',
