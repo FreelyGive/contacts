@@ -31,7 +31,7 @@ block.settings.contacts_entity:*:
       type: string
       label: 'Mode'
     create:
-      type: string
+      type: boolean
       label: 'Create'
     operation:
       type: string

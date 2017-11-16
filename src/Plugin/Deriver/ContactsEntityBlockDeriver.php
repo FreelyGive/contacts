@@ -54,7 +54,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
   public function getDerivativeDefinitions($base_plugin_definition) {
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
       // We are only interested in entity types that have been approved.
-      if (empty($entity_type->contacts_entity)) {
+      if (empty($entity_type->get('contacts_entity'))) {
         continue;
       }
 
@@ -66,7 +66,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
 
         // Check if we should expand out entity bundles.
         $bundle_entity_type = $entity_type->getBundleEntityType();
-        $use_bundles = !empty($entity_type->contacts_use_bundles) && $bundle_entity_type;
+        $use_bundles = !empty($entity_type->get('contacts_use_bundles')) && $bundle_entity_type;
         // Expand out a derivative per entity bundle.
         if ($use_bundles) {
           $bundle_types = $this->entityTypeManager->getStorage($bundle_entity_type)->loadMultiple();
@@ -103,6 +103,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
           $this->derivatives[$derivative_key]['_has_forms'] = $has_forms;
           $this->derivatives[$derivative_key]['_allow_create'] = $has_owner && $has_forms;
           $this->derivatives[$derivative_key]['_bundle_key'] = $entity_type->getKey('bundle');
+          $this->derivatives[$derivative_key]['_bundle_id'] = $bundle;
 
           // @todo Find better way to do access.
           if ($entity_type_id == 'profile') {

@@ -380,6 +380,8 @@ function contacts_block_alter(&$definitions) {
  * Update entity definitions of certain entity types to enable contacts Entity
  * blocks and handle missing form operations.
  *
+ * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
+ *
  * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions()
  */
 function contacts_entity_type_alter(array &$entity_types) {
@@ -393,7 +395,7 @@ function contacts_entity_type_alter(array &$entity_types) {
   $entity_display_repository = \Drupal::service('entity_display.repository');
   foreach ($dashboard_entity_types as $type) {
     if (isset($entity_types[$type])) {
-      $entity_types[$type]->contacts_entity = TRUE;
+      $entity_types[$type]->set('contacts_entity', TRUE);
     }
 
     // Add form operations for missing form modes.
@@ -410,7 +412,7 @@ function contacts_entity_type_alter(array &$entity_types) {
 
   // Expand out separate entity blocks for profile bundles.
   if (isset($entity_types['profile'])) {
-    $entity_types['profile']->contacts_use_bundles = TRUE;
+    $entity_types['profile']->set('contacts_use_bundles', TRUE);
   }
 }
 

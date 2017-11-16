@@ -23,7 +23,7 @@ blocks:
     provider: contacts
     label_display: '0'
     mode: form
-    create: crm_notes
+    create: true
     region: left
     weight: 0
     context_mapping:

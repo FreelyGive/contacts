@@ -24,6 +24,6 @@ blocks:
     label_display: '0'
     region: left
     weight: 0
-    create: crm_indiv
+    create: true
     context_mapping:
       entity: profile_crm_indiv

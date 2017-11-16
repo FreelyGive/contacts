@@ -22,7 +22,7 @@ blocks:
     label: ''
     provider: contacts
     label_display: '0'
-    create: crm_org
+    create: true
     region: left
     weight: 0
     context_mapping:

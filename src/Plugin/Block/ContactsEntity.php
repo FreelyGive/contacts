@@ -290,7 +290,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     // Check create access.
-    $bundle = $definition['_bundle_key'] ? $config['create'] : NULL;
+    $bundle = $definition['_bundle_key'] ? $definition['_bundle_id'] : NULL;
     $context = [];
     if (is_a($this->entityTypeManager->getDefinition($definition['_entity_type_id'])->getClass(), EntityOwnerInterface::class, TRUE)) {
       $user = $this->getContextValue('user');
@@ -304,8 +304,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $values = [];
 
     // If this entity type has bundles, set the appropriate key.
-    if ($definition['_bundle_key']) {
-      $values[$definition['_bundle_key']] = $config['create'];
+    if ($bundle) {
+      $values[$definition['_bundle_key']] = $bundle;
     }
 
     // Create the entity.
@@ -394,6 +394,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    */
   public function calculateDependencies() {
     $dependencies = parent::calculateDependencies();
+    $definition = $this->getPluginDefinition();
 
     $entity_type = $this->entityTypeManager->getDefinition($this->pluginDefinition['_entity_type_id']);
 
@@ -401,8 +402,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $dependencies['module'][] = $entity_type->getProvider();
 
     // If we have a bundle for creating, add it's config dependencies.
-    if ($this->configuration['create'] && is_string($this->configuration['create'])) {
-      $dependency = $entity_type->getBundleConfigDependency($this->configuration['create']);
+    if ($definition['_bundle_key']) {
+      $dependency = $entity_type->getBundleConfigDependency($definition['_bundle_id']);
       $dependencies[$dependency['type']][] = $dependency['name'];
     }
 

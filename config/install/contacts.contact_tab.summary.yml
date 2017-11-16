@@ -32,7 +32,7 @@ blocks:
     label: 'Person Summary'
     provider: contacts
     label_display: visible
-    create: crm_indiv
+    create: true
     mode: view_new
     edit_link: title
     edit_id: indiv
@@ -47,7 +47,7 @@ blocks:
     label: 'Organisation Summary'
     provider: contacts
     label_display: visible
-    create: crm_org
+    create: true
     mode: view_new
     edit_link: title
     edit_id: org
@@ -62,7 +62,7 @@ blocks:
     label: 'Notes'
     provider: contacts
     label_display: 'visible'
-    create: crm_notes
+    create: true
     mode: view_new
     edit_link: title
     edit_id: notes
