@@ -54,7 +54,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
   public function getDerivativeDefinitions($base_plugin_definition) {
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
       // We are only interested in entity types that have been approved.
-      if (empty($entity_type->get('contacts_entity'))) {
+      if (!$entity_type->get('contacts_entity')) {
         continue;
       }
 
