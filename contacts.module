@@ -389,20 +389,28 @@ function contacts_entity_type_alter(array &$entity_types) {
     'profile',
   ];
 
+  /* @var \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository */
+  $entity_display_repository = \Drupal::service('entity_display.repository');
   foreach ($dashboard_entity_types as $type) {
     if (isset($entity_types[$type])) {
       $entity_types[$type]->contacts_entity = TRUE;
     }
 
     // Add form operations for missing form modes.
-    $form_modes = \Drupal::service('entity_display.repository')->getFormModes($type);
+    $form_modes = $entity_display_repository->getFormModes($type);
     foreach ($form_modes as $name => $form_mode) {
       /* @var \Drupal\Core\Entity\Entity\EntityFormMode $form_mode */
       if (!$entity_types[$type]->getFormClass($name)) {
+        // Use the default form for form modes that are not explicitly defined.
         $default_handler_class = $entity_types[$type]->getHandlerClasses()['form']['default'];
         $entity_types[$type]->setFormClass($name, $default_handler_class);
       }
     }
+  }
+
+  // Expand out separate entity blocks for profile bundles.
+  if (isset($entity_types['profile'])) {
+    $entity_types['profile']->contacts_use_bundles = TRUE;
   }
 }
 

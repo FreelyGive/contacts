@@ -64,8 +64,11 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
       if ($entity_type_id == 'user' || $has_owner) {
         $has_forms = $entity_type->hasFormClasses();
 
+        // Check if we should expand out entity bundles.
+        $bundle_entity_type = $entity_type->getBundleEntityType();
+        $use_bundles = !empty($entity_type->contacts_use_bundles) && $bundle_entity_type;
         // Expand out a derivative per entity bundle.
-        if ($bundle_entity_type = $entity_type->getBundleEntityType()) {
+        if ($use_bundles) {
           $bundle_types = $this->entityTypeManager->getStorage($bundle_entity_type)->loadMultiple();
           $bundles = array_keys($bundle_types);
         }
@@ -79,6 +82,14 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
           // Basic definition.
           $this->derivatives[$derivative_key] = $base_plugin_definition;
           $this->derivatives[$derivative_key]['admin_label'] = $this->t('Contacts entity form (@label)', ['@label' => $entity_type->getLabel()]);
+
+          // If we are using bundles add note the bundle label.
+          if ($use_bundles && !empty($bundle_types[$bundle])) {
+            $this->derivatives[$derivative_key]['admin_label'] = $this->t('Contacts entity form (@type:@bundle)', [
+              '@type' => $entity_type->getLabel(),
+              '@bundle' => $bundle_types[$bundle]->label(),
+            ]);
+          }
 
           // The entity is required for the user or types that don't have forms.
           $this->derivatives[$derivative_key]['context']['entity'] = new ContextDefinition('entity:' . $entity_type_id, $entity_type->getLabel(), $entity_type_id == 'user' || !$has_forms);
