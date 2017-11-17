@@ -1,0 +1,11 @@
+{
+  "name": "crm_tools",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://git.drupal.org/project/contacts"
+  },
+  "devDependencies": {
+    "open-iconic": "~1"
+  }
+}

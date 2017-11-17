@@ -1,0 +1,4 @@
+services:
+  user.auth:
+    class: Drupal\crm_tools\AdvancedRoleStorage
+    arguments: ['@entity.manager', '@password']

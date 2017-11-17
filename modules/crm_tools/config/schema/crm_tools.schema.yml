@@ -1,0 +1,13 @@
+user.role.*.third_party.crm_tools:
+  type: mapping
+  label: 'Hat fields'
+  mapping:
+    crm_tools_is_hat:
+      type: boolean
+      label: 'Hat'
+    crm_tools_color:
+      type: text
+      label: 'Hat Color'
+    crm_tools_icon:
+      type: text
+      label: 'Hat Icon'

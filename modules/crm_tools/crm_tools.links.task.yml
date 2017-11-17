@@ -1,0 +1,5 @@
+entity.user_role.overview:
+  title: 'Roles Hierarchy'
+  route_name: entity.user_role.overview
+  base_route: entity.user.collection
+  weight: 11
