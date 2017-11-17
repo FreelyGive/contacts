@@ -138,11 +138,14 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
   /**
    * {@inheritdoc}
+   *
+   * @param bool $edit_link
+   *   Whether or not to show the edit link in the label.
    */
-  public function label() {
+  public function label($edit_link = FALSE) {
     $label = parent::label();
 
-    if ($link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
+    if ($edit_link && $link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
       if ($label) {
         $label = new FormattableMarkup('@label [@link]', [
           '@label' => $label,

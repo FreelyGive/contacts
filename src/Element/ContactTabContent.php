@@ -94,7 +94,7 @@ class ContactTabContent extends RenderElement {
           'content' => $block->build(),
         ];
 
-        $block_content['content']['#title'] = $block->label();
+        $block_content['content']['#title'] = $block->label(TRUE);
         $regions[$block->getConfiguration()['region']][] = $block_content;
       }
 
