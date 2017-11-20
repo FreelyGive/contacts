@@ -28,3 +28,10 @@ contacts.add_org_form:
     _permission: 'add contacts'
   options:
     _admin_route: TRUE
+
+contacts.ajax_update_blocks:
+  path: '/admin/contacts/ajax/update-layout'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlocks'
+  requirements:
+    _permission: 'administer contacts'

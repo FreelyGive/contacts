@@ -9,7 +9,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Build the breadcrumbs on the party dashboard.
+ * Build the breadcrumbs on the contacts dashboard.
  */
 class BreadcrumbBuilder implements BreadcrumbBuilderInterface {
   use StringTranslationTrait;

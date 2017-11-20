@@ -145,9 +145,20 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
-  public function setBlock($id, array $block) {
-    $block['id'] = $id;
-    $this->blocks[$id] = $block;
+  public function setBlock($name, array $block) {
+    // Make sure we have an actual id and not just a numeric array key.
+    if (empty($block['id']) || is_numeric($block['id'])) {
+      throw new \InvalidArgumentException('Missing required ID for block settings.');
+    }
+
+    // If there is a problem with the name we can try to create one from ID.
+    if (empty($name) || is_numeric($name)) {
+      $name = preg_replace("/[^A-Za-z0-9 ]/", '_', $block['id']);
+    }
+
+    // Make sure the name is set properly.
+    $block['name'] = $name;
+    $this->blocks[$name] = $block;
     return $this;
   }
 
@@ -157,14 +168,8 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   public function setBlocks(array $blocks) {
     $this->blocks = [];
     foreach ($blocks as $key => $block) {
-      $id = $block['id'] ?: $key;
-
-      // Make sure we have an actual id and not just a numeric array key.
-      if (empty($id) || is_numeric($id)) {
-        throw new \InvalidArgumentException('Missing required ID for block settings.');
-      }
-
-      $this->setBlock($id, $block);
+      $name = $block['name'] ?: $key;
+      $this->setBlock($name, $block);
     }
     return $this;
   }

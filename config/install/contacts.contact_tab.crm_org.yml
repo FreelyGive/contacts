@@ -17,11 +17,12 @@ relationships:
     source: user
 blocks:
   contacts_entity_profile_crm_org:
-    id: 'contacts_entity:profile'
+    id: 'contacts_entity:profile-crm_org'
+    name: 'contacts_entity_profile_crm_org'
     label: ''
     provider: contacts
     label_display: '0'
-    create: crm_org
+    create: true
     region: left
     weight: 0
     context_mapping:

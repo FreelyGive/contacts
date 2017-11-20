@@ -17,12 +17,13 @@ relationships:
     source: user
 blocks:
   contacts_entity_profile_crm_notes:
-    id: 'contacts_entity:profile'
+    id: 'contacts_entity:profile-crm_notes'
+    name: 'contacts_entity_profile_crm_notes'
     label: ''
     provider: contacts
     label_display: '0'
     mode: form
-    create: crm_notes
+    create: true
     region: left
     weight: 0
     context_mapping:

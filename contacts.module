@@ -16,6 +16,7 @@ use Drupal\user\RoleInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
+use Drupal\views\Entity\View;
 
 /**
  * Implements hook_theme().
@@ -349,6 +350,68 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
   }
   elseif ($panels_display->getStorageId() == 'contacts_dashboard_contact-panels_variant-0') {
     $build['#attached']['library'][] = 'contacts/contact';
+  }
+}
+
+/**
+ * Implements hook_block_alter().
+ *
+ * Allow dashboard placement of views blocks if they have the correct tag.
+ */
+function contacts_block_alter(&$definitions) {
+  foreach ($definitions as $key => &$definition) {
+    if ($definition['id'] === 'views_block') {
+      if (substr($key, 0, 12) == 'views_block:') {
+        // @fixme Do we need the display at this point?
+        list($view_id, $view_display) = explode('-', substr($key, 12));
+
+        $view = View::load($view_id);
+        if (in_array('contacts_dashboard', explode(', ', $view->get('tag')))) {
+          $definition['dashboard_block'] = TRUE;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ *
+ * Update entity definitions of certain entity types to enable contacts Entity
+ * blocks and handle missing form operations.
+ *
+ * @see \Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver::getDerivativeDefinitions()
+ */
+function contacts_entity_type_alter(array &$entity_types) {
+  /* @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
+  // Approved entity types.
+  $dashboard_entity_types = [
+    'user',
+    'profile',
+  ];
+
+  /* @var \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository */
+  $entity_display_repository = \Drupal::service('entity_display.repository');
+  foreach ($dashboard_entity_types as $type) {
+    if (isset($entity_types[$type])) {
+      $entity_types[$type]->set('contacts_entity', TRUE);
+    }
+
+    // Add form operations for missing form modes.
+    $form_modes = $entity_display_repository->getFormModes($type);
+    foreach ($form_modes as $name => $form_mode) {
+      /* @var \Drupal\Core\Entity\Entity\EntityFormMode $form_mode */
+      if (!$entity_types[$type]->getFormClass($name)) {
+        // Use the default form for form modes that are not explicitly defined.
+        $default_handler_class = $entity_types[$type]->getHandlerClasses()['form']['default'];
+        $entity_types[$type]->setFormClass($name, $default_handler_class);
+      }
+    }
+  }
+
+  // Expand out separate entity blocks for profile bundles.
+  if (isset($entity_types['profile'])) {
+    $entity_types['profile']->set('contacts_use_bundles', TRUE);
   }
 }
 

@@ -20,12 +20,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Provides a block to view a custom text content.
+ * Provides a block the user entity and any entity implementing ownership.
+ *
+ * Entity classes need to implement the EntityOwnerInterface and define the
+ * contacts_entity property in their definition.
  *
  * @Block(
  *   id = "contacts_entity",
  *   category = @Translation("Contacts"),
  *   deriver = "Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver",
+ *   dashboard_block = TRUE,
  * )
  */
 class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface {
@@ -128,7 +132,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
         return AccessResult::forbidden();
       }
     }
-    $op = $this->getOperation($entity);
+    $op = $this->getMode($entity);
     return $entity->access($op, NULL, TRUE);
   }
 
@@ -165,6 +169,9 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
   /**
    * Get the edit link, if applicable.
+   *
+   * @param string $mode
+   *   The mode indicating where to render the edit link.
    *
    * @return false|\Drupal\Core\Link
    *   The edit link, or FALSE if there is none.
@@ -218,7 +225,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       }
     }
 
-    if ($this->getOperation($entity) == 'edit') {
+    if ($this->getMode($entity) == 'edit') {
       return $this->buildForm($entity);
     }
     return $this->buildView($entity);
@@ -231,9 +238,9 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The entity. If not provided, we will get it from the context.
    *
    * @return string
-   *   The operation to use, either 'view' or 'edit'.
+   *   The mode to use, either 'view' or 'edit'.
    */
-  protected function getOperation(EntityInterface $entity = NULL) {
+  protected function getMode(EntityInterface $entity = NULL) {
     $definition = $this->getPluginDefinition();
     $config = $this->getConfiguration();
     if (!$entity) {
@@ -282,12 +289,23 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    // Check create access.
+    $bundle = $definition['_bundle_key'] ? $definition['_bundle_id'] : NULL;
+    $context = [];
+    if (is_a($this->entityTypeManager->getDefinition($definition['_entity_type_id'])->getClass(), EntityOwnerInterface::class, TRUE)) {
+      $user = $this->getContextValue('user');
+      $context['owner'] = $user;
+    }
+    if (!$this->entityTypeManager->getAccessControlHandler($definition['_entity_type_id'])->createAccess($bundle, NULL, $context)) {
+      return FALSE;
+    }
+
     // Build our values.
     $values = [];
 
     // If this entity type has bundles, set the appropriate key.
-    if ($definition['_bundle_key']) {
-      $values[$definition['_bundle_key']] = $config['create'];
+    if ($bundle) {
+      $values[$definition['_bundle_key']] = $bundle;
     }
 
     // Create the entity.
@@ -376,6 +394,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    */
   public function calculateDependencies() {
     $dependencies = parent::calculateDependencies();
+    $definition = $this->getPluginDefinition();
 
     $entity_type = $this->entityTypeManager->getDefinition($this->pluginDefinition['_entity_type_id']);
 
@@ -383,8 +402,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $dependencies['module'][] = $entity_type->getProvider();
 
     // If we have a bundle for creating, add it's config dependencies.
-    if ($this->configuration['create'] && is_string($this->configuration['create'])) {
-      $dependency = $entity_type->getBundleConfigDependency($this->configuration['create']);
+    if ($definition['_bundle_key']) {
+      $dependency = $entity_type->getBundleConfigDependency($definition['_bundle_id']);
       $dependencies[$dependency['type']][] = $dependency['name'];
     }
 
