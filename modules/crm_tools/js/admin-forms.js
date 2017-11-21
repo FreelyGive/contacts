@@ -1,6 +1,6 @@
 /**
  * @file
- * CRM Tools js behaviour for open iconic svgs.
+ * CRM Tools js behaviour for admin forms.
  */
 
 (function ($, Drupal) {
@@ -8,22 +8,34 @@
     'use strict';
 
     /**
-     * Control icon preview for open ionic icons.
+     * Update hierarchical role parents and children.
      *
      * @type {Drupal~behavior}
      *
      * @prop {Drupal~behaviorAttach} attach
-     *   Set up icon watchers.
+     *   Set up role watchers.
      */
     Drupal.behaviors.crmToolsAdminRoles = {
         attach: function (context, settings) {
-            console.log('admin form');
-            $('.crm_tools_roles input[data-crm-tools-parent]', context).change(function() {
+            // Track role changes.
+            $('.crm_tools_roles input', context).change(function() {
+                // Add in parents.
                 var parent_id = $(this, context).attr("data-crm-tools-parent");
                 if (parent_id && this.checked) {
                     var parent = $('.crm_tools_roles input[value='+ parent_id +']', context);
                     parent.prop("checked", true);
                     parent.trigger("change");
+                }
+
+                // Remove children.
+                var child_key = $(this, context).attr("data-crm-tools-children");
+                if (child_key && !this.checked) {
+                    var children = child_key.split(":");
+                    for (var i = 0; i < children.length; i++) {
+                        var child = $('.crm_tools_roles input[value="'+ children[i] +'"]', context);
+                        child.prop("checked", false);
+                        child.trigger("change");
+                    }
                 }
             });
         }

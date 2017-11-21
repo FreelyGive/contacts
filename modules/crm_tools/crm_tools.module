@@ -13,6 +13,7 @@ use Drupal\Core\Url;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Element;
 use Drupal\user\RoleInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_help().
@@ -23,7 +24,7 @@ function crm_tools_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.crm_tools':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('My Awesome Module') . '</p>';
+      $output .= '<p>' . t('This module contains several feature enhancements to simplify CRM in Drupal.') . '</p>';
       return $output;
   }
 }
@@ -78,7 +79,6 @@ function crm_tools_form_user_form_alter(&$form, FormStateInterface $form_state, 
         $form['account']['roles']['#process'] = \Drupal::service('element_info')->getInfoProperty('checkboxes', '#process', []);
         $form['account']['roles']['#process'][] = 'crm_tools_user_roles_checkboxes_process';
       }
-
     }
   }
 }
@@ -97,6 +97,9 @@ function crm_tools_user_roles_checkboxes_process(&$element, FormStateInterface $
         $parent = is_array($roles[$id]->get('parents')) ? $roles[$id]->get('parents')[0] : $roles[$id]->get('parents');
         $element[$id]['#attributes']['data-crm-tools-parent'] = $parent;
       }
+
+      $children = implode(':', array_keys($role_storage->loadChildren($id)));
+      $element[$id]['#attributes']['data-crm-tools-children'] = $children;
     }
   }
 
@@ -263,6 +266,39 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
   // Update hat weight.
   if ($form_state->getValue('weight')) {
     $role->setWeight($form_state->getValue('weight'));
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for user entities.
+ */
+function crm_tools_user_presave(UserInterface $account) {
+  $tools = \Drupal::config('crm_tools.tools')->get('active_tools');
+  if (!empty($tools['hats'])) {
+    /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+    $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+    $old_roles = $account->original->getRoles();
+    $new_roles = $account->getRoles();
+
+    // Check that we are adding all parents of new roles.
+    $added_roles = array_diff($new_roles, $old_roles);
+    foreach ($added_roles as $role) {
+      foreach ($role_storage->loadAllParents($role) as $new_role) {
+        if (!$account->hasRole($new_role->id())) {
+          $account->addRole($new_role->id());
+        }
+      }
+    }
+
+    // Check that we are removing all children of old roles.
+    $removed_roles = array_diff($old_roles, $new_roles);
+    foreach ($removed_roles as $role) {
+      foreach ($role_storage->loadAllChildren($role) as $old_role) {
+        if ($account->hasRole($old_role->id())) {
+          $account->removeRole($old_role->id());
+        }
+      }
+    }
   }
 }
 
