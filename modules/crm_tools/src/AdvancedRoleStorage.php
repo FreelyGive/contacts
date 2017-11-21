@@ -47,14 +47,6 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
   /**
    * {@inheritdoc}
    */
-  public function isPermissionInRoles($permission, array $rids) {
-    // @todo Check parent roles.
-    return parent::isPermissionInRoles($permission, $rids);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function loadParents($id) {
     if (!isset($this->parents[$id])) {
       /* @var \Drupal\user\RoleInterface[] $roles */

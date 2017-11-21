@@ -111,7 +111,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#type' => 'textfield',
         '#title' => t('Icon'),
         '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
-          '@link' => Link::fromTextAndUrl('Find Icons',Url::fromUri(
+          '@link' => Link::fromTextAndUrl('Find Icons', Url::fromUri(
             'https://useiconic.com/open/', [
               'attributes' => ['target' => '_blank'],
             ]))->toString(),
