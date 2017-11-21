@@ -1,6 +1,8 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - crm_tools
 third_party_settings:
   crm_tools:
     crm_tools_is_hat: true

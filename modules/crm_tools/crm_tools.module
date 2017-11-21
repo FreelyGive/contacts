@@ -57,7 +57,7 @@ function template_preprocess_crm_tools_hat(array &$variables) {
  */
 function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id === 'user_role_form') {
-    $tools = Drupal::config('crm_tools.tools')->get('active_tools');
+    $tools = \Drupal::config('crm_tools.tools')->get('active_tools');
     if (!empty($tools['hats'])) {
       /* @var \Drupal\user\Entity\Role $role */
       $role = $form_state->getFormObject()->getEntity();

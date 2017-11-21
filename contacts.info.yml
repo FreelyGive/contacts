@@ -5,6 +5,7 @@ type: module
 core: 8.x
 
 dependencies:
+  - contacts:crm_tools
   - drupal:system (>=8.4.0)
   - drupal:block
   - decoupled_auth:decoupled_auth
