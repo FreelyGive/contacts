@@ -4,35 +4,11 @@ namespace Drupal\crm_tools\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManager;
 
 /**
- * Class ToolsForm.
+ * Settings form for activating crm tools.
  */
 class ToolsForm extends ConfigFormBase {
-
-  /**
-   * Drupal\Core\Entity\EntityTypeManager definition.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManager
-   */
-  protected $manager;
-  /**
-   * Constructs a new ToolsForm object.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManager $entity_type_manager) {
-    parent::__construct($config_factory);
-    $this->manager = $entity_type_manager;
-  }
-
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('entity_type.manager')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -69,13 +45,6 @@ class ToolsForm extends ConfigFormBase {
     ];
 
     return parent::buildForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
   }
 
   /**

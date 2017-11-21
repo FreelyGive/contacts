@@ -1,6 +1,12 @@
 langcode: en
 status: true
 dependencies: {  }
+third_party_settings:
+  crm_tools:
+    crm_tools_is_hat: true
+    crm_tools_color: '#9DCDCD'
+    crm_tools_icon: person
+    crm_tools_parent: 0
 id: crm_indiv
 label: Person
 weight: 3

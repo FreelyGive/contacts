@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\RoleInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -118,7 +117,7 @@ class OverviewRoles extends FormBase {
       ],
     ];
     foreach ($current_page as $key => $role) {
-      /** @var $role \Drupal\user\RoleInterface */
+      /* @var \Drupal\user\RoleInterface $role */
       $form['roles'][$key]['#role'] = $role;
       $indentation = [];
       if (isset($role->depth) && $role->depth > 0) {
@@ -256,9 +255,6 @@ class OverviewRoles extends FormBase {
    *   The current state of the form.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Sort role order based on weight.
-    uasort($form_state->getValue('roles'), ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
-
     $changed_roles = [];
     $tree = $this->storageController->loadTree();
 
@@ -271,28 +267,15 @@ class OverviewRoles extends FormBase {
       $roles[$role->id()] = $role;
     }
 
-    // Build a list of all roles that need to be updated on previous pages.
     $weight = 0;
-
-
-    // Renumber the current page weights and assign any new parents.
-    $level_weights = [];
     foreach ($form_state->getValue('roles') as $id => $values) {
       if (isset($roles[$id])) {
-        /* @var RoleInterface $role */
+        /* @var \Drupal\user\RoleInterface $role */
         $role = $roles[$id];
-        // Give roles at the root level a weight in sequence with roles on previous pages.
-        if ($values['role']['parent'] == 0 && $role->getWeight() != $weight) {
+        // Set the weight in order regardless of hierarchy.
+        if ($role->getWeight() != $weight) {
           $role->setWeight($weight);
           $changed_roles[$role->id()] = $role;
-        }
-        // Roles not at the root level can safely start from 0 because they're all on this page.
-        elseif ($values['role']['parent'] > 0) {
-          $level_weights[$values['role']['parent']] = isset($level_weights[$values['role']['parent']]) ? $level_weights[$values['role']['parent']] + 1 : 0;
-          if ($level_weights[$values['role']['parent']] != $role->getWeight()) {
-            $role->setWeight($level_weights[$values['role']['parent']]);
-            $changed_roles[$role->id()] = $role;
-          }
         }
 
         // Update any changed parents.

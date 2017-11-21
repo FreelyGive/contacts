@@ -54,10 +54,6 @@ function template_preprocess_crm_tools_hat(array &$variables) {
  * Implements hook_form_alter().
  */
 function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
-  if ($form_id === 'node_page_form') {
-    dpm($form['field_test']['widget'][0]);
-  }
   if ($form_id === 'user_role_form') {
     $tools = Drupal::config('crm_tools.tools')->get('active_tools');
     if (!empty($tools['hats'])) {
@@ -112,7 +108,12 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
       $form['crm_tools_hat']['crm_tools_icon'] = [
         '#type' => 'textfield',
         '#title' => t('Icon'),
-        '#description' => t('Enter the name for the open-iconic icon you would like to use.') . '<br><a target="_blank" href="https://useiconic.com/open/">Find Icons</a>',
+        '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
+          '@link' => \Drupal\Core\Link::fromTextAndUrl('Find Icons', \Drupal\Core\Url::fromUri(
+            'https://useiconic.com/open/', [
+            'attributes' => ['target' => '_blank'],
+          ]))->toString(),
+        ]),
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
         '#weight' => 2,
         '#size' => 20,
@@ -129,9 +130,8 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#attributes' => ['class' => ['crm-tools-hierarchy']],
       ];
 
-      /* @var \Drupal\user\RoleStorageInterface $role_storage */
+      /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
       $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
-
       $children = $role_storage->loadTree($role->id());
 
       // A term can't be the child of itself, nor of its children.
@@ -145,7 +145,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
 
       foreach ($tree as $item) {
         if (!in_array($item->id(), $exclude)) {
-          $options[$item->id()] = str_repeat('-', $item->depth) . $item->label();
+          $options[$item->id()] = str_repeat('-', $item->get('depth')) . $item->label();
         }
       }
 
@@ -175,6 +175,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
  * Entity builder for the menu configuration entity.
  */
 function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$form, FormStateInterface $form_state) {
+  // Update is_hat.
   if ($form_state->getValue('crm_tools_is_hat')) {
     $role->setThirdPartySetting('crm_tools', 'crm_tools_is_hat', $form_state->getValue('crm_tools_is_hat'));
   }
@@ -182,6 +183,7 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
     $role->unsetThirdPartySetting('crm_tools', 'crm_tools_is_hat');
   }
 
+  // Update hat color.
   if ($form_state->getValue('color')) {
     $role->setThirdPartySetting('crm_tools', 'crm_tools_color', $form_state->getValue('color'));
   }
@@ -189,6 +191,7 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
     $role->unsetThirdPartySetting('crm_tools', 'crm_tools_color');
   }
 
+  // Update hat icon.
   if ($form_state->getValue('crm_tools_icon')) {
     $role->setThirdPartySetting('crm_tools', 'crm_tools_icon', $form_state->getValue('crm_tools_icon'));
   }
@@ -196,6 +199,7 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
     $role->unsetThirdPartySetting('crm_tools', 'crm_tools_icon');
   }
 
+  // Update hat parent.
   if ($form_state->getValue('crm_tools_parent')) {
     $role->setThirdPartySetting('crm_tools', 'crm_tools_parent', $form_state->getValue('crm_tools_parent'));
   }
@@ -203,6 +207,7 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
     $role->unsetThirdPartySetting('crm_tools', 'crm_tools_parent');
   }
 
+  // Update hat weight.
   if ($form_state->getValue('weight')) {
     $role->setWeight($form_state->getValue('weight'));
   }

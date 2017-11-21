@@ -2,7 +2,6 @@
 
 namespace Drupal\crm_tools;
 
-use Drupal\user\RoleInterface;
 use Drupal\user\RoleStorage;
 
 /**
@@ -58,7 +57,7 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
    */
   public function loadParents($id) {
     if (!isset($this->parents[$id])) {
-      /* @var RoleInterface[] $roles */
+      /* @var \Drupal\user\RoleInterface[] $roles */
       $roles = $this->loadMultiple();
       $parents = [];
 
@@ -80,7 +79,7 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
     $cache_key = implode(':', func_get_args());
     if (!isset($this->trees[$cache_key])) {
       // Load full entities.
-      /* @var RoleInterface[] $roles */
+      /* @var \Drupal\user\RoleInterface[] $roles */
       $roles = $this->loadMultiple();
       // We cache trees, so it's not CPU-intensive to call on a role and its
       // children, too.
@@ -96,7 +95,6 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
           $this->treeRoles[$role->id()] = $role;
         }
       }
-
 
       $max_depth = (!isset($max_depth)) ? count($this->treeChildren) : $max_depth;
       $tree = [];
@@ -115,7 +113,6 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
         if ($max_depth > $depth && !empty($this->treeChildren[$parent])) {
           $has_children = FALSE;
           $child = current($this->treeChildren[$parent]);
-
 
           do {
             if (empty($child)) {
@@ -156,5 +153,5 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
 
     return $this->trees[$cache_key];
   }
-  
+
 }

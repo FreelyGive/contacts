@@ -1,4 +1,5 @@
 services:
-  user.auth:
-    class: Drupal\crm_tools\AdvancedRoleStorage
-    arguments: ['@entity.manager', '@password']
+  crm_tools.route_subscriber:
+    class: Drupal\crm_tools\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

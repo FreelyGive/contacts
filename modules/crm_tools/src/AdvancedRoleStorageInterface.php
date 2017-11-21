@@ -35,5 +35,4 @@ interface AdvancedRoleStorageInterface extends RoleStorageInterface {
    */
   public function loadTree($parent = 0, $max_depth = NULL);
 
-
 }
