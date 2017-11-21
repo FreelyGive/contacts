@@ -274,7 +274,7 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
  */
 function crm_tools_user_presave(UserInterface $account) {
   $tools = \Drupal::config('crm_tools.tools')->get('active_tools');
-  if (!empty($tools['hats'])) {
+  if (!empty($tools['hats']) && isset($account->original)) {
     /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
     $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
     $old_roles = $account->original->getRoles();
