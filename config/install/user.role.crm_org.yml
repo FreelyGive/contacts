@@ -8,7 +8,7 @@ third_party_settings:
     crm_tools_is_hat: true
     crm_tools_color: '#B24F60'
     crm_tools_icon: graph
-    crm_tools_parent: 0
+    crm_tools_parent: "0"
 id: crm_org
 label: Organisation
 weight: 4
