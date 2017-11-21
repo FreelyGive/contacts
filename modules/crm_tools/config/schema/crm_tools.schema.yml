@@ -25,5 +25,5 @@ user.role.*.third_party.crm_tools:
       type: text
       label: 'Hat Icon'
     crm_tools_parent:
-      type: integer
+      type: string
       label: 'Hat Parent'

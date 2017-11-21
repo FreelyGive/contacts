@@ -29,10 +29,12 @@ interface AdvancedRoleStorageInterface extends RoleStorageInterface {
    * @param int $max_depth
    *   The number of levels of the tree to return. Leave NULL to return all
    *   levels.
+   * @param bool $keyed
+   *   Whether to key returned array by role ids. Defaults to false.
    *
    * @return \Drupal\user\RoleInterface[]
    *   An array of role objects that are the children the parent role.
    */
-  public function loadTree($parent = 0, $max_depth = NULL);
+  public function loadTree($parent = 0, $max_depth = NULL, $keyed = FALSE);
 
 }

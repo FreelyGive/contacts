@@ -12,3 +12,10 @@ open-iconic:
       css/open-iconic.drupal.css: {}
   dependencies:
     - core/jquery
+
+admin-forms:
+  version: "1.0"
+  js:
+    js/admin-forms.js: {}
+  dependencies:
+    - core/jquery

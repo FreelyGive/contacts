@@ -10,6 +10,9 @@ use Drupal\user\Entity\Role;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Render\Element;
+use Drupal\user\RoleInterface;
 
 /**
  * Implements hook_help().
@@ -50,6 +53,54 @@ function template_preprocess_crm_tools_hat(array &$variables) {
   $variables['label'] = $role->label();
   $variables['color'] = '#' . $role->getThirdPartySetting('crm_tools', 'crm_tools_color') ?: 'blue';
   $variables['icon'] = 'fa-' . $role->getThirdPartySetting('crm_tools', 'crm_tools_icon') ?: 'fa-user';
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for user_form.
+ */
+function crm_tools_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['account']['roles'])) {
+    $tools = \Drupal::config('crm_tools.tools')->get('active_tools');
+    if (!empty($tools['hats'])) {
+      $form['account']['roles']['#attached']['library'][] = 'crm_tools/admin-forms';
+      $options = [];
+      /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+      $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+      if ($roles = $role_storage->loadTree()) {
+        foreach ($roles as $role) {
+          if ($role->id() == RoleInterface::ANONYMOUS_ID) {
+            continue;
+          }
+          $options[$role->id()] = str_repeat('-', $role->get('depth')) . Html::escape($role->label());
+        }
+        $form['account']['roles']['#attributes']['class'][] = 'crm_tools_roles';
+        $form['account']['roles']['#options'] = $options;
+        $form['account']['roles']['#process'] = \Drupal::service('element_info')->getInfoProperty('checkboxes', '#process', []);
+        $form['account']['roles']['#process'][] = 'crm_tools_user_roles_checkboxes_process';
+      }
+
+    }
+  }
+}
+
+/**
+ * Processes a checkboxes form element.
+ *
+ * @see crm_tools_form_user_form_alter()
+ */
+function crm_tools_user_roles_checkboxes_process(&$element, FormStateInterface $form_state, &$complete_form) {
+  /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+  $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+  if ($roles = $role_storage->loadTree(0, NULL, TRUE)) {
+    foreach (Element::children($element) as $id) {
+      if (!empty($element[$id]) && !empty($roles[$id])) {
+        $parent = is_array($roles[$id]->get('parents')) ? $roles[$id]->get('parents')[0] : $roles[$id]->get('parents');
+        $element[$id]['#attributes']['data-crm-tools-parent'] = $parent;
+      }
+    }
+  }
+
+  return $element;
 }
 
 /**

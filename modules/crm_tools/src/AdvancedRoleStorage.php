@@ -67,7 +67,7 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
   /**
    * {@inheritdoc}
    */
-  public function loadTree($parent = 0, $max_depth = NULL) {
+  public function loadTree($parent = 0, $max_depth = NULL, $keyed = FALSE) {
     $cache_key = implode(':', func_get_args());
     if (!isset($this->trees[$cache_key])) {
       // Load full entities.
@@ -115,7 +115,14 @@ class AdvancedRoleStorage extends RoleStorage implements AdvancedRoleStorageInte
             unset($role->parent);
             $id = $role->id();
             $role->set('parents', $this->treeParents[$id]);
-            $tree[] = $role;
+
+            if ($keyed) {
+              $tree[$role->id()] = $role;
+            }
+            else {
+              $tree[] = $role;
+            }
+
             if (!empty($this->treeChildren[$id])) {
               $has_children = TRUE;
 

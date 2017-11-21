@@ -16,7 +16,7 @@ class OverviewRoles extends FormBase {
   /**
    * The role storage handler.
    *
-   * @var \Drupal\user\RoleStorageInterface
+   * @var \Drupal\crm_tools\AdvancedRoleStorageInterface
    */
   protected $storageController;
 
@@ -283,7 +283,7 @@ class OverviewRoles extends FormBase {
         }
 
         // Update any changed parents.
-        if ($values['role']['parent'] != $role->getThirdPartySetting('crm_tools', 'crm_tools_parent', "0")) {
+        if ($values['role']['parent'] !== $role->getThirdPartySetting('crm_tools', 'crm_tools_parent', "0")) {
           $role->setThirdPartySetting('crm_tools', 'crm_tools_parent', $values['role']['parent']);
           $changed_roles[$role->id()] = $role;
         }
