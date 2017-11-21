@@ -110,7 +110,11 @@ class OverviewRoles extends FormBase {
     // Build the actual form.
     $form['roles'] = [
       '#type' => 'table',
-      '#header' => [$this->t('Name'), $this->t('Weight'), $this->t('Operations')],
+      '#header' => [
+        $this->t('Name'),
+        $this->t('Weight'),
+        $this->t('Operations'),
+      ],
       '#empty' => $this->t('No Roles available. <a href=":link">Add role</a>.', [':link' => $this->url('user.role_add')]),
       '#attributes' => [
         'id' => 'taxonomy',

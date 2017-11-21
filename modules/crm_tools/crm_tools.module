@@ -8,6 +8,8 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\Role;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_help().
@@ -109,10 +111,10 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#type' => 'textfield',
         '#title' => t('Icon'),
         '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
-          '@link' => \Drupal\Core\Link::fromTextAndUrl('Find Icons', \Drupal\Core\Url::fromUri(
+          '@link' => Link::fromTextAndUrl('Find Icons',Url::fromUri(
             'https://useiconic.com/open/', [
-            'attributes' => ['target' => '_blank'],
-          ]))->toString(),
+              'attributes' => ['target' => '_blank'],
+            ]))->toString(),
         ]),
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
         '#weight' => 2,
