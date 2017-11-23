@@ -102,140 +102,138 @@ function crm_tools_user_roles_checkboxes_process(&$element, FormStateInterface $
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_BASE_FORM_ID_alter() for user_role_form.
  */
-function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if ($form_id === 'user_role_form') {
-    /* @var \Drupal\user\Entity\Role $role */
-    $role = $form_state->getFormObject()->getEntity();
+function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_state) {
+  /* @var \Drupal\user\Entity\Role $role */
+  $role = $form_state->getFormObject()->getEntity();
 
-    $form['crm_tools_is_hat'] = [
-      '#type' => 'checkbox',
-      '#title' => 'Contact Type',
-      '#description' => 'Make this role a Contact Type for CRM.',
-      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', TRUE),
-    ];
+  $form['crm_tools_is_hat'] = [
+    '#type' => 'checkbox',
+    '#title' => 'Contact Type',
+    '#description' => 'Make this role a Contact Type for CRM.',
+    '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', $role->isNew()),
+  ];
 
-    $form['crm_tools_hat'] = [
-      '#type' => 'fieldset',
-      '#title' => 'Contact Type Settings',
-      '#attributes' => ['class' => ['crm-tools-options']],
-      '#states' => [
-        'visible' => [
-          ':input[name="crm_tools_is_hat"]' => [
-            'checked' => TRUE,
-          ],
+  $form['crm_tools_hat'] = [
+    '#type' => 'fieldset',
+    '#title' => 'Contact Type Settings',
+    '#attributes' => ['class' => ['crm-tools-options']],
+    '#states' => [
+      'visible' => [
+        ':input[name="crm_tools_is_hat"]' => [
+          'checked' => TRUE,
         ],
       ],
-    ];
+    ],
+  ];
 
-    $form['crm_tools_hat']['color'] = [
-      '#type' => 'container',
-      '#weight' => 1,
-      '#attached' => [
-        'library' => ['color_field/color-field-widget-box'],
-        'drupalSettings' => [
-          'color_field' => [
-            'color_field_widget_box' => [
-              'settings' => [
-                'default_colors' => array_keys(crm_tools_get_hat_palette()),
-              ],
+  $form['crm_tools_hat']['color'] = [
+    '#type' => 'container',
+    '#weight' => 1,
+    '#attached' => [
+      'library' => ['color_field/color-field-widget-box'],
+      'drupalSettings' => [
+        'color_field' => [
+          'color_field_widget_box' => [
+            'settings' => [
+              'default_colors' => array_keys(crm_tools_get_hat_palette()),
             ],
           ],
         ],
       ],
-      'crm_tools_color' => [
-        '#title' => t('Color'),
-        '#type' => 'textfield',
-        '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
-        '#attributes' => ['class' => ['visually-hidden']],
-        '#suffix' => '<div class="color-field-widget-box-form"></div>',
-      ],
-    ];
-
-    $form['crm_tools_hat']['icon'] = [
-      '#type' => 'container',
-      '#weight' => 2,
-      'crm_tools_icon' => [
-        '#type' => 'textfield',
-        '#title' => t('Icon'),
-        '#description' => t('Enter the name for the open-iconic icon you would like to use.<br>@link', [
-          '@link' => Link::fromTextAndUrl(t('Find Icons'), Url::fromUri(
-            'https://useiconic.com/open/', [
-              'attributes' => ['target' => '_blank'],
-            ]))->toString(),
-        ]),
-        '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
-        '#size' => 20,
-        '#attached' => [
-          'library' => ['crm_tools/open-iconic-preview'],
-          'drupalSettings' => [
-            'crm_tools' => [
-              'open_iconic' => [
-                'settings' => [
-                  'sprite_path' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg',
-                ],
-              ],
-            ],
-          ],
-        ],
-      ],
-      'preview' => [
-        '#type' => 'container',
-        '#attributes' => ['class' => ['icon-preview']],
-        'icon' => [
-          '#type' => 'role_icon',
-          '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
-          '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
-        ],
-      ],
-    ];
-
-    $form['crm_tools_hierarchy'] = [
-      '#type' => 'details',
-      '#title' => 'Relations',
-      '#open' => FALSE,
-      '#attributes' => ['class' => ['crm-tools-hierarchy']],
-    ];
-
-    /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
-    $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
-    $children = $role_storage->loadTree($role->id());
-
-    // A term can't be the child of itself, nor of its children.
-    foreach ($children as $child) {
-      $exclude[] = $child->id();
-    }
-
-    $exclude[] = $role->id();
-    $tree = $role_storage->loadTree();
-    $options = ['<' . t('root') . '>'];
-
-    foreach ($tree as $item) {
-      if (!in_array($item->id(), $exclude)) {
-        $options[$item->id()] = str_repeat('-', $item->get('depth')) . $item->label();
-      }
-    }
-
-    $form['crm_tools_hierarchy']['crm_tools_parent'] = [
-      '#type' => 'select',
-      '#title' => t('Parent term'),
-      '#options' => $options,
-      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_parent'),
-      '#multiple' => FALSE,
-    ];
-
-    $form['crm_tools_hierarchy']['weight'] = [
+    ],
+    'crm_tools_color' => [
+      '#title' => t('Color'),
       '#type' => 'textfield',
-      '#title' => t('Weight'),
-      '#size' => 6,
-      '#default_value' => $role->getWeight(),
-      '#description' => t('Roles are displayed in ascending order by weight.'),
-      '#required' => TRUE,
-    ];
+      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
+      '#attributes' => ['class' => ['visually-hidden']],
+      '#suffix' => '<div class="color-field-widget-box-form"></div>',
+    ],
+  ];
 
-    $form['#entity_builders'][] = 'crm_tools_form_user_role_add_form_builder';
+  $form['crm_tools_hat']['icon'] = [
+    '#type' => 'container',
+    '#weight' => 2,
+    'crm_tools_icon' => [
+      '#type' => 'textfield',
+      '#title' => t('Icon'),
+      '#description' => t('Enter the name for the open-iconic icon you would like to use.<br>@link', [
+        '@link' => Link::fromTextAndUrl(t('Find Icons'), Url::fromUri(
+          'https://useiconic.com/open/', [
+            'attributes' => ['target' => '_blank'],
+          ]))->toString(),
+      ]),
+      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
+      '#size' => 20,
+      '#attached' => [
+        'library' => ['crm_tools/open-iconic-preview'],
+        'drupalSettings' => [
+          'crm_tools' => [
+            'open_iconic' => [
+              'settings' => [
+                'sprite_path' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg',
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
+    'preview' => [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['icon-preview']],
+      'icon' => [
+        '#type' => 'role_icon',
+        '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
+        '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
+      ],
+    ],
+  ];
+
+  $form['crm_tools_hierarchy'] = [
+    '#type' => 'details',
+    '#title' => 'Relations',
+    '#open' => FALSE,
+    '#attributes' => ['class' => ['crm-tools-hierarchy']],
+  ];
+
+  /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+  $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+  $children = $role_storage->loadTree($role->id());
+
+  // A term can't be the child of itself, nor of its children.
+  foreach ($children as $child) {
+    $exclude[] = $child->id();
   }
+
+  $exclude[] = $role->id();
+  $tree = $role_storage->loadTree();
+  $options = ['<' . t('root') . '>'];
+
+  foreach ($tree as $item) {
+    if (!in_array($item->id(), $exclude)) {
+      $options[$item->id()] = str_repeat('-', $item->get('depth')) . $item->label();
+    }
+  }
+
+  $form['crm_tools_hierarchy']['crm_tools_parent'] = [
+    '#type' => 'select',
+    '#title' => t('Parent term'),
+    '#options' => $options,
+    '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_parent'),
+    '#multiple' => FALSE,
+  ];
+
+  $form['crm_tools_hierarchy']['weight'] = [
+    '#type' => 'textfield',
+    '#title' => t('Weight'),
+    '#size' => 6,
+    '#default_value' => $role->getWeight(),
+    '#description' => t('Roles are displayed in ascending order by weight.'),
+    '#required' => TRUE,
+  ];
+
+  $form['#entity_builders'][] = 'crm_tools_form_user_role_add_form_builder';
 }
 
 /**
