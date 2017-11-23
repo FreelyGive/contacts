@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides roles overview form for a taxonomy vocabulary.
+ * Provides roles overview form for the roles page.
  */
 class OverviewRoles extends FormBase {
 
@@ -50,18 +50,7 @@ class OverviewRoles extends FormBase {
   }
 
   /**
-   * Form constructor.
-   *
-   * Display a tree of all the roles in a vocabulary, with options to edit
-   * each one. The form is made drag and drop by the theme function.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   *
-   * @return array
-   *   The form structure.
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $parent_fields = FALSE;
@@ -116,9 +105,6 @@ class OverviewRoles extends FormBase {
         $this->t('Operations'),
       ],
       '#empty' => $this->t('No Roles available. <a href=":link">Add role</a>.', [':link' => $this->url('user.role_add')]),
-      '#attributes' => [
-        'id' => 'taxonomy',
-      ],
     ];
     foreach ($current_page as $key => $role) {
       /* @var \Drupal\user\RoleInterface $role */
@@ -132,6 +118,20 @@ class OverviewRoles extends FormBase {
       }
       $form['roles'][$key]['role'] = [
         '#prefix' => !empty($indentation) ? \Drupal::service('renderer')->render($indentation) : '',
+      ];
+      if ($role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', FALSE)) {
+        $form['roles'][$key]['role']['icon'] = [
+          '#type' => 'role_icon',
+          '#size' => '10',
+        ];
+        if ($role->getThirdPartySetting('crm_tools', 'crm_tools_icon', FALSE)) {
+          $form['roles'][$key]['role']['icon']['#icon'] = $role->getThirdPartySetting('crm_tools', 'crm_tools_icon');
+        }
+        if ($role->getThirdPartySetting('crm_tools', 'crm_tools_color', FALSE)) {
+          $form['roles'][$key]['role']['icon']['#color'] = $role->getThirdPartySetting('crm_tools', 'crm_tools_color');
+        }
+      }
+      $form['roles'][$key]['role']['label'] = [
         '#type' => 'link',
         '#title' => $role->label(),
         '#url' => $role->urlInfo(),
@@ -220,7 +220,6 @@ class OverviewRoles extends FormBase {
         'group' => 'role-depth',
         'hidden' => FALSE,
       ];
-      $form['roles']['#attached']['library'][] = 'taxonomy/drupal.taxonomy';
     }
     $form['roles']['#tabledrag'][] = [
       'action' => 'order',
@@ -241,22 +240,7 @@ class OverviewRoles extends FormBase {
   }
 
   /**
-   * Form submission handler.
-   *
-   * Rather than using a textfield or weight field, this form depends entirely
-   * upon the order of form elements on the page to deroleine new weights.
-   *
-   * Because there might be hundreds or thousands of taxonomy roles that need to
-   * be ordered, roles are weighted from 0 to the number of roles in the
-   * vocabulary, rather than the standard -10 to 10 scale. Numbers are sorted
-   * lowest to highest, but are not necessarily sequential. Numbers may be
-   * skipped when a role has children so that reordering is minimal when a child
-   * is added or removed from a role.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $changed_roles = [];

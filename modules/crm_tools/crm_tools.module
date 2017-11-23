@@ -133,7 +133,9 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
       ],
     ];
 
-    $form['crm_tools_hat']['crm_tools_color'] = [
+    $form['crm_tools_hat']['color'] = [
+      '#type' => 'container',
+      '#weight' => 1,
       '#attached' => [
         'library' => ['color_field/color-field-widget-box'],
         'drupalSettings' => [
@@ -146,32 +148,51 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
           ],
         ],
       ],
-      'color' => [
+      'crm_tools_color' => [
         '#title' => t('Color'),
         '#type' => 'textfield',
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
-        '#weight' => 1,
         '#attributes' => ['class' => ['visually-hidden']],
         '#suffix' => "<div class='color-field-widget-box-form'></div>",
       ],
     ];
 
-    $form['crm_tools_hat']['crm_tools_icon'] = [
-      '#type' => 'textfield',
-      '#title' => t('Icon'),
-      '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
-        '@link' => Link::fromTextAndUrl('Find Icons', Url::fromUri(
-          'https://useiconic.com/open/', [
-          'attributes' => ['target' => '_blank'],
-        ]))->toString(),
-      ]),
-      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
+    $form['crm_tools_hat']['icon'] = [
+      '#type' => 'container',
       '#weight' => 2,
-      '#size' => 20,
-      '#attached' => [
-        'library' => ['crm_tools/open-iconic'],
+      'crm_tools_icon' => [
+        '#type' => 'textfield',
+        '#title' => t('Icon'),
+        '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
+          '@link' => Link::fromTextAndUrl('Find Icons', Url::fromUri(
+            'https://useiconic.com/open/', [
+            'attributes' => ['target' => '_blank'],
+          ]))->toString(),
+        ]),
+        '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
+        '#size' => 20,
+        '#attached' => [
+          'library' => ['crm_tools/open-iconic'],
+          'drupalSettings' => [
+            'crm_tools' => [
+              'open_iconic' => [
+                'settings' => [
+                  'sprite_path' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg',
+                ],
+              ],
+            ],
+          ],
+        ],
       ],
-      '#suffix' => '<strong>Icon Preview:</strong><br><div class="icon-preview"></div>',
+      'preview' => [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['icon-preview']],
+        'icon' => [
+          '#type' => 'role_icon',
+          '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
+          '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
+        ],
+      ],
     ];
 
     $form['crm_tools_hierarchy'] = [
@@ -234,8 +255,8 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
   }
 
   // Update hat color.
-  if ($form_state->getValue('color')) {
-    $role->setThirdPartySetting('crm_tools', 'crm_tools_color', $form_state->getValue('color'));
+  if ($form_state->getValue('crm_tools_color')) {
+    $role->setThirdPartySetting('crm_tools', 'crm_tools_color', $form_state->getValue('crm_tools_color'));
   }
   else {
     $role->unsetThirdPartySetting('crm_tools', 'crm_tools_color');
@@ -301,44 +322,44 @@ function crm_tools_user_presave(UserInterface $account) {
  */
 function crm_tools_get_hat_palette() {
   return [
-    '#F59FB8' => 'Pixie',
-    '#E690A8' => 'Cotton Candy',
-    '#EC8086' => 'Smoothie',
-    '#D4687E' => 'Hollyhock',
-    '#B84543' => 'Cranberry',
-    '#B24F60' => 'Ruby',
-    '#97544F' => 'Barn Red',
-    '#F49580' => 'Sorbet',
-    '#EE825A' => 'Sunset',
-    '#D98E4D' => 'Goldrush',
-    '#C77140' => 'Autumn Terracotta',
-    '#F5CD6D' => 'Canary',
-    '#FFCD2A' => 'Honey',
-    '#D3C28A' => 'Flaxen',
-    '#97986B' => 'Olive',
-    '#C2CB93' => 'Sweet Leaf',
-    '#AAD272' => 'Pear',
-    '#708C4C' => 'Topiary',
-    '#636E4D' => 'New England Ivy',
-    '#475F54' => 'Ponderosa Pine',
-    '#88B6AD' => 'Juniper',
-    '#9DCDCD' => 'Glacier',
-    '#48B9B6' => 'Lagoon',
-    '#84BCD5' => 'Crystal Blue',
-    '#30789D' => 'Pacifica',
-    '#6588A9' => 'Indian Corn Blue',
+    '#f59fb8' => 'Pixie',
+    '#e690a8' => 'Cotton Candy',
+    '#ec8086' => 'Smoothie',
+    '#d4687e' => 'Hollyhock',
+    '#b84543' => 'Cranberry',
+    '#b24f60' => 'Ruby',
+    '#97544f' => 'Barn Red',
+    '#f49580' => 'Sorbet',
+    '#ee825a' => 'Sunset',
+    '#d98e4d' => 'Goldrush',
+    '#c77140' => 'Autumn Terracotta',
+    '#f5cd6d' => 'Canary',
+    '#ffcd2a' => 'Honey',
+    '#d3c28a' => 'Flaxen',
+    '#97986b' => 'Olive',
+    '#c2cb93' => 'Sweet Leaf',
+    '#aad272' => 'Pear',
+    '#708c4c' => 'Topiary',
+    '#636e4d' => 'New England Ivy',
+    '#475f54' => 'Ponderosa Pine',
+    '#88b6ad' => 'Juniper',
+    '#9dcdcd' => 'Glacier',
+    '#48b9b6' => 'Lagoon',
+    '#84bcd5' => 'Crystal Blue',
+    '#30789d' => 'Pacifica',
+    '#6588a9' => 'Indian Corn Blue',
     '#435168' => 'Outdoor Denim',
-    '#B865AB' => 'Thistle',
-    '#8F7CB2' => 'Gypsy',
-    '#866A7D' => 'Smokey Plum',
-    '#D8C7A9' => 'Bamboo',
-    '#E6D1B8' => 'Champagne',
-    '#D0D1B8' => 'Cashmere',
-    '#A58869' => 'Desert Sand',
-    '#B1816C' => 'Saddle',
+    '#b865ab' => 'Thistle',
+    '#8f7cb2' => 'Gypsy',
+    '#866a7d' => 'Smokey Plum',
+    '#d8c7a9' => 'Bamboo',
+    '#e6d1b8' => 'Champagne',
+    '#d0d1b8' => 'Cashmere',
+    '#a58869' => 'Desert Sand',
+    '#b1816c' => 'Saddle',
     '#896859' => 'Chocolate',
     '#756857' => 'Cocoa',
-    '#C0B9B4' => 'Whisper',
-    '#9A9185' => 'Slate',
+    '#c0b9b4' => 'Whisper',
+    '#9a9185' => 'Slate',
   ];
 }
