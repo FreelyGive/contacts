@@ -67,9 +67,9 @@ class ContactTabForm extends EntityForm {
     ];
 
     $options = [];
-    $roles = user_roles(TRUE);
-    foreach ($roles as $id => $role) {
-      $options[$id] = $role->label();
+    $hats = contacts_user_hats();
+    foreach ($hats as $id => $hat) {
+      $options[$id] = $hat->label();
     }
 
     $form['required_hats'] = [
