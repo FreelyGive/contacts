@@ -18,11 +18,11 @@
     Drupal.behaviors.crmToolsAdminRoles = {
         attach: function (context, settings) {
             // Track role changes.
-            $('.crm_tools_roles input', context).change(function() {
+            $('.crm-tools-roles input', context).change(function() {
                 // Add in parents.
                 var parent_id = $(this, context).attr("data-crm-tools-parent");
                 if (parent_id && this.checked) {
-                    var parent = $('.crm_tools_roles input[value='+ parent_id +']', context);
+                    var parent = $('.crm-tools-roles input[value='+ parent_id +']', context);
                     parent.prop("checked", true);
                     parent.trigger("change");
                 }
@@ -32,7 +32,7 @@
                 if (child_key && !this.checked) {
                     var children = child_key.split(":");
                     for (var i = 0; i < children.length; i++) {
-                        var child = $('.crm_tools_roles input[value="'+ children[i] +'"]', context);
+                        var child = $('.crm-tools-roles input[value="'+ children[i] +'"]', context);
                         child.prop("checked", false);
                         child.trigger("change");
                     }

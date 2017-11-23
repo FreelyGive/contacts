@@ -1,6 +1,6 @@
 /**
  * @file
- * CRM Tools js behaviour for open iconic svgs.
+ * CRM Tools js behaviour for previewing open iconic svgs.
  */
 
 (function ($, Drupal) {
@@ -17,6 +17,7 @@
      */
     Drupal.behaviors.crmToolsOpenIconicPreview = {
         attach: function (context, settings) {
+            // Make sure we have the relevant settings to proceed.
             if (typeof settings.crm_tools !== 'undefined') {
                 var spritePath = settings.crm_tools.open_iconic.settings.sprite_path;
                 this.updateIcon = function(text, color) {

@@ -61,22 +61,20 @@ function template_preprocess_crm_tools_hat(array &$variables) {
  */
 function crm_tools_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (isset($form['account']['roles'])) {
-    $form['account']['roles']['#attached']['library'][] = 'crm_tools/admin-forms';
+    $form['account']['roles']['#attached']['library'][] = 'crm_tools/user-forms';
     $options = [];
     /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
     $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
-    if ($roles = $role_storage->loadTree()) {
-      foreach ($roles as $role) {
-        if ($role->id() == RoleInterface::ANONYMOUS_ID) {
-          continue;
-        }
-        $options[$role->id()] = str_repeat('-', $role->get('depth')) . Html::escape($role->label());
+    foreach ($role_storage->loadTree() as $role) {
+      if ($role->id() == RoleInterface::ANONYMOUS_ID) {
+        continue;
       }
-      $form['account']['roles']['#attributes']['class'][] = 'crm_tools_roles';
-      $form['account']['roles']['#options'] = $options;
-      $form['account']['roles']['#process'] = \Drupal::service('element_info')->getInfoProperty('checkboxes', '#process', []);
-      $form['account']['roles']['#process'][] = 'crm_tools_user_roles_checkboxes_process';
+      $options[$role->id()] = str_repeat('-', $role->get('depth')) . Html::escape($role->label());
     }
+    $form['account']['roles']['#attributes']['class'][] = 'crm-tools-roles';
+    $form['account']['roles']['#options'] = $options;
+    $form['account']['roles']['#process'] = \Drupal::service('element_info')->getInfoProperty('checkboxes', '#process', []);
+    $form['account']['roles']['#process'][] = 'crm_tools_user_roles_checkboxes_process';
   }
 }
 
@@ -110,8 +108,6 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
   if ($form_id === 'user_role_form') {
     /* @var \Drupal\user\Entity\Role $role */
     $role = $form_state->getFormObject()->getEntity();
-
-    $form['#attached']['library'][] = 'crm_tools/open-iconic';
 
     $form['crm_tools_is_hat'] = [
       '#type' => 'checkbox',
@@ -153,7 +149,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#type' => 'textfield',
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
         '#attributes' => ['class' => ['visually-hidden']],
-        '#suffix' => "<div class='color-field-widget-box-form'></div>",
+        '#suffix' => '<div class="color-field-widget-box-form"></div>',
       ],
     ];
 
@@ -163,8 +159,8 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
       'crm_tools_icon' => [
         '#type' => 'textfield',
         '#title' => t('Icon'),
-        '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
-          '@link' => Link::fromTextAndUrl('Find Icons', Url::fromUri(
+        '#description' => t('Enter the name for the open-iconic icon you would like to use.<br>@link', [
+          '@link' => Link::fromTextAndUrl(t('Find Icons'), Url::fromUri(
             'https://useiconic.com/open/', [
               'attributes' => ['target' => '_blank'],
             ]))->toString(),
@@ -172,7 +168,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
         '#size' => 20,
         '#attached' => [
-          'library' => ['crm_tools/open-iconic'],
+          'library' => ['crm_tools/open-iconic-preview'],
           'drupalSettings' => [
             'crm_tools' => [
               'open_iconic' => [
@@ -223,7 +219,7 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
 
     $form['crm_tools_hierarchy']['crm_tools_parent'] = [
       '#type' => 'select',
-      '#title' => t('Parent terms'),
+      '#title' => t('Parent term'),
       '#options' => $options,
       '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_parent'),
       '#multiple' => FALSE,
@@ -288,27 +284,29 @@ function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$f
  * Implements hook_ENTITY_TYPE_presave() for user entities.
  */
 function crm_tools_user_presave(UserInterface $account) {
-  /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
-  $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
-  $old_roles = $account->original->getRoles();
-  $new_roles = $account->getRoles();
+  if (isset($account->original)) {
+    /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+    $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+    $old_roles = $account->original->getRoles();
+    $new_roles = $account->getRoles();
 
-  // Check that we are adding all parents of new roles.
-  $added_roles = array_diff($new_roles, $old_roles);
-  foreach ($added_roles as $role) {
-    foreach ($role_storage->loadAllParents($role) as $new_role) {
-      if (!$account->hasRole($new_role->id())) {
-        $account->addRole($new_role->id());
+    // Check that we are adding all parents of new roles.
+    $added_roles = array_diff($new_roles, $old_roles);
+    foreach ($added_roles as $role) {
+      foreach ($role_storage->loadAllParents($role) as $new_role) {
+        if (!$account->hasRole($new_role->id())) {
+          $account->addRole($new_role->id());
+        }
       }
     }
-  }
 
-  // Check that we are removing all children of old roles.
-  $removed_roles = array_diff($old_roles, $new_roles);
-  foreach ($removed_roles as $role) {
-    foreach ($role_storage->loadAllChildren($role) as $old_role) {
-      if ($account->hasRole($old_role->id())) {
-        $account->removeRole($old_role->id());
+    // Check that we are removing all children of old roles.
+    $removed_roles = array_diff($old_roles, $new_roles);
+    foreach ($removed_roles as $role) {
+      foreach ($role_storage->loadAllChildren($role) as $old_role) {
+        if ($account->hasRole($old_role->id())) {
+          $account->removeRole($old_role->id());
+        }
       }
     }
   }
