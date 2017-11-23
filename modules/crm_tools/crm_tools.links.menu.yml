@@ -1,6 +1,0 @@
-crm_tools.crm_tools_config_form:
-  title: 'CRM Tools Settings'
-  route_name: crm_tools.crm_tools_config_form
-  description: 'A description for the menu entry'
-  parent: system.admin_config_system
-  weight: 99

@@ -1,9 +1,0 @@
-crm_tools.crm_tools_config_form:
-  path: '/admin/config/crm_tools/tools'
-  defaults:
-    _form: '\Drupal\crm_tools\Form\ToolsForm'
-    _title: 'ToolsForm'
-  requirements:
-    _permission: 'access administration pages'
-  options:
-    _admin_route: TRUE

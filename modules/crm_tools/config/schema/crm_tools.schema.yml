@@ -1,16 +1,5 @@
 # Schema for the configuration files of the crm_tools module.
 
-crm_tools.tools:
-  type: config_object
-  label: 'CRM Tools settings'
-  mapping:
-    active_tools:
-      type: sequence
-      label: 'Active Tools'
-      sequence:
-        type: boolean
-        label: 'Tool'
-
 user.role.*.third_party.crm_tools:
   type: mapping
   label: 'Hat fields'
