@@ -67,14 +67,14 @@ class ContactTabForm extends EntityForm {
     ];
 
     $options = [];
-    $roles = user_roles(TRUE);
-    foreach ($roles as $id => $role) {
-      $options[$id] = $role->label();
+    $hats = contacts_user_hats();
+    foreach ($hats as $id => $hat) {
+      $options[$id] = $hat->label();
     }
 
     $form['required_hats'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Require hats'),
+      '#title' => $this->t('Require contact types'),
       '#description' => $this->t('Require that a user has at least one of these hats to show this tab.'),
       '#options' => $options,
       '#default_value' => array_keys($this->entity->getHats()),
