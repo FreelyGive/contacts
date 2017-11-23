@@ -56,7 +56,10 @@ class OpenIconic extends RenderElement {
    *   - #icon: The name of the open-iconic icon.
    *   - #attributes: (optional) An array of HTML attributes to apply to the
    *     tag. The attributes are escaped, see \Drupal\Core\Template\Attribute.
-   *   - #color: (optional) A css compatible color specification.
+   *   - #color: (optional) A css compatible color specification for the
+   *   background color.
+   *   - #fill: (optional) A css compatible color specification for the SVG
+   *   fill color.
    *   - #size: (optional) The px size to use for height and width of icon.
    *
    * @return array
@@ -81,16 +84,13 @@ class OpenIconic extends RenderElement {
     }
 
     $attributes = new Attribute($element['#attributes']);
-    $prefix = '<svg' . $attributes . '>';
-    $suffix = '</svg>';
-
     $icon = HtmlUtility::escape($element['#icon']);
     $element['icon'] = [
       '#type' => 'html_tag',
       '#tag' => 'use',
       '#value' => '',
-      '#prefix' => $prefix,
-      '#suffix' => $suffix,
+      '#prefix' => '<svg' . $attributes . '>',
+      '#suffix' => '</svg>',
       '#attributes' => [
         'xlink:href' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg#' . $icon,
         'class' => ["icon-$icon"],
