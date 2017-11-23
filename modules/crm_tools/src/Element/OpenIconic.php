@@ -4,7 +4,6 @@ namespace Drupal\crm_tools\Element;
 
 use Drupal\Component\Utility\Html as HtmlUtility;
 use Drupal\Core\Render\Element\RenderElement;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\Template\Attribute;
 
 /**
