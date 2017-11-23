@@ -166,8 +166,8 @@ function crm_tools_form_alter(&$form, FormStateInterface $form_state, $form_id) 
         '#description' => t("Enter the name for the open-iconic icon you would like to use.<br>@link", [
           '@link' => Link::fromTextAndUrl('Find Icons', Url::fromUri(
             'https://useiconic.com/open/', [
-            'attributes' => ['target' => '_blank'],
-          ]))->toString(),
+              'attributes' => ['target' => '_blank'],
+            ]))->toString(),
         ]),
         '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
         '#size' => 20,

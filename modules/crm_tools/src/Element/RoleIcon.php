@@ -2,31 +2,26 @@
 
 namespace Drupal\crm_tools\Element;
 
-use Drupal\Component\Render\MarkupInterface;
 use Drupal\Component\Utility\Html as HtmlUtility;
 use Drupal\Core\Render\Element\RenderElement;
 use Drupal\Core\Render\Markup;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Template\Attribute;
 
 /**
  * Provides a render element for any HTML tag, with properties and value.
  *
  * Properties:
- * - #tag: The tag name to output.
- * - #attributes: (array, optional) HTML attributes to apply to the tag. The
+ * - #icon: The icon name to render.
+ * - #attributes: (array, optional) HTML attributes to apply to the icon. The
  *   attributes are escaped, see \Drupal\Core\Template\Attribute.
- * - #value: (string, optional) A string containing the textual contents of
- *   the tag.
- * - #noscript: (bool, optional) When set to TRUE, the markup
- *   (including any prefix or suffix) will be wrapped in a <noscript> element.
+ * - #color: (string, optional) A string for the background hex color.
+ * - #size: (string, optional) A number string to be used for height and width.
  *
  * Usage example:
  * @code
- * $build['hello'] = [
- *   '#type' => 'html_tag',
- *   '#tag' => 'p',
- *   '#value' => $this->t('Hello World'),
+ * $build['role'] = [
+ *   '#type' => 'role_icon',
+ *   '#icon' => 'person',
  * ];
  * @endcode
  *
@@ -50,26 +45,20 @@ class RoleIcon extends RenderElement {
   }
 
   /**
-   * Pre-render callback: Renders a generic HTML tag with attributes.
+   * Pre-render callback: Renders an icon svg with attributes.
    *
    * @param array $element
    *   An associative array containing:
-   *   - #tag: The tag name to output. Typical tags added to the HTML HEAD:
-   *     - meta: To provide meta information, such as a page refresh.
-   *     - link: To refer to stylesheets and other contextual information.
-   *     - script: To load JavaScript.
-   *     The value of #tag is escaped.
+   *   - #icon: The name of the open-iconic icon.
    *   - #attributes: (optional) An array of HTML attributes to apply to the
    *     tag. The attributes are escaped, see \Drupal\Core\Template\Attribute.
-   *   - #value: (optional) A string containing tag content, such as inline
-   *     CSS. The value of #value will be XSS admin filtered if it is not safe.
-   *   - #noscript: (optional) If TRUE, the markup (including any prefix or
-   *     suffix) will be wrapped in a <noscript> element. (Note that passing
-   *     any non-empty value here will add the <noscript> tag.)
+   *   - #color: (optional) The hex code color (starting with '#').
+   *   - #size: (optional) The px size to use for height and width of icon.
    *
    * @return array
+   *   A renderable array for a role icon.
    */
-  public static function preRenderRoleIcon($element) {
+  public static function preRenderRoleIcon(array $element) {
     $element['#attributes']['viewBox'] = '0 0 8 8';
     $element['#attributes']['class'][] = 'role-icon';
     $element['#attributes']['style'][] = 'background-color:' . HtmlUtility::escape($element['#color']) . ';';
@@ -91,7 +80,7 @@ class RoleIcon extends RenderElement {
     $markup = [
       '#type' => 'html_tag',
       '#tag' => 'use',
-      '#value' => '&nbsp;',
+      '#value' => '',
       '#attributes' => [
         'xlink:href' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg#' . $icon,
         'class' => ["icon-$icon"],
