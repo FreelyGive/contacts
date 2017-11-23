@@ -1,0 +1,18 @@
+# Schema for the configuration files of the crm_tools module.
+
+user.role.*.third_party.crm_tools:
+  type: mapping
+  label: 'Hat fields'
+  mapping:
+    crm_tools_is_hat:
+      type: boolean
+      label: 'Hat'
+    crm_tools_color:
+      type: text
+      label: 'Hat Color'
+    crm_tools_icon:
+      type: text
+      label: 'Hat Icon'
+    crm_tools_parent:
+      type: string
+      label: 'Hat Parent'

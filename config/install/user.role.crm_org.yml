@@ -1,6 +1,14 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - crm_tools
+third_party_settings:
+  crm_tools:
+    crm_tools_is_hat: true
+    crm_tools_color: '#b24f60'
+    crm_tools_icon: graph
+    crm_tools_parent: "0"
 id: crm_org
 label: Organisation
 weight: 4

@@ -1,0 +1,27 @@
+open-iconic:
+  remote: https://github.com/iconic/open-iconic
+  version: "1.1.1"
+  license:
+    name: MIT
+    url: https://github.com/iconic/open-iconic/blob/1.1.1/ICON-LICENSE
+    gpl-compatible: true
+  css:
+    component:
+      css/open-iconic.drupal.css: {}
+  dependencies:
+    - core/jquery
+
+open-iconic-preview:
+  version: "1.0"
+  js:
+    js/open-iconic.preview.js: {}
+  dependencies:
+    - crm_tools/open-iconic
+    - core/jquery
+
+user-forms:
+  version: "1.0"
+  js:
+    js/user-forms.js: {}
+  dependencies:
+    - core/jquery

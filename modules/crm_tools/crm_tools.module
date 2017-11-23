@@ -1,0 +1,364 @@
+<?php
+
+/**
+ * @file
+ * Module related hook implementations for the crm tools module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\Role;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Render\Element;
+use Drupal\user\RoleInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_help().
+ */
+function crm_tools_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the crm_tools module.
+    case 'help.page.crm_tools':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module contains several feature enhancements to simplify CRM in Drupal.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_entity_type_build().
+ */
+function crm_tools_entity_type_build(array &$entity_types) {
+  /** @var \Drupal\Core\Entity\EntityTypeInterface $role_type */
+  $role_type = $entity_types['user_role'];
+  $role_type->setHandlerClass('storage', 'Drupal\crm_tools\AdvancedRoleStorage');
+}
+
+/**
+ * Prepares variables for a crm hat icon.
+ *
+ * Default template: crm-tools-hat.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - role: The machine name for the role to be rendered.
+ */
+function template_preprocess_crm_tools_hat(array &$variables) {
+  /* @var \Drupal\user\Entity\Role $role */
+  $role = \Drupal::entityTypeManager()->getStorage('user_role')->load($variables['role']);
+  $variables['label'] = $role->label();
+  $variables['color'] = '#' . $role->getThirdPartySetting('crm_tools', 'crm_tools_color') ?: 'blue';
+  $variables['icon'] = 'fa-' . $role->getThirdPartySetting('crm_tools', 'crm_tools_icon') ?: 'fa-user';
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for user_form.
+ */
+function crm_tools_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (isset($form['account']['roles'])) {
+    $form['account']['roles']['#attached']['library'][] = 'crm_tools/user-forms';
+    $options = [];
+    /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+    $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+    foreach ($role_storage->loadTree() as $role) {
+      if ($role->id() == RoleInterface::ANONYMOUS_ID) {
+        continue;
+      }
+      $options[$role->id()] = str_repeat('-', $role->get('depth')) . Html::escape($role->label());
+    }
+    $form['account']['roles']['#attributes']['class'][] = 'crm-tools-roles';
+    $form['account']['roles']['#options'] = $options;
+    $form['account']['roles']['#process'] = \Drupal::service('element_info')->getInfoProperty('checkboxes', '#process', []);
+    $form['account']['roles']['#process'][] = 'crm_tools_user_roles_checkboxes_process';
+  }
+}
+
+/**
+ * Processes a checkboxes form element.
+ *
+ * @see crm_tools_form_user_form_alter()
+ */
+function crm_tools_user_roles_checkboxes_process(&$element, FormStateInterface $form_state, &$complete_form) {
+  /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+  $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+  if ($roles = $role_storage->loadTree(0, NULL, TRUE)) {
+    foreach (Element::children($element) as $id) {
+      if (!empty($element[$id]) && !empty($roles[$id])) {
+        $parent = is_array($roles[$id]->get('parents')) ? $roles[$id]->get('parents')[0] : $roles[$id]->get('parents');
+        $element[$id]['#attributes']['data-crm-tools-parent'] = $parent;
+      }
+
+      $children = implode(':', array_keys($role_storage->loadChildren($id)));
+      $element[$id]['#attributes']['data-crm-tools-children'] = $children;
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for user_role_form.
+ */
+function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_state) {
+  /* @var \Drupal\user\Entity\Role $role */
+  $role = $form_state->getFormObject()->getEntity();
+
+  $form['crm_tools_is_hat'] = [
+    '#type' => 'checkbox',
+    '#title' => 'Contact Type',
+    '#description' => 'Make this role a Contact Type for CRM.',
+    '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', $role->isNew()),
+  ];
+
+  $form['crm_tools_hat'] = [
+    '#type' => 'fieldset',
+    '#title' => 'Contact Type Settings',
+    '#attributes' => ['class' => ['crm-tools-options']],
+    '#states' => [
+      'visible' => [
+        ':input[name="crm_tools_is_hat"]' => [
+          'checked' => TRUE,
+        ],
+      ],
+    ],
+  ];
+
+  $form['crm_tools_hat']['color'] = [
+    '#type' => 'container',
+    '#weight' => 1,
+    '#attached' => [
+      'library' => ['color_field/color-field-widget-box'],
+      'drupalSettings' => [
+        'color_field' => [
+          'color_field_widget_box' => [
+            'settings' => [
+              'default_colors' => array_keys(crm_tools_get_hat_palette()),
+            ],
+          ],
+        ],
+      ],
+    ],
+    'crm_tools_color' => [
+      '#title' => t('Color'),
+      '#type' => 'textfield',
+      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
+      '#attributes' => ['class' => ['visually-hidden']],
+      '#suffix' => '<div class="color-field-widget-box-form"></div>',
+    ],
+  ];
+
+  $form['crm_tools_hat']['icon'] = [
+    '#type' => 'container',
+    '#weight' => 2,
+    'crm_tools_icon' => [
+      '#type' => 'textfield',
+      '#title' => t('Icon'),
+      '#description' => t('Enter the name for the open-iconic icon you would like to use.<br>@link', [
+        '@link' => Link::fromTextAndUrl(t('Find Icons'), Url::fromUri(
+          'https://useiconic.com/open/', [
+            'attributes' => ['target' => '_blank'],
+          ]))->toString(),
+      ]),
+      '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
+      '#size' => 20,
+      '#attached' => [
+        'library' => ['crm_tools/open-iconic-preview'],
+        'drupalSettings' => [
+          'crm_tools' => [
+            'open_iconic' => [
+              'settings' => [
+                'sprite_path' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg',
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
+    'preview' => [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['icon-preview']],
+      'icon' => [
+        '#type' => 'open_iconic',
+        '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
+        '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
+      ],
+    ],
+  ];
+
+  $form['crm_tools_hierarchy'] = [
+    '#type' => 'details',
+    '#title' => 'Relations',
+    '#open' => FALSE,
+    '#attributes' => ['class' => ['crm-tools-hierarchy']],
+  ];
+
+  /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+  $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+  $children = $role_storage->loadTree($role->id());
+
+  // A term can't be the child of itself, nor of its children.
+  foreach ($children as $child) {
+    $exclude[] = $child->id();
+  }
+
+  $exclude[] = $role->id();
+  $tree = $role_storage->loadTree();
+  $options = ['<' . t('root') . '>'];
+
+  foreach ($tree as $item) {
+    if (!in_array($item->id(), $exclude)) {
+      $options[$item->id()] = str_repeat('-', $item->get('depth')) . $item->label();
+    }
+  }
+
+  $form['crm_tools_hierarchy']['crm_tools_parent'] = [
+    '#type' => 'select',
+    '#title' => t('Parent term'),
+    '#options' => $options,
+    '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_parent'),
+    '#multiple' => FALSE,
+  ];
+
+  $form['crm_tools_hierarchy']['weight'] = [
+    '#type' => 'textfield',
+    '#title' => t('Weight'),
+    '#size' => 6,
+    '#default_value' => $role->getWeight(),
+    '#description' => t('Roles are displayed in ascending order by weight.'),
+    '#required' => TRUE,
+  ];
+
+  $form['#entity_builders'][] = 'crm_tools_form_user_role_add_form_builder';
+}
+
+/**
+ * Entity builder for the menu configuration entity.
+ */
+function crm_tools_form_user_role_add_form_builder($entity_type, Role $role, &$form, FormStateInterface $form_state) {
+  // Update is_hat.
+  if ($form_state->getValue('crm_tools_is_hat')) {
+    $role->setThirdPartySetting('crm_tools', 'crm_tools_is_hat', $form_state->getValue('crm_tools_is_hat'));
+  }
+  else {
+    $role->unsetThirdPartySetting('crm_tools', 'crm_tools_is_hat');
+  }
+
+  // Update hat color.
+  if ($form_state->getValue('crm_tools_color')) {
+    $role->setThirdPartySetting('crm_tools', 'crm_tools_color', $form_state->getValue('crm_tools_color'));
+  }
+  else {
+    $role->unsetThirdPartySetting('crm_tools', 'crm_tools_color');
+  }
+
+  // Update hat icon.
+  if ($form_state->getValue('crm_tools_icon')) {
+    $role->setThirdPartySetting('crm_tools', 'crm_tools_icon', $form_state->getValue('crm_tools_icon'));
+  }
+  else {
+    $role->unsetThirdPartySetting('crm_tools', 'crm_tools_icon');
+  }
+
+  // Update hat parent.
+  if ($form_state->getValue('crm_tools_parent')) {
+    $role->setThirdPartySetting('crm_tools', 'crm_tools_parent', $form_state->getValue('crm_tools_parent'));
+  }
+  else {
+    $role->unsetThirdPartySetting('crm_tools', 'crm_tools_parent');
+  }
+
+  // Update hat weight.
+  if ($form_state->getValue('weight')) {
+    $role->setWeight($form_state->getValue('weight'));
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for user entities.
+ */
+function crm_tools_user_presave(UserInterface $account) {
+  if (isset($account->original)) {
+    /* @var \Drupal\crm_tools\AdvancedRoleStorageInterface $role_storage */
+    $role_storage = \Drupal::entityTypeManager()->getStorage('user_role');
+    $old_roles = $account->original->getRoles();
+    $new_roles = $account->getRoles();
+
+    // Check that we are adding all parents of new roles.
+    $added_roles = array_diff($new_roles, $old_roles);
+    foreach ($added_roles as $role) {
+      foreach ($role_storage->loadAllParents($role) as $new_role) {
+        if (!$account->hasRole($new_role->id())) {
+          $account->addRole($new_role->id());
+        }
+      }
+    }
+
+    // Get roles again to include newly added roles.
+    $new_roles = $account->getRoles();
+
+    // Check that we are removing all children of old roles.
+    $removed_roles = array_diff($old_roles, $new_roles);
+    foreach ($removed_roles as $role) {
+      foreach ($role_storage->loadAllChildren($role) as $old_role) {
+        if ($account->hasRole($old_role->id())) {
+          $account->removeRole($old_role->id());
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Gets color palette options for the crm hats.
+ *
+ * @return array
+ *   Array of colors keyed by the hex code.
+ */
+function crm_tools_get_hat_palette() {
+  return [
+    '#f59fb8' => 'Pixie',
+    '#e690a8' => 'Cotton Candy',
+    '#ec8086' => 'Smoothie',
+    '#d4687e' => 'Hollyhock',
+    '#b84543' => 'Cranberry',
+    '#b24f60' => 'Ruby',
+    '#97544f' => 'Barn Red',
+    '#f49580' => 'Sorbet',
+    '#ee825a' => 'Sunset',
+    '#d98e4d' => 'Goldrush',
+    '#c77140' => 'Autumn Terracotta',
+    '#f5cd6d' => 'Canary',
+    '#ffcd2a' => 'Honey',
+    '#d3c28a' => 'Flaxen',
+    '#97986b' => 'Olive',
+    '#c2cb93' => 'Sweet Leaf',
+    '#aad272' => 'Pear',
+    '#708c4c' => 'Topiary',
+    '#636e4d' => 'New England Ivy',
+    '#475f54' => 'Ponderosa Pine',
+    '#88b6ad' => 'Juniper',
+    '#9dcdcd' => 'Glacier',
+    '#48b9b6' => 'Lagoon',
+    '#84bcd5' => 'Crystal Blue',
+    '#30789d' => 'Pacifica',
+    '#6588a9' => 'Indian Corn Blue',
+    '#435168' => 'Outdoor Denim',
+    '#b865ab' => 'Thistle',
+    '#8f7cb2' => 'Gypsy',
+    '#866a7d' => 'Smokey Plum',
+    '#d8c7a9' => 'Bamboo',
+    '#e6d1b8' => 'Champagne',
+    '#d0d1b8' => 'Cashmere',
+    '#a58869' => 'Desert Sand',
+    '#b1816c' => 'Saddle',
+    '#896859' => 'Chocolate',
+    '#756857' => 'Cocoa',
+    '#c0b9b4' => 'Whisper',
+    '#9a9185' => 'Slate',
+  ];
+}
