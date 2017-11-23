@@ -183,7 +183,7 @@ function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_st
       '#type' => 'container',
       '#attributes' => ['class' => ['icon-preview']],
       'icon' => [
-        '#type' => 'role_icon',
+        '#type' => 'open_iconic',
         '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
         '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
       ],

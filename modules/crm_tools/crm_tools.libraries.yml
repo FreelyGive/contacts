@@ -16,6 +16,7 @@ open-iconic-preview:
   js:
     js/open-iconic.preview.js: {}
   dependencies:
+    - crm_tools/open-iconic
     - core/jquery
 
 user-forms:

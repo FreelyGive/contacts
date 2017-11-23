@@ -121,7 +121,7 @@ class OverviewRoles extends FormBase {
       ];
       if ($role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', FALSE)) {
         $form['roles'][$key]['role']['icon'] = [
-          '#type' => 'role_icon',
+          '#type' => 'open_iconic',
           '#size' => '10',
         ];
         if ($role->getThirdPartySetting('crm_tools', 'crm_tools_icon', FALSE)) {

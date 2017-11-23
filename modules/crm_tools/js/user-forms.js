@@ -15,7 +15,7 @@
      * @prop {Drupal~behaviorAttach} attach
      *   Set up role watchers.
      */
-    Drupal.behaviors.crmToolsAdminRoles = {
+    Drupal.behaviors.crmToolsUserFormsRoles = {
         attach: function (context, settings) {
             // Track role changes.
             $('.crm-tools-roles input', context).change(function() {
