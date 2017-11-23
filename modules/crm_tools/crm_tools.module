@@ -300,6 +300,9 @@ function crm_tools_user_presave(UserInterface $account) {
       }
     }
 
+    // Get roles again to include newly added roles.
+    $new_roles = $account->getRoles();
+
     // Check that we are removing all children of old roles.
     $removed_roles = array_diff($old_roles, $new_roles);
     foreach ($removed_roles as $role) {
