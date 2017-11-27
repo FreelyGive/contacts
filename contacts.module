@@ -27,9 +27,55 @@ function contacts_theme() {
       'variables' => ['tabs' => []],
       'template' => 'contacts-dash-tabs',
     ],
+    'contacts_dash_tab_content' => [
+      'variables' => [
+        'content' => [],
+        'attributes' => [],
+        'region_attributes' => [],
+        'manage_mode' => NULL,
+        'subpage' => NULL,
+      ],
+      'template' => 'contacts-dash-tab-content',
+    ],
     'contacts_dash_summary' => [
       'variables' => ['user' => NULL],
       'template' => 'contacts-dash-summary',
+    ],
+    'contacts_dash_manage' => [
+      'variables' => [
+        'content' => [],
+        'tabs' => [],
+        'types' => [],
+        'attributes' => [],
+        'user' => NULL,
+        'subpage' => NULL,
+      ],
+      'template' => 'contacts-dash-manage',
+    ],
+    'contacts_dnd_card' => [
+      'variables' => [
+        'id' => NULL,
+        'mode' => NULL,
+        'user' => NULL,
+        'subpage' => NULL,
+        'block' => [],
+        'configure_link' => NULL,
+        'attributes' => [],
+        'label' => '',
+        'description' => '',
+        'profiles' => '',
+        'tabs' => '',
+        'link' => [],
+      ],
+      'template' => 'contacts-dnd-card',
+    ],
+    'contacts_hat' => [
+      'variables' => [
+        'role' => NULL,
+        'hide_label' => NULL,
+        'hide_button' => NULL,
+      ],
+      'template' => 'contacts-hat',
     ],
     'user__contacts_dashboard_row' => [
       'base hook' => 'user',
@@ -78,6 +124,254 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
  */
 function template_preprocess_contact_tab_content(array &$variables) {
   $variables['region_attributes'] = new Attribute($variables['region_attributes']);
+}
+
+/**
+ * Prepares variables for contact dashboard tab content.
+ *
+ * Default template: contacts-dash-tab-content.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_dash_tab_content(array &$variables) {
+  $variables['messages'] = $variables['content']['messages'];
+  $variables['region_attributes'] = new Attribute($variables['region_attributes']);
+  /* @var \Drupal\contacts\Entity\ContactTab $tab */
+  $tab = \Drupal::service('contacts.tab_manager')->getTabByPath(NULL, $variables['subpage']);
+
+  if ($variables['manage_mode']) {
+    $variables['tab'] = $tab->id();
+
+    $roles = $tab->getRoles();
+
+    // Show required hats for tab.
+    foreach ($roles as $role) {
+      $variables['header']['hats'][] =   [
+        '#theme' => 'contacts_hat',
+        '#role' => $role,
+      ];
+    }
+  }
+
+  $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
+
+  // @todo switch to core layout manager plugin.manager.core.layout?
+  /* @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager $layoutPluginManager */
+  $layoutPluginManager = \Drupal::service('plugin.manager.layout_plugin');
+  /* @var \Drupal\layout_plugin\Plugin\Layout\LayoutInterface $layoutInstance */
+  $layoutInstance = $layoutPluginManager->createInstance($layout, []);
+
+  $regions = [];
+
+  foreach ($layoutInstance->getPluginDefinition()['regions'] as $key => $region) {
+    if (!empty($variables['content'][$key])) {
+      $regions[$key] = $variables['content'][$key];
+    }
+  }
+
+  $variables['content'] = $layoutInstance->build($regions);
+  $variables['content']['#region_attributes'] = $variables['region_attributes'];
+}
+
+/**
+ * Prepares variables for contact tab content stacked layout.
+ *
+ * Default template: contacts-tab-content-stacked.html.twig.
+ *
+ * @see template_preprocess_contacts_dash_tab_content().
+ */
+function template_preprocess_contacts_tab_content_stacked(array &$variables) {
+  $content = $variables['content'];
+  $variables['region_attributes'] = $content['#region_attributes'] ?: [];
+}
+
+/**
+ * Prepares variables for a contacts hat icon.
+ *
+ * Default template: contacts-hat.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - role: The machine name for the role to be rendered.
+ */
+function template_preprocess_contacts_hat(array &$variables) {
+  $role = \Drupal::entityTypeManager()->getStorage('user_role')->load($variables['role']);
+  $variables['label'] = $role->label();
+  $variables['color'] = '#' . $role->getThirdPartySetting('contacts', 'user_role_color') ?: 'blue';
+  $variables['icon'] = 'fa-' . $role->getThirdPartySetting('contacts', 'user_role_icon') ?: 'fa-user';
+}
+
+/**
+ * Prepares variables for contacts drag and drop cards.
+ *
+ * Default template: contacts-dnd-card.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_dnd_card(array &$variables) {
+  /* @var \Drupal\contacts\ContactsTabManager $tab_manager */
+  $tab_manager = \Drupal::service('contacts.tab_manager');
+
+  /* @var \Drupal\Core\Block\BlockManager $block_manager */
+  $block_manager = \Drupal::service('plugin.manager.block');
+  $definition = $block_manager->getDefinition($variables['id']);
+
+  /* @var \Drupal\Core\Entity\EntityTypeManager $entity_type_manager */
+  $entity_type_manager = \Drupal::service('entity_type.manager');
+
+  list($variables['block_plugin'], $variables['identifier'], $variables['bundle']) = preg_split( "/(:|-)/", $variables['id']);
+
+  $variables['attributes']['data-dnd-contacts-block-id'] = "{$variables['block_plugin']}_{$variables['identifier']}_{$variables['bundle']}";
+  $variables['attributes']['data-dnd-block-mode'] = $variables['mode'];
+  switch ($variables['mode']) {
+    case 'meta':
+      switch ($variables['block_plugin']) {
+        case 'contacts_entity':
+          $entity_type = $entity_type_manager->getDefinition($variables['identifier']);
+
+          if ($entity_type->getBundleEntityType()) {
+            $bundle_storage = $entity_type_manager->getStorage($entity_type->getBundleEntityType());
+            $bundle_entity = $bundle_storage->load($variables['bundle']);
+            $variables['label'] = $bundle_entity->label();
+            $variables['content']['description'] = "{$entity_type->get('label')} entity for {$bundle_entity->label()}.";
+
+            // @todo find out how to abstract this.
+            if ($variables['identifier'] == 'profile' && !empty(array_filter($bundle_entity->getRoles()))) {
+              $roles = user_roles();
+              uasort($roles, 'contacts_sort_roles');
+              $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
+              $hats = [];
+              // @todo Show hat icons instead of labels.
+              foreach ($roles as $role) {
+                $hats[] = [
+                  '#theme' => 'contacts_hat',
+                  '#role' => $role,
+                  '#hide_label' => TRUE,
+                ];
+              }
+              $variables['content']['needed_hats'] = $hats;
+              $variables['content']['links'] = [
+                'fields' => [
+                  'text' => 'Manage profile fields',
+                  'url' => "/admin/config/people/profiles/types/manage/{$variables['bundle']}/fields",
+                ],
+              ];
+            }
+          }
+          else {
+            $variables['label'] = $entity_type->get('label');
+            $variables['content']['description'] = "{$entity_type->get('label')} entity.";
+          }
+
+          $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'] = $variables['identifier'];
+          $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
+          $variables['attributes']['data-dnd-contacts-entity-relationship'] = "{$variables['identifier']}_{$variables['bundle']}";
+          break;
+
+        case 'views_block':
+          $view = $entity_type_manager->getStorage('view')->load($variables['identifier']);
+          $variables['label'] = $view->get('label');
+
+          $displays = $view->get('display');
+          if (!empty($displays['default']['display_options']['title'])) {
+            $variables['label'] = $displays['default']['display_options']['title'];
+          }
+          if (!empty($displays[$variables['bundle']]['display_options']['title'])) {
+            $variables['label'] = $displays[$variables['bundle']]['display_options']['title'];
+          }
+
+          $variables['content']['description'] = $view->get('description');
+          $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'] = 'view';
+          $variables['attributes']['data-dnd-contacts-entity-bundle'] = "{$variables['identifier']}:{$variables['bundle']}";
+          $variables['content']['links'] = [
+            'edit' => [
+              'text' => 'Edit View',
+              'url' => "/admin/structure/views/view/{$variables['identifier']}/edit/{$variables['bundle']}",
+            ],
+          ];
+          break;
+      }
+
+      $variables['content']['placed_tabs'] = $tab_manager->getTabsWithBlock("{$variables['block_plugin']}_{$variables['identifier']}_{$variables['bundle']}");
+      $variables['content']['link'] = [];
+      break;
+
+    case 'manage':
+      $variables['pseudo_content'] = TRUE;
+      $variables['configure_link'] = "/admin/contacts-ajax/manage-configure-block/{$variables['user']}/{$variables['subpage']}/{$variables['attributes']['data-dnd-contacts-block-id']}";
+
+      switch ($variables['block_plugin']) {
+        case 'contacts_entity':
+          $variables['label'] = $variables['block']->label(FALSE);
+          $entity_type = $entity_type_manager->getDefinition($variables['identifier']);
+          $variables['entity'] = $entity_type;
+          $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'] = $variables['identifier'];
+          $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
+
+          if ($entity_type->getBundleEntityType()) {
+            $bundle_storage = $entity_type_manager->getStorage($entity_type->getBundleEntityType());
+            $bundle_entity = $bundle_storage->load($variables['bundle']);
+
+            // @todo find out how to abstract this.
+            if ($variables['identifier'] == 'profile' && !empty(array_filter($bundle_entity->getRoles()))) {
+              $roles = array_filter($bundle_entity->getRoles());
+              $hats = [];
+              // @todo Show hat icons instead of labels.
+              foreach ($roles as $role) {
+                $hats[] = [
+                  '#theme' => 'contacts_hat',
+                  '#role' => $role,
+                ];
+              }
+              $variables['footer']['visible_hats'] = $hats;
+
+              $variables['content']['links'] = [
+                'fields' => [
+                  'text' => 'Manage profile fields',
+                  'url' => "/admin/config/people/profiles/types/manage/{$variables['bundle']}/fields",
+                ],
+                'view-modes' => [
+                  'text' => 'Manage display',
+                  'url' => "/admin/config/people/profiles/types/manage/{$variables['bundle']}/display",
+                ],
+              ];
+            }
+          }
+
+          break;
+
+        case 'views_block':
+//          $view = $entity_type_manager->getStorage('view')->load($variables['identifier']);
+          $variables['label'] = $variables['block']->label();
+          $variables['entity'] = 'view';
+          $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'] = 'view';
+          $variables['attributes']['data-dnd-contacts-entity-bundle'] = "{$variables['identifier']}_{$variables['bundle']}";
+          $variables['content']['links'] = [
+            'edit' => [
+              'text' => 'Edit View',
+              'url' => "/admin/structure/views/view/{$variables['identifier']}/edit/{$variables['bundle']}",
+            ],
+          ];
+          break;
+      }
+      break;
+
+    case 'configure':
+      $variables['label'] = 'Configure block';
+
+      $form = \Drupal::formBuilder()->getForm(\Drupal\contacts\Form\DashboardBlockConfigureForm::class, $variables['block']);
+      $variables['content']['configure_form'] = $form;
+      break;
+  }
+
+  $variables['attributes'] = new Attribute($variables['attributes']);
 }
 
 /**
@@ -157,6 +451,17 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image'] = $default_image_element;
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
+  }
+  $roles = user_roles();
+  uasort($roles, 'contacts_sort_roles');
+  $roles = array_intersect(array_keys($roles), $user->getRoles());
+  $variables['hats'] = [];
+
+  foreach ($roles as $role) {
+    $variables['hats'][] = [
+      '#theme' => 'contacts_hat',
+      '#role' => $role,
+    ];
   }
 }
 
@@ -242,10 +547,16 @@ function contacts_preprocess_user(&$variables) {
 
   $roles = user_roles();
   uasort($roles, 'contacts_sort_roles');
-  $roles = array_map(function ($item) {
-    return $item->label();
-  }, $roles);
-  $variables['roles'] = implode(', ', array_intersect_key($roles, array_fill_keys($user->getRoles(), TRUE)));
+  $roles = array_intersect(array_keys($roles), $user->getRoles());
+
+  foreach ($roles as $role) {
+    $variables['roles'][] = [
+      '#theme' => 'contacts_hat',
+      '#role' => $role,
+      '#hide_label' => TRUE,
+      '#hide_button' => TRUE,
+    ];
+  }
 
   // For individuals.
   if ($user->hasRole('crm_indiv')) {
@@ -277,6 +588,56 @@ function contacts_preprocess_user(&$variables) {
       $variables['image'] = $default_image_element;
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function contacts_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'user_role_form') {
+    /* @var \Drupal\user\Entity\Role $role */
+    $role = $form_state->getFormObject()->getEntity();
+    $form['user_role_color'] = array(
+      '#type' => 'select',
+      '#title' => t('Role Color'),
+      '#description' => t('Choose a 6 digit hex color to visually represent this role.'),
+      '#field_prefix' => '#',
+      '#options' => contacts_get_hat_palette(),
+      '#default_value' => $role->getThirdPartySetting('contacts', 'user_role_color'),
+      '#weight' => 1,
+    );
+
+    $form['user_role_icon'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Role Icon'),
+      '#description' => t('Enter the class for the font awesome icon you would like to use.') . '<br>http://fontawesome.io/icons/',
+      '#field_prefix' => 'fa-',
+      '#default_value' => $role->getThirdPartySetting('contacts', 'user_role_icon'),
+      '#weight' => 2,
+      '#size' => 20,
+    );
+
+    $form['#entity_builders'][] = 'contacts_form_user_role_add_form_builder';
+  }
+}
+
+/**
+ * Entity builder for the menu configuration entity.
+ */
+function contacts_form_user_role_add_form_builder($entity_type, \Drupal\user\Entity\Role $role, &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  if ($form_state->getValue('user_role_color')) {
+    $role->setThirdPartySetting('contacts', 'user_role_color', $form_state->getValue('user_role_color'));
+  }
+  else {
+    $role->unsetThirdPartySetting('contacts', 'user_role_color');
+  }
+
+  if ($form_state->getValue('user_role_icon')) {
+    $role->setThirdPartySetting('contacts', 'user_role_icon', $form_state->getValue('user_role_icon'));
+  }
+  else {
+    $role->unsetThirdPartySetting('contacts', 'user_role_icon');
   }
 }
 
@@ -359,6 +720,8 @@ function contacts_panels_build_alter(array &$build, PanelsDisplayVariant $panels
  * Allow dashboard placement of views blocks if they have the correct tag.
  */
 function contacts_block_alter(&$definitions) {
+  // Since menu blocks use derivatives, check the definition ID instead of
+  // relying on the plugin ID.
   foreach ($definitions as $key => &$definition) {
     if ($definition['id'] === 'views_block') {
       if (substr($key, 0, 12) == 'views_block:') {
@@ -506,4 +869,54 @@ function contacts_preprocess_block(&$variables, $hook) {
  */
 function contacts_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['account']['roles']['#default_value'][] = 'crm_indiv';
+}
+
+/**
+ * Gets color palette options for the contacts hats.
+ *
+ * @return array
+ *   Array of colors keyed by the hex code.
+ */
+function contacts_get_hat_palette() {
+  return [
+    'F59FB8' => 'Pixie',
+    'E690A8' => 'Cotton Candy',
+    'EC8086' => 'Smoothie',
+    'D4687E' => 'Hollyhock',
+    'B84543' => 'Cranberry',
+    'B24F60' => 'Ruby',
+    '97544F' => 'Barn Red',
+    'F49580' => 'Sorbet',
+    'EE825A' => 'Sunset',
+    'D98E4D' => 'Goldrush',
+    'C77140' => 'Autumn Terracotta',
+    'F5CD6D' => 'Canary',
+    'FFCD2A' => 'Honey',
+    'D3C28A' => 'Flaxen',
+    '97986B' => 'Olive',
+    'C2CB93' => 'Sweet Leaf',
+    'AAD272' => 'Pear',
+    '708C4C' => 'Topiary',
+    '636E4D' => 'New England Ivy',
+    '475F54' => 'Ponderosa Pine',
+    '88B6AD' => 'Juniper',
+    '9DCDCD' => 'Glacier',
+    '48B9B6' => 'Lagoon',
+    '84BCD5' => 'Crystal Blue',
+    '30789D' => 'Pacifica',
+    '6588A9' => 'Indian Corn Blue',
+    '435168' => 'Outdoor Denim',
+    'B865AB' => 'Thistle',
+    '8F7CB2' => 'Gypsy',
+    '866A7D' => 'Smokey Plum',
+    'D8C7A9' => 'Bamboo',
+    'E6D1B8' => 'Champagne',
+    'D0D1B8' => 'Cashmere',
+    'A58869' => 'Desert Sand',
+    'B1816C' => 'Saddle',
+    '896859' => 'Chocolate',
+    '756857' => 'Cocoa',
+    'C0B9B4' => 'Whisper',
+    '9A9185' => 'Slate',
+  ];
 }

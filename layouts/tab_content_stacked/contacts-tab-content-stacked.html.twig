@@ -1,14 +1,14 @@
-<div {{ attributes }}>
-  <div class="dash-top">
+<div {{ attributes.addClass('dash-summary') }}>
+  <div {{ region_attributes.addClass('dash-top') }}>
     {{ content.top }}
   </div>
-  <div class="dash-left">
+  <div {{ region_attributes.removeClass('dash-top').addClass('dash-left') }}>
     {{ content.left }}
   </div>
-  <div class="dash-right">
+  <div {{ region_attributes.removeClass('dash-left').addClass('dash-right') }}>
     {{ content.right }}
   </div>
-  <div class="dash-bottom">
+  <div {{ region_attributes.removeClass('dash-right').addClass('dash-bottom') }}>
     {{ content.bottom }}
   </div>
 </div>

@@ -28,6 +28,24 @@ interface ContactTabInterface extends ConfigEntityInterface {
   public function setPath($path);
 
   /**
+   * Get the roles required by the tab.
+   *
+   * @return array
+   *   An array of role ids.
+   */
+  public function getRoles();
+
+  /**
+   * Set the roles required by the tab.
+   *
+   * @param array $roles
+   *   An array of role ids.
+   *
+   * @return $this
+   */
+  public function setRoles(array $roles);
+
+  /**
    * Get the relationship definitions.
    *
    * @return array
