@@ -13,6 +13,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   handlers = {
  *     "list_builder" = "Drupal\contacts\ContactTabListBuilder",
  *     "form" = {
+ *       "add" = "Drupal\contacts\Form\ContactTabForm",
  *       "edit" = "Drupal\contacts\Form\ContactTabForm",
  *       "delete" = "Drupal\contacts\Form\ContactTabDeleteForm"
  *     },
@@ -29,6 +30,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   },
  *   links = {
  *     "canonical" = "/admin/structure/contact-tabs/{contact_tab}",
+ *     "add-form" = "/admin/structure/contact-tabs/add",
  *     "edit-form" = "/admin/structure/contact-tabs/{contact_tab}/edit",
  *     "delete-form" = "/admin/structure/contact-tabs/{contact_tab}/delete",
  *     "collection" = "/admin/structure/contact-tabs"
@@ -78,6 +80,17 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   protected $relationships = [];
 
   /**
+   * The roles required for the tab.
+   *
+   * An array including:
+   *   - id: The relationship plugin id.
+   *   - name: The name for the context.
+   *
+   * @var array
+   */
+  protected $roles = [];
+
+  /**
    * The blocks configuration.
    *
    * An array including:
@@ -122,6 +135,21 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    */
   public function setRelationships(array $relationships) {
     $this->relationships = $relationships;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getRoles() {
+    return $this->roles;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setRoles(array $roles) {
+    $this->roles = $roles;
     return $this;
   }
 

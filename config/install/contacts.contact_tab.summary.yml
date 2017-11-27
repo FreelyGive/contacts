@@ -25,6 +25,7 @@ relationships:
     id: 'typed_data_entity_relationship:entity:user:profile_crm_notes'
     name: profile_crm_notes
     source: user
+roles: {  }
 blocks:
   contacts_entity_profile_crm_indiv:
     id: 'contacts_entity:profile-crm_indiv'

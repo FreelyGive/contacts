@@ -6,6 +6,7 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
+use Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
 
@@ -26,6 +27,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @var \Drupal\contacts\ContactsTabManager
    */
   protected $tabManager;
+
+  /**
+   * The layout plugin manager.
+   *
+   * @var \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager
+   */
+  protected $layoutManager;
 
   /**
    * Whether we are building tabs via AJAX.
@@ -59,10 +67,15 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   The plugin implementation definition.
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\layout_plugin\Plugin\Layout\LayoutPluginManager $layout_manager
+   *   The layout plugin manager.
+   *
+   * @todo Switch to core layout manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, LayoutPluginManager $layout_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tabManager = $tab_manager;
+    $this->layoutManager = $layout_manager;
     $this->ajax = TRUE;
   }
 
@@ -74,7 +87,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('plugin.manager.layout_plugin')
     );
   }
 
@@ -87,8 +101,10 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $this->subpage = $this->getContextValue('subpage');
     $this->user = $this->getContextValue('user');
 
+    $manage_mode = \Drupal::state()->get('manage_mode');
+
     $this->buildTabs($build);
-    $this->buildContent($build);
+    $this->buildContent($build, $manage_mode);
 
     return $build;
   }
@@ -151,16 +167,22 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @param array $build
    *   Drupal renderable array being added to.
    */
-  public function buildContent(array &$build) {
+  public function buildContent(array &$build, $manage_mode = FALSE) {
+    $build['#attached']['drupalSettings']['dragMode'] = $manage_mode;
+
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
-      '#type' => 'contact_tab_content',
-      '#tab' => $this->tabManager->getTabByPath($this->user, $this->subpage),
-      '#user' => $this->user,
+      '#theme' => 'contacts_dash_tab_content',
       '#subpage' => $this->subpage,
-      '#attributes' => ['class' => ['dash-content']],
+      '#manage_mode' => $manage_mode,
+      '#region_attributes' => ['class' => ['drag-area']],
+      '#content' => [],
     ];
+
+    if ($manage_mode) {
+      $build['content']['#region_attributes']['class'][] = 'show';
+    }
 
     $build['messages'] = [
       '#type' => 'status_messages',
