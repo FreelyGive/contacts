@@ -62,18 +62,18 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $request;
 
   /**
-   * The current user service.
-   *
-   * @var \Drupal\Core\Session\AccountProxy
-   */
-  protected $currentUser;
-
-  /**
    * The entity display repository.
    *
    * @var \Drupal\Core\Entity\EntityDisplayRepository
    */
   protected $entityDisplayRepository;
+
+  /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
+   */
+  protected $currentUser;
 
   /**
    * {@inheritdoc}
@@ -83,8 +83,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
       $container->get('request_stack'),
-      $container->get('current_user'),
-      $container->get('entity_display.repository')
+      $container->get('entity_display.repository'),
+      $container->get('current_user')
     );
   }
 
@@ -105,13 +105,16 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The request stack.
    * @param \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository
    *   The entity display repository.
+   * @param \Drupal\Core\Session\AccountProxy $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user, EntityDisplayRepository $entity_display_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
     $this->request = $request_stack->getCurrentRequest();
     $this->entityDisplayRepository = $entity_display_repository;
+    $this->currentUser = $current_user;
   }
 
   /**
