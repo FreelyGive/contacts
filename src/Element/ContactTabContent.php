@@ -95,7 +95,11 @@ class ContactTabContent extends RenderElement {
           'content' => $block->build(),
         ];
 
-        $block_content['content']['#title'] = in_array(DashboardBlockInterface::class, class_implements($block)) ? $block->editLabel() : $block->label();
+        if (in_array(DashboardBlockInterface::class, class_implements($block))) {
+          $block_content['content']['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
+        }
+
+        $block_content['content']['#title'] = $block->label();
         $regions[$block->getConfiguration()['region']][] = $block_content;
       }
 

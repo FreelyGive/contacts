@@ -7,12 +7,18 @@ namespace Drupal\contacts\Plugin;
  */
 interface DashboardBlockInterface {
 
+  const EDIT_LINK_TITLE = 'title';
+  const EDIT_LINK_CONTENT = 'content';
+
   /**
-   * Returns the block label with an edit link.
+   * Get the edit link, if applicable.
    *
-   * @return string
-   *   The block label with edit link.
+   * @param string $mode
+   *
+   *
+   * @return \Drupal\Core\Link|false
+   *   The edit link, or FALSE if there is none.
    */
-  public function editLabel();
+  function getEditLink($mode);
 
 }
