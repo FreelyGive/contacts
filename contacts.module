@@ -19,6 +19,7 @@ use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\contacts\Form\DashboardBlockConfigureForm;
+use Drupal\Component\Plugin\PluginBase;
 
 /**
  * Implements hook_theme().
@@ -74,7 +75,7 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
   $definition = $block_manager->getDefinition($variables['id']);
   $configuration = $variables['block']->getConfiguration();
 
-  list($variables['block_plugin'], $variables['identifier']) = explode(':', $variables['id']);
+  list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
 
   $variables['attributes']['data-dnd-contacts-block-id'] = $variables['id'];
   $variables['attributes']['data-dnd-contacts-block-name'] = $configuration['name'];
@@ -114,47 +115,11 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
         $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'];
         $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
 
-        if ($definition['_bundle_key']) {
-          // @todo find out how to abstract this.
-          if ($variables['entity'] == 'profile') {
-            $variables['footer']['links'] = [
-              '#theme' => 'item_list',
-              '#list_type' => 'ul',
-              '#items' => [
-                'fields' => [
-                  '#type' => 'link',
-                  '#url' => Url::fromRoute('entity.profile.field_ui_fields', ['profile_type' => $variables['bundle']]),
-                  '#title' => t('Manage fields'),
-                  '#options' => [
-                    'attributes' => [
-                      'target' => '_blank',
-                    ],
-                  ],
-                ],
-                'view-modes' => [
-                  '#type' => 'link',
-                  '#url' => Url::fromRoute('entity.entity_view_display.profile.default', ['profile_type' => $variables['bundle']]),
-                  '#title' => t('Manage displays'),
-                  '#options' => [
-                    'attributes' => [
-                      'target' => '_blank',
-                    ],
-                  ],
-                ],
-                'form-modes' => [
-                  '#type' => 'link',
-                  '#url' => Url::fromRoute('entity.entity_form_display.profile.default', ['profile_type' => $variables['bundle']]),
-                  '#title' => t('Manage forms'),
-                  '#options' => [
-                    'attributes' => [
-                      'target' => '_blank',
-                    ],
-                  ],
-                ],
-              ],
-            ];
-          }
-        }
+        $variables['footer']['links'] = [
+          '#theme' => 'item_list',
+          '#list_type' => 'ul',
+          '#items' => $variables['block']->getManageLinks(),
+        ];
       }
       break;
 

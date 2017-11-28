@@ -18,6 +18,7 @@ use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\user\EntityOwnerInterface;
+use Drupal\Core\Session\AccountProxy;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -76,6 +77,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $entityDisplayRepository;
 
   /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
+   */
+  protected $currentUser;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -84,7 +92,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       $container->get('entity.form_builder'),
       $container->get('current_route_match'),
       $container->get('request_stack'),
-      $container->get('entity_display.repository')
+      $container->get('entity_display.repository'),
+      $container->get('current_user')
     );
   }
 
@@ -107,14 +116,17 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The request stack.
    * @param \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository
    *   The entity display repository.
+   * @param \Drupal\Core\Session\AccountProxy $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
     $this->routeMatch = $route_match;
     $this->request = $request_stack->getCurrentRequest();
     $this->entityDisplayRepository = $entity_display_repository;
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -435,6 +447,57 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     return $dependencies;
+  }
+
+  /**
+   * Get list of links to display on manage block.
+   *
+   * @return array
+   *   Array of links to be based to an 'item_list' render array.
+   */
+  public function getManageLinks() {
+    $entity_id = $this->pluginDefinition['_entity_type_id'];
+    $bundle_id = $this->pluginDefinition['_bundle_id'];
+    $entity_definition = $this->entityTypeManager->getDefinition($entity_id);
+    $bundle_type = $entity_definition->getBundleEntityType();
+    $operations = [];
+    // Add manage fields and display links if this entity type is the bundle
+    // of another and that type has field UI enabled.
+    if ($bundle_type && $entity_definition->get('field_ui_base_route')) {
+      $account = $this->currentUser;
+      if ($account->hasPermission('administer ' . $entity_id . ' fields')) {
+        $operations['manage-fields'] = [
+          '#type' => 'link',
+          '#title' => t('Manage fields'),
+          '#weight' => 15,
+          '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+      if ($account->hasPermission('administer ' . $entity_id . ' form display')) {
+        $operations['manage-form-display'] = [
+          '#type' => 'link',
+          '#title' => t('Manage form display'),
+          '#weight' => 20,
+          '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+      if ($account->hasPermission('administer ' . $entity_id . ' display')) {
+        $operations['manage-display'] = [
+          '#type' => 'link',
+          '#title' => t('Manage display'),
+          '#weight' => 25,
+          '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+    }
+
+    return $operations;
   }
 
 }
