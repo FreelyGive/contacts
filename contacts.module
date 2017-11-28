@@ -18,6 +18,7 @@ use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\contacts\Form\DashboardBlockConfigureForm;
 
 /**
  * Implements hook_theme().
@@ -40,7 +41,131 @@ function contacts_theme() {
       'base hook' => 'user',
       'template' => 'user--contacts-dashboard-row-small',
     ],
+    'contacts_dnd_card' => [
+      'variables' => [
+        'id' => NULL,
+        'mode' => NULL,
+        'user' => NULL,
+        'subpage' => NULL,
+        'block' => [],
+        'configure_link' => NULL,
+        'attributes' => [],
+        'label' => '',
+        'description' => '',
+      ],
+      'template' => 'contacts-dnd-card',
+    ],
   ];
+}
+
+/**
+ * Prepares variables for contacts drag and drop cards.
+ *
+ * Default template: contacts-dnd-card.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_dnd_card(array &$variables) {
+  /* @var \Drupal\Core\Block\BlockManager $block_manager */
+  $block_manager = \Drupal::service('plugin.manager.block');
+  $definition = $block_manager->getDefinition($variables['id']);
+  $configuration = $variables['block']->getConfiguration();
+
+  list($variables['block_plugin'], $variables['identifier']) = explode(':', $variables['id']);
+
+  $variables['attributes']['data-dnd-contacts-block-id'] = $variables['id'];
+  $variables['attributes']['data-dnd-contacts-block-name'] = $configuration['name'];
+  $variables['attributes']['data-dnd-block-mode'] = $variables['mode'];
+
+  switch ($variables['mode']) {
+    case 'manage':
+      $variables['content']['configure_link'] = [
+        '#type' => 'link',
+        '#url' => Url::fromUri('internal:/'),
+        '#title' => t('Configure'),
+        '#options' => [
+          'attributes' => [
+            'class' => ['use-ajax'],
+            'data-ajax-url' => Url::fromRoute('contacts.ajax.manage_mode_configure_block', [
+              'user' => $variables['user'],
+              'subpage' => $variables['subpage'],
+              'block_name' => $configuration['name'],
+            ])->toString(),
+            'target' => '_blank',
+          ],
+        ],
+      ];
+
+      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+      $variables['content']['description'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'strong',
+        '#value' => $variables['description'],
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+      ];
+
+      if ($variables['block_plugin'] == 'contacts_entity') {
+        $variables['entity'] = $definition['_entity_type_id'];
+        $variables['bundle'] = $definition['_bundle_id'];
+        $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'];
+        $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
+
+        if ($definition['_bundle_key']) {
+          // @todo find out how to abstract this.
+          if ($variables['entity'] == 'profile') {
+            $variables['footer']['links'] = [
+              '#theme' => 'item_list',
+              '#list_type' => 'ul',
+              '#items' => [
+                'fields' => [
+                  '#type' => 'link',
+                  '#url' => Url::fromRoute('entity.profile.field_ui_fields', ['profile_type' => $variables['bundle']]),
+                  '#title' => t('Manage fields'),
+                  '#options' => [
+                    'attributes' => [
+                      'target' => '_blank',
+                    ],
+                  ],
+                ],
+                'view-modes' => [
+                  '#type' => 'link',
+                  '#url' => Url::fromRoute('entity.entity_view_display.profile.default', ['profile_type' => $variables['bundle']]),
+                  '#title' => t('Manage displays'),
+                  '#options' => [
+                    'attributes' => [
+                      'target' => '_blank',
+                    ],
+                  ],
+                ],
+                'form-modes' => [
+                  '#type' => 'link',
+                  '#url' => Url::fromRoute('entity.entity_form_display.profile.default', ['profile_type' => $variables['bundle']]),
+                  '#title' => t('Manage forms'),
+                  '#options' => [
+                    'attributes' => [
+                      'target' => '_blank',
+                    ],
+                  ],
+                ],
+              ],
+            ];
+          }
+        }
+      }
+      break;
+
+    case 'configure':
+      $variables['label'] = 'Configure block';
+      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['block']);
+      $variables['content']['configure_form'] = $form;
+      break;
+  }
+
+      $variables['attributes'] = new Attribute($variables['attributes']);
 }
 
 /**

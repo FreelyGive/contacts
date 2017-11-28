@@ -6,9 +6,12 @@ use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -40,10 +43,13 @@ class DashboardController extends ControllerBase {
    *   The tab manager.
    * @param \Drupal\Core\Block\BlockManager $block_manager
    *   The block plugin manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
+    $this->stateService = $state;
   }
 
   /**
@@ -52,7 +58,8 @@ class DashboardController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('contacts.tab_manager'),
-      $container->get('plugin.manager.block')
+      $container->get('plugin.manager.block'),
+      $container->get('state')
     );
   }
 
@@ -79,10 +86,11 @@ class DashboardController extends ControllerBase {
       '#type' => 'container',
       'content' => [
         '#type' => 'contact_tab_content',
-        '#attributes' => ['class' => ['dash-content']],
         '#subpage' => $subpage,
         '#user' => $user,
         '#tab' => $this->tabManager->getTabByPath($user, $subpage),
+        '#manage_mode' => $this->state()->get('manage_mode'),
+        '#attributes' => ['class' => ['dash-content']],
       ],
     ];
 
@@ -102,6 +110,30 @@ class DashboardController extends ControllerBase {
   }
 
   /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
+   * @param boolean|null $manage_mode
+   *   The user we are viewing.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageMode($user, $subpage, $manage_mode = NULL) {
+    if (is_null($manage_mode)) {
+      // Toggle manage mode.
+      $manage_mode = $this->state()->get('manage_mode');
+    }
+
+    $this->state()->set('manage_mode', !$manage_mode);
+
+    return $this->ajaxTab($user, $subpage);
+  }
+
+  /**
    * Add a block to a tab.
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
@@ -112,7 +144,7 @@ class DashboardController extends ControllerBase {
    * @return mixed
    *   The block configuration array or FALSE if adding failed.
    */
-  public function addBlock(ContactTab &$tab, $block_config) {
+  public function ajaxAddBlock(ContactTab &$tab, $block_config) {
     if (empty($block_config['id'])) {
       // @todo Throw error - cannot create block without ID.
       return FALSE;
@@ -147,7 +179,7 @@ class DashboardController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\Response
    *   The response.
    */
-  public function updateBlocks() {
+  public function ajaxUpdateBlocks() {
     /* @var \Drupal\contacts\Entity\ContactTab $tab */
     $regions = \Drupal::request()->request->get('regions');
     $tab = \Drupal::request()->request->get('tab');
@@ -176,7 +208,7 @@ class DashboardController extends ControllerBase {
         }
         else {
           // Add a new block.
-          if ($this->addBlock($tab, $block)) {
+          if ($this->ajaxAddBlock($tab, $block)) {
             $changed = TRUE;
           }
         }
@@ -196,6 +228,55 @@ class DashboardController extends ControllerBase {
     $response->setContent(json_encode($response_data));
     $response->headers->set('Content-Type', 'application/json');
     $response->setStatusCode(Response::HTTP_OK);
+    return $response;
+  }
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
+   * @param string $block_name
+   *   The user we are viewing.
+   * @param string $mode
+   *   The mode to render the block for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageModeConfigureBlock($user, $subpage, $block_name, $mode = 'configure') {
+    $tab = $this->tabManager->getTabByPath($user, $subpage);
+    if ($tab) {
+      $blocks = $this->tabManager->getBlocks($tab, $user);
+
+      if (isset($blocks[$block_name])) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        $block = $blocks[$block_name];
+
+        $block_content = [
+          '#theme' => 'contacts_dnd_card',
+          '#attributes' => [
+            'data-dnd-contacts-block-tab' => $tab->id(),
+          ],
+          '#id' => $block->getPluginId(),
+          '#block' => $block,
+          '#user' => $user->id(),
+          '#subpage' => $subpage,
+          '#mode' => $mode,
+        ];
+      }
+    }
+
+    // Create AJAX Response object.
+    $response = new AjaxResponse();
+
+    if (!empty($block_content)) {
+      $response->addCommand(new ReplaceCommand("div[data-dnd-contacts-block-name='{$block_name}'][data-dnd-block-mode!='meta']", $block_content));
+    }
+
+    // Return ajax response.
     return $response;
   }
 

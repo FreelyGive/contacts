@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
@@ -26,6 +27,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @var \Drupal\contacts\ContactsTabManager
    */
   protected $tabManager;
+
+  /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $stateService;
 
   /**
    * Whether we are building tabs via AJAX.
@@ -59,10 +67,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   The plugin implementation definition.
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The tab manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, StateInterface $state) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tabManager = $tab_manager;
+    $this->stateService = $state;
     $this->ajax = TRUE;
   }
 
@@ -74,7 +85,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('state')
     );
   }
 
@@ -159,6 +171,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#tab' => $this->tabManager->getTabByPath($this->user, $this->subpage),
       '#user' => $this->user,
       '#subpage' => $this->subpage,
+      '#manage_mode' => $this->stateService->get('manage_mode'),
       '#attributes' => ['class' => ['dash-content']],
     ];
 
