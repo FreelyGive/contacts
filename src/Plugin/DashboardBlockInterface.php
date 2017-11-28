@@ -15,10 +15,9 @@ interface DashboardBlockInterface {
    *
    * @param string $mode
    *
-   *
    * @return \Drupal\Core\Link|false
    *   The edit link, or FALSE if there is none.
    */
-  function getEditLink($mode);
+  public function getEditLink($mode);
 
 }
