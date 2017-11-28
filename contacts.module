@@ -165,7 +165,7 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
       break;
   }
 
-      $variables['attributes'] = new Attribute($variables['attributes']);
+  $variables['attributes'] = new Attribute($variables['attributes']);
 }
 
 /**

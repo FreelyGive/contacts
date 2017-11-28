@@ -105,7 +105,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The current route match.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
-   * @param \Drupal\Core\Entity\EntityDisplayRepository
+   * @param \Drupal\Core\Entity\EntityDisplayRepository $entity_display_repository
    *   The entity display repository.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository) {
@@ -208,13 +208,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#options' => $this->entityDisplayRepository->getViewModeOptions($this->pluginDefinition['_entity_type_id']),
       '#title' => $this->t('View mode'),
       '#default_value' => $this->configuration['view_mode'],
-      '#states' => array(
-        'visible' => array(
-          ':input[name="settings[mode]"]' => array(
+      '#states' => [
+        'visible' => [
+          ':input[name="settings[mode]"]' => [
             'value' => self::MODE_VIEW,
-          ),
-        ),
-      ),
+          ],
+        ],
+      ],
     ];
 
     $form['operation'] = [

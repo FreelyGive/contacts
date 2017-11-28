@@ -7,7 +7,6 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -116,13 +115,13 @@ class DashboardController extends ControllerBase {
    *   The user we are viewing.
    * @param string $subpage
    *   The subpage we want to view.
-   * @param boolean|null $manage_mode
+   * @param bool|null $manage_mode
    *   The user we are viewing.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
    */
-  public function ajaxManageMode($user, $subpage, $manage_mode = NULL) {
+  public function ajaxManageMode(UserInterface $user, $subpage, $manage_mode = NULL) {
     if (is_null($manage_mode)) {
       // Toggle manage mode.
       $manage_mode = $this->state()->get('manage_mode');
@@ -246,7 +245,7 @@ class DashboardController extends ControllerBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
    */
-  public function ajaxManageModeConfigureBlock($user, $subpage, $block_name, $mode = 'configure') {
+  public function ajaxManageModeConfigureBlock(UserInterface $user, $subpage, $block_name, $mode = 'configure') {
     $tab = $this->tabManager->getTabByPath($user, $subpage);
     if ($tab) {
       $blocks = $this->tabManager->getBlocks($tab, $user);
