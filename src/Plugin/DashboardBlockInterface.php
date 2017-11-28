@@ -14,6 +14,7 @@ interface DashboardBlockInterface {
    * Get the edit link, if applicable.
    *
    * @param string $mode
+   *   The mode for adding the edit link.
    *
    * @return \Drupal\Core\Link|false
    *   The edit link, or FALSE if there is none.
