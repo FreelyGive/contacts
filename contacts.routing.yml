@@ -42,3 +42,15 @@ contacts.ajax.update_blocks:
     _controller: '\Drupal\contacts\Controller\DashboardController::ajaxUpdateBlocks'
   requirements:
     _permission: 'manage contacts dashboard'
+
+contacts.ajax.manage_mode_configure_block:
+  path: '/admin/contacts/ajax/manage-configure-block/{user}/{subpage}/{block_name}/{mode}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeConfigureBlock'
+    mode: 'configure'
+  options:
+    parameters:
+      user:
+        type: entity:user
+  requirements:
+    _permission: 'view contacts'

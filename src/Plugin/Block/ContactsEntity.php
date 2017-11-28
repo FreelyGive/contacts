@@ -5,11 +5,13 @@ namespace Drupal\contacts\Plugin\Block;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Entity\EntityDisplayRepository;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Form\FormBuilder;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -67,6 +69,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $currentUser;
 
   /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepository
+   */
+  protected $entityDisplayRepository;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -74,7 +83,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
       $container->get('request_stack'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('entity_display.repository')
     );
   }
 
@@ -95,13 +105,15 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The request stack.
    * @param \Drupal\Core\Session\AccountProxy $current_user
    *   The current user service.
+   * @param \Drupal\Core\Entity\EntityDisplayRepository
+   *   The entity display repository.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user, EntityDisplayRepository $entity_display_repository) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
     $this->request = $request_stack->getCurrentRequest();
-    $this->currentUser = $current_user;
+    $this->entityDisplayRepository = $entity_display_repository;
   }
 
   /**
@@ -200,6 +212,50 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#list_type' => 'ul',
       '#items' => $this->getManageLinks(),
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockForm($form, FormStateInterface $form_state) {
+    $form['mode'] = [
+      '#type' => 'select',
+      '#options' => [self::MODE_FORM => 'Form', self::MODE_VIEW => 'View'],
+      '#title' => $this->t('Show as'),
+      '#default_value' => $this->configuration['mode'],
+    ];
+
+    // @todo figure out how we can get the parent form structure.
+    $form['view_mode'] = [
+      '#type' => 'select',
+      '#options' => $this->entityDisplayRepository->getViewModeOptions($this->pluginDefinition['_entity_type_id']),
+      '#title' => $this->t('View mode'),
+      '#default_value' => $this->configuration['view_mode'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="settings[mode]"]' => array(
+            'value' => self::MODE_VIEW,
+          ),
+        ),
+      ),
+    ];
+
+    $form['operation'] = [
+      '#type' => 'select',
+      '#options' => $this->entityDisplayRepository->getFormModeOptions($this->pluginDefinition['_entity_type_id']),
+      '#title' => $this->t('Form mode'),
+      '#default_value' => $this->configuration['operation'],
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['mode'] = $form_state->getValue('mode');
+    $this->configuration['view_mode'] = $form_state->getValue('view_mode');
+    $this->configuration['operation'] = $form_state->getValue('operation');
   }
 
   /**

@@ -6,6 +6,7 @@ use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -288,6 +289,55 @@ class DashboardController extends ControllerBase {
     $response->setContent(json_encode($response_data));
     $response->headers->set('Content-Type', 'application/json');
     $response->setStatusCode(Response::HTTP_OK);
+    return $response;
+  }
+
+  /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user we are viewing.
+   * @param string $subpage
+   *   The subpage we want to view.
+   * @param string $block_name
+   *   The user we are viewing.
+   * @param string $mode
+   *   The mode to render the block for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageModeConfigureBlock($user, $subpage, $block_name, $mode = 'configure') {
+    $tab = $this->tabManager->getTabByPath($subpage);
+    if ($tab) {
+      $blocks = $this->tabManager->getBlocks($tab, $user);
+
+      if (isset($blocks[$block_name])) {
+        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+        $block = $blocks[$block_name];
+
+        $block_content = [
+          '#theme' => 'contacts_dnd_card',
+          '#attributes' => [
+            'data-contacts-manage-block-tab' => $tab->id(),
+          ],
+          '#id' => $block->getPluginId(),
+          '#block' => $block,
+          '#user' => $user->id(),
+          '#subpage' => $subpage,
+          '#mode' => $mode,
+        ];
+      }
+    }
+
+    // Create AJAX Response object.
+    $response = new AjaxResponse();
+
+    if (!empty($block_content)) {
+      $response->addCommand(new ReplaceCommand("div[data-contacts-manage-block-name='{$block_name}'][data-contacts-manage-block-mode!='meta']", $block_content));
+    }
+
+    // Return ajax response.
     return $response;
   }
 
