@@ -13,22 +13,27 @@ use Drupal\Core\Form\SubformState;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class DashboardBlockConfigureForm
- * @package Drupal\contacts\Form
+ * The configuration form for dashboard blocks.
  */
 class DashboardBlockConfigureForm extends FormBase {
 
   /**
+   * The block plugin being configured.
+   *
    * @var \Drupal\Core\Block\BlockPluginInterface
    */
   protected $block;
 
   /**
+   * The block name key used to identify the block on the tab.
+   *
    * @var string
    */
-  protected $blockKey;
+  protected $blockName;
 
   /**
+   * The dashboard tab.
+   *
    * @var \Drupal\contacts\Entity\ContactTab
    */
   protected $tab;
@@ -102,8 +107,8 @@ class DashboardBlockConfigureForm extends FormBase {
     $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
     $form['settings'] = $this->block->buildConfigurationForm($form['settings'], $subform_state);;
 
-    list($block_plugin, $identifier, $bundle) = preg_split( "/(:|-)/", $this->block->getPluginId());
-    $this->blockKey = "{$block_plugin}_{$identifier}_{$bundle}";
+    $configuration = $this->block->getConfiguration();
+    $this->blockName = $configuration['name'];
     $this->user = $this->getRouteMatch()->getParameter('user');
     $this->subpage = $this->getRouteMatch()->getParameter('subpage');
     $this->tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
@@ -163,7 +168,7 @@ class DashboardBlockConfigureForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $sub_form_state = SubformState::createForSubform($form['settings'], $form, $form_state);
     $this->block->submitConfigurationForm($form, $sub_form_state);
-    $this->tab->setBlock($this->blockKey, $this->block->getConfiguration());
+    $this->tab->setBlock($this->blockName, $this->block->getConfiguration());
     $this->tab->save();
   }
 
@@ -205,7 +210,7 @@ class DashboardBlockConfigureForm extends FormBase {
       '#mode' => 'manage',
     ];
 
-    $response->addCommand(new ReplaceCommand("div[data-contacts-manage-block-name='{$this->blockKey}'][data-contacts-manage-block-mode!='meta']", $block_content));
+    $response->addCommand(new ReplaceCommand("div[data-contacts-manage-block-name='{$this->blockName}'][data-contacts-manage-block-mode!='meta']", $block_content));
     return $response;
   }
 
@@ -222,7 +227,7 @@ class DashboardBlockConfigureForm extends FormBase {
    */
   public function removeBlock(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
-    $response->addCommand(new RemoveCommand("div[data-contacts-manage-block-name='{$this->blockKey}'][data-contacts-manage-block-mode!='meta']"));
+    $response->addCommand(new RemoveCommand("div[data-contacts-manage-block-name='{$this->blockName}'][data-contacts-manage-block-mode!='meta']"));
     return $response;
   }
 
