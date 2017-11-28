@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Plugin\Block;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
@@ -32,7 +33,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   dashboard_block = TRUE,
  * )
  */
-class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface {
+class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface, DashboardBlockInterface {
 
   const MODE_VIEW = 'view';
   const MODE_VIEW_NEW = 'view_new';
@@ -137,10 +138,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   }
 
   /**
-   * Returns the block label with an edit link.
-   *
-   * @return string
-   *   The block label with edit link.
+   * {@inheritdoc}
    */
   public function editLabel() {
     $label = $this->label();

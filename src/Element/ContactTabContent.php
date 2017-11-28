@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Element;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Render\Element\RenderElement;
 
@@ -94,7 +95,7 @@ class ContactTabContent extends RenderElement {
           'content' => $block->build(),
         ];
 
-        $block_content['content']['#title'] = $block->getBaseId() == 'contacts_entity' ? $block->editLabel() : $block->label();
+        $block_content['content']['#title'] = in_array(DashboardBlockInterface::class, class_implements($block)) ? $block->editLabel() : $block->label();
         $regions[$block->getConfiguration()['region']][] = $block_content;
       }
 
