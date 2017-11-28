@@ -94,7 +94,7 @@ class ContactTabContent extends RenderElement {
           'content' => $block->build(),
         ];
 
-        $block_content['content']['#title'] = $block->label(TRUE);
+        $block_content['content']['#title'] = $block->getBaseId() == 'contacts_entity' ? $block->editLabel() : $block->label();
         $regions[$block->getConfiguration()['region']][] = $block_content;
       }
 
