@@ -164,14 +164,15 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
 /**
  * Pre render callback for dashboard blocks to add edit link to title.
  *
- * @param $element
+ * @param array $element
  *   The block render array.
  *
  * @return array
  *   The block render array.
  */
-function contacts_dashboard_block_edit_link_pre_render($element) {
-  if (!empty($link = $element['#dashboard_label_edit_link'])) {
+function contacts_dashboard_block_edit_link_pre_render(array $element) {
+  if (!empty($element['#dashboard_label_edit_link'])) {
+    $link = $element['#dashboard_label_edit_link'];
     if ($element['content']['#title']) {
       $element['content']['#title'] = new FormattableMarkup('@label [@link]', [
         '@label' => $element['content']['#title'],
