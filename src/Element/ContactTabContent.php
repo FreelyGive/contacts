@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Element;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Render\Element\RenderElement;
 
@@ -93,6 +94,12 @@ class ContactTabContent extends RenderElement {
           '#weight' => $block->getConfiguration()['weight'],
           'content' => $block->build(),
         ];
+
+        // Add edit link to title.
+        if ($block instanceof DashboardBlockInterface) {
+          $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
+          $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
+        }
 
         $block_content['content']['#title'] = $block->label();
         $regions[$block->getConfiguration()['region']][] = $block_content;

@@ -2,7 +2,7 @@
 
 namespace Drupal\contacts\Plugin\Block;
 
-use Drupal\Component\Render\FormattableMarkup;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
@@ -32,14 +32,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   dashboard_block = TRUE,
  * )
  */
-class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface {
+class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterface, DashboardBlockInterface {
 
   const MODE_VIEW = 'view';
   const MODE_VIEW_NEW = 'view_new';
   const MODE_FORM = 'form';
-
-  const EDIT_LINK_TITLE = 'title';
-  const EDIT_LINK_CONTENT = 'content';
 
   /**
    * The entity type manager.
@@ -137,27 +134,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function label() {
-    $label = parent::label();
-
-    if ($link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
-      if ($label) {
-        $label = new FormattableMarkup('@label [@link]', [
-          '@label' => $label,
-          '@link' => $link->toString(),
-        ]);
-      }
-      else {
-        $label = $link->toString();
-      }
-    }
-
-    return $label;
-  }
-
-  /**
    * Whether we should use edit links.
    *
    * @return bool
@@ -168,13 +144,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   }
 
   /**
-   * Get the edit link, if applicable.
-   *
-   * @param string $mode
-   *   The mode indicating where to render the edit link.
-   *
-   * @return false|\Drupal\Core\Link
-   *   The edit link, or FALSE if there is none.
+   * {@inheritdoc}
    */
   public function getEditLink($mode) {
     // Check that we support and want edit links.

@@ -17,6 +17,7 @@ use Drupal\views\ViewExecutable;
 use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Implements hook_theme().
@@ -158,6 +159,31 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
   }
+}
+
+/**
+ * Pre render callback for dashboard blocks to add edit link to title.
+ *
+ * @param array $element
+ *   The block render array.
+ *
+ * @return array
+ *   The block render array.
+ */
+function contacts_dashboard_block_edit_link_pre_render(array $element) {
+  $link = $element['#dashboard_label_edit_link'] ?? FALSE;
+  if ($link) {
+    if ($element['content']['#title']) {
+      $element['content']['#title'] = new FormattableMarkup('@label [@link]', [
+        '@label' => $element['content']['#title'],
+        '@link' => $link->toString(),
+      ]);
+    }
+    else {
+      $element['content']['#title'] = $link->toString();
+    }
+  }
+  return $element;
 }
 
 /**
