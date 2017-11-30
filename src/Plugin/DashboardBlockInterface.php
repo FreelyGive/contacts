@@ -7,7 +7,14 @@ namespace Drupal\contacts\Plugin;
  */
 interface DashboardBlockInterface {
 
+  /**
+   * A string to indicate that edit link should be rendered in title of block.
+   */
   const EDIT_LINK_TITLE = 'title';
+
+  /**
+   * A string to indicate that edit link should be rendered in content of block.
+   */
   const EDIT_LINK_CONTENT = 'content';
 
   /**
