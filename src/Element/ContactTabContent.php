@@ -96,7 +96,7 @@ class ContactTabContent extends RenderElement {
         ];
 
         // Add edit link to title.
-        if (in_array(DashboardBlockInterface::class, class_implements($block))) {
+        if ($block instanceof DashboardBlockInterface) {
           $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
           $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
         }
