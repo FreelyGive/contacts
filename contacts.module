@@ -171,8 +171,8 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
  *   The block render array.
  */
 function contacts_dashboard_block_edit_link_pre_render(array $element) {
-  if (!empty($element['#dashboard_label_edit_link'])) {
-    $link = $element['#dashboard_label_edit_link'];
+  $link = isset($element['#dashboard_label_edit_link']) ? $element['#dashboard_label_edit_link'] : FALSE;
+  if ($link) {
     if ($element['content']['#title']) {
       $element['content']['#title'] = new FormattableMarkup('@label [@link]', [
         '@label' => $element['content']['#title'],
