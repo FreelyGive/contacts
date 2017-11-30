@@ -11,7 +11,6 @@ cache:
 language: php
 
 php:
-  - 5.6
   - 7
 
 env:
