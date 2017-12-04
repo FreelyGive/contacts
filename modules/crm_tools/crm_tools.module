@@ -314,6 +314,22 @@ function crm_tools_user_presave(UserInterface $account) {
 }
 
 /**
+ * Retrieves the names of roles matching specified conditions.
+ *
+ * @return \Drupal\user\RoleInterface[]
+ *   An associative array with the role id as the key and the role name as
+ *   value.
+ */
+function contacts_user_hats() {
+  return array_filter(array_map(function ($item) {
+    /* @var \Drupal\user\RoleInterface $item */
+    if ($item->getThirdPartySetting('crm_tools', 'crm_tools_is_hat')) {
+      return $item;
+    }
+  }, user_roles(TRUE)));
+}
+
+/**
  * Gets color palette options for the crm hats.
  *
  * @return array

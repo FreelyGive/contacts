@@ -68,20 +68,6 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
 }
 
 /**
- * Prepares variables for contact tab content.
- *
- * Default template: contact-tab-content.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - attributes: HTML markup attributes for the content wrapper.
- *   - region_attributes: HTML markup attributes for the content wrapper.
- */
-function template_preprocess_contact_tab_content(array &$variables) {
-  $variables['region_attributes'] = new Attribute($variables['region_attributes']);
-}
-
-/**
  * Prepares variables for contact dashboard summary block.
  *
  * Default template: contacts-dash-summary.html.twig.
