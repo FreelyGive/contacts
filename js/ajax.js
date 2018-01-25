@@ -9,45 +9,37 @@
 
   'use strict';
 
-    // Get our original AJAX behavior so we can still call it.
-  var originalAjaxAttach = Drupal.behaviors.AJAX.attach;
-
   /**
    * Override core's .use-ajax implementation.
    *
    * Implements an alternative ajax URL and progress types via data attributes.
    *
-   * @param {object} context
+   * @param {object} element
    *   The context for the behavior.
-   * @param {object} settings
-   *   The Drupal settings object.
    */
-  Drupal.behaviors.AJAX.attach = function (context, settings) {
-    // Bind Ajax behaviors to all items showing the class.
-    $('.use-ajax').once('ajax').each(function () {
-      var element_settings = {};
+  Drupal.ajax.bindAjaxLinks = function (element) {
+    $(element).find('.use-ajax').once('ajax').each(function (i, ajaxLink) {
+      var $linkElement = $(ajaxLink);
 
-      // Clicked links look better with the throbber than the progress bar, but
-      element_settings.progress = {
-        type: $(this).attr('data-ajax-progress') || 'throbber'
+      var elementSettings = {
+        progress: { type: 'throbber' },
+        dialogType: $linkElement.data('dialog-type'),
+        dialog: $linkElement.data('dialog-options'),
+        dialogRenderer: $linkElement.data('dialog-renderer'),
+        base: $linkElement.attr('id'),
+        element: ajaxLink
       };
 
-      // For anchor tags, these will go to the target of the anchor rather
-      // than the usual location.
-      var href = $(this).attr('data-ajax-url') || $(this).attr('href');
-      if (href) {
-        element_settings.url = href;
-        element_settings.event = 'click';
-      }
-      element_settings.dialogType = $(this).data('dialog-type');
-      element_settings.dialog = $(this).data('dialog-options');
-      element_settings.base = $(this).attr('id');
-      element_settings.element = this;
-      Drupal.ajax(element_settings);
-    });
+      var href = $linkElement.attr('data-ajax-url') || $linkElement.attr('href');
 
-    // Call the original attach function.
-    originalAjaxAttach(context, settings);
+      if (href) {
+        elementSettings.url = href;
+        elementSettings.event = 'click';
+      }
+      Drupal.ajax(elementSettings);
+    });
   };
+  
+  
 
 })(jQuery, Drupal);

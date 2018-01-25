@@ -200,6 +200,19 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       ],
     ]);
 
+
+//    $params = [
+//      'block' => 'contacts_entity_profile_crm_indiv',
+//      'tab' => 'summary',
+//    ];
+//    $link = Link::createFromRoute('Manage', 'contacts.block.off_canvas_form', $params, [
+//      'attributes' => [
+//        'class' => ['use-ajax'],
+//        'data-dialog-type' => 'dialog',
+//        'data-dialog-renderer' => 'off_canvas',
+//      ],
+//    ]);
+
     return $link;
   }
 
@@ -381,6 +394,9 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $view_builder = $this->entityTypeManager->getViewBuilder($definition['_entity_type_id']);
     $build['view'] = $view_builder->view($entity, $config['view_mode']);
 
+    $build['view']['#attached']['library'][] = 'core/drupal.dialog.off_canvas';
+
+
     return $build;
   }
 
@@ -424,6 +440,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       'redirect' => $redirect,
     ]);
     $form['#action'] = $action->toString();
+
+    $form['#attached']['library'][] = 'core/drupal.dialog.off_canvas';
 
     return ['form' => $form];
   }

@@ -46,6 +46,26 @@ dashboard.layout:
   css:
     layout:
       css/dashboard-layout.css: {}
+  dependencies:
+    - contacts/dashboard.manage
+
+# Contacts dashboard management.
+dashboard.manage:
+  js:
+    # Ensure to run before contextual/drupal.context-toolbar.
+    # Core.
+    js/dashboard.manage.js: { weight: -2 }
+#  css:
+#    layout:
+#      css/dashboard-layout.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/underscore
+#    - core/modernizr
+    - core/jquery.once
 
 # Styling for the listings.
 listings:

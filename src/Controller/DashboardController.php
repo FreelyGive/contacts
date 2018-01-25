@@ -2,6 +2,7 @@
 
 namespace Drupal\contacts\Controller;
 
+use Drupal\block\BlockInterface;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
@@ -130,6 +131,36 @@ class DashboardController extends ControllerBase {
     $this->state()->set('manage_mode', !$manage_mode);
 
     return $this->ajaxTab($user, $subpage);
+  }
+
+  /**
+   * Provides a title callback to get the block's admin label.
+   *
+   * @param \Drupal\block\BlockInterface $block
+   *   The block entity.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The title.
+   */
+  public function offCanvasTitle($block) {
+    // https://www.drupal.org/node/2359901 is fixed.
+//    return $this->t('Configure @block', ['@block' => $block->getPlugin()->getPluginDefinition()['admin_label']]);
+    return $this->t('Configure @block', ['@block' => $block]);
+  }
+
+  public function offCanvasBlock(ContactTab $tab, $block) {
+    $block = $tab->getBlock($block);
+
+    $content = [];
+
+    // Prepend the content with system messages.
+    $content['messages'] = [
+      '#type' => 'status_messages',
+      '#weight' => -99,
+    ];
+
+    // Return ajax response.
+    return $content;
   }
 
   /**

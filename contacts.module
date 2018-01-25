@@ -252,6 +252,50 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
 }
 
 /**
+ * Implements hook_toolbar().
+ */
+function contacts_toolbar() {
+  $items = [];
+  $items['manage_mode'] = [
+    '#cache' => [
+      'contexts' => [
+        'user.permissions',
+      ],
+    ],
+  ];
+
+  if (!\Drupal::currentUser()->hasPermission('administer contacts')) {
+    return $items;
+  }
+
+  $items['manage_mode'] += [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'html_tag',
+      '#tag' => 'button',
+      '#value' => t('Manage'),
+      '#attributes' => [
+        'class' => ['toolbar-icon', 'toolbar-icon-edit'],
+        'aria-pressed' => 'false',
+        'type' => 'button',
+      ],
+    ],
+    'tray' => [],
+
+    '#wrapper_attributes' => [
+      'class' => ['contacts-toolbar-tab'],
+    ],
+//    '#attached' => [
+//      'library' => [
+//        'contextual/drupal.contextual-toolbar',
+//      ],
+//    ],
+  ];
+
+  return $items;
+}
+
+/**
  * Pre render callback for dashboard blocks to add edit link to title.
  *
  * @param array $element
@@ -486,6 +530,30 @@ function contacts_block_alter(&$definitions) {
           $definition['dashboard_block'] = TRUE;
         }
       }
+    }
+
+    if (isset($definition['forms']['settings_tray'])) {
+      continue;
+    }
+
+    switch ($definition['id']) {
+      case 'page_title_block':
+        $definition['forms']['settings_tray'] = FALSE;
+        break;
+
+      case 'system_main_block':
+        $definition['forms']['settings_tray'] = FALSE;
+        break;
+
+      case 'help_block':
+        $definition['forms']['settings_tray'] = FALSE;
+        break;
+
+      // Otherwise, use the block plugin's normal form rather than
+      // a custom form for Settings Tray.
+      default:
+        $definition['forms']['settings_tray'] = $definition['class'];
+        break;
     }
   }
 }

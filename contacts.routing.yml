@@ -9,6 +9,32 @@ contacts.ajax_subpage:
   requirements:
     _permission: 'view contacts'
 
+#contacts.off-canvas:
+#  path: '/admin/contacts/off-canvas/block'
+#  defaults:
+#    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlock'
+#  options:
+#    parameters:
+#      user:
+#        type: entity:user
+#  requirements:
+#    _permission: 'view contacts'
+
+contacts.block.off_canvas_form:
+  path: '/admin/contacts/{tab}/{block}/off-canvas'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlock'
+    _title_callback: '\Drupal\contacts\Controller\DashboardController::offCanvasTitle'
+  requirements:
+    _permission: 'administer blocks'
+    _access_block_plugin_has_settings_tray_form: 'TRUE'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+      block:
+        type: string
+
 contacts.add_indiv_form:
   path: '/admin/contacts/add/indiv'
   defaults:
