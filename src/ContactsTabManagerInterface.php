@@ -13,39 +13,39 @@ interface ContactsTabManagerInterface {
   /**
    * Get a specific tab.
    *
-   * @param \Drupal\user\UserInterface $contact
-   *   The contact.
    * @param string $id
    *   The tab id.
+   * @param \Drupal\user\UserInterface|null $contact
+   *   The contact.
    *
    * @return \Drupal\Core\Entity\EntityInterface|null
    *   The tab, if it exists.
    */
-  public function getTab(UserInterface $contact, $id);
+  public function getTab($id, UserInterface $contact = NULL);
 
   /**
    * Get a specific tab from a path.
    *
-   * @param \Drupal\user\UserInterface $contact
-   *   The contact.
    * @param string $path
    *   The path for the tab.
+   * @param \Drupal\user\UserInterface|null $contact
+   *   The contact.
    *
    * @return \Drupal\contacts\Entity\ContactTab|null
    *   The tab, if it exists.
    */
-  public function getTabByPath(UserInterface $contact, $path);
+  public function getTabByPath($path, UserInterface $contact = NULL);
 
   /**
    * Get the tabs for a contact.
    *
-   * @param \Drupal\user\UserInterface $contact
+   * @param \Drupal\user\UserInterface|null $contact
    *   The contact.
    *
    * @return \Drupal\contacts\Entity\ContactTabInterface[]
    *   The tabs, keyed by ID and sorted by weight.
    */
-  public function getTabs(UserInterface $contact);
+  public function getTabs(UserInterface $contact = NULL);
 
   /**
    * Get the block plugins for a tab.
@@ -69,12 +69,12 @@ interface ContactsTabManagerInterface {
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab.
-   * @param \Drupal\user\UserInterface $contact
+   * @param \Drupal\user\UserInterface|null $contact
    *   The contact.
    *
    * @return bool
    *   Whether the tab is valid.
    */
-  public function verifyTab(ContactTabInterface $tab, UserInterface $contact);
+  public function verifyTab(ContactTabInterface $tab, UserInterface $contact = NULL);
 
 }

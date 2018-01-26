@@ -9,17 +9,6 @@ contacts.ajax_subpage:
   requirements:
     _permission: 'view contacts'
 
-#contacts.off-canvas:
-#  path: '/admin/contacts/off-canvas/block'
-#  defaults:
-#    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlock'
-#  options:
-#    parameters:
-#      user:
-#        type: entity:user
-#  requirements:
-#    _permission: 'view contacts'
-
 contacts.add_indiv_form:
   path: '/admin/contacts/add/indiv'
   defaults:
@@ -58,20 +47,8 @@ contacts.ajax.update_blocks:
   requirements:
     _permission: 'administer contacts'
 
-contacts.ajax.manage_mode_configure_block:
-  path: '/admin/contacts/ajax/manage-configure-block/{user}/{subpage}/{block_name}/{mode}'
-  defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeConfigureBlock'
-    mode: 'configure'
-  options:
-    parameters:
-      user:
-        type: entity:user
-  requirements:
-    _permission: 'view contacts'
-
 contacts.block.off_canvas_form:
-  path: '/admin/contacts/ajax/manage-off-canvas/{user}/{subpage}/{block_name}'
+  path: '/admin/contacts/ajax/manage-off-canvas/{tab}/{block_name}'
   defaults:
     _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlock'
     _title_callback: '\Drupal\contacts\Controller\DashboardController::offCanvasTitle'

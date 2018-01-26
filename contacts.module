@@ -106,12 +106,6 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
         ];
       }
       break;
-
-    case 'configure':
-      $variables['label'] = 'Configure block';
-      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['block']);
-      $variables['content']['configure_form'] = $form;
-      break;
   }
 
   $variables['attributes'] = new Attribute($variables['attributes']);

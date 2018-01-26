@@ -2,18 +2,17 @@
 
 namespace Drupal\contacts\Controller;
 
-use Drupal\block\BlockInterface;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
+use Drupal\contacts\Form\DashboardBlockConfigureForm;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,11 +45,14 @@ class DashboardController extends ControllerBase {
    *   The block plugin manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The form builder service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, FormBuilderInterface $form_builder) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
     $this->stateService = $state;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -60,7 +62,8 @@ class DashboardController extends ControllerBase {
     return new static(
       $container->get('contacts.tab_manager'),
       $container->get('plugin.manager.block'),
-      $container->get('state')
+      $container->get('state'),
+      $container->get('form_builder')
     );
   }
 
@@ -89,7 +92,7 @@ class DashboardController extends ControllerBase {
         '#type' => 'contact_tab_content',
         '#subpage' => $subpage,
         '#user' => $user,
-        '#tab' => $this->tabManager->getTabByPath($user, $subpage),
+        '#tab' => $this->tabManager->getTabByPath($subpage, $user),
         '#manage_mode' => $this->state()->get('manage_mode'),
         '#attributes' => ['class' => ['dash-content']],
       ],
@@ -137,45 +140,47 @@ class DashboardController extends ControllerBase {
   /**
    * Provides a title callback to get the block's admin label.
    *
-   * @param \Drupal\block\BlockInterface $block
-   *   The block entity.
+   * @param $tab
+   *   The id of the tab that contains the block.
+   * @param $block_name
+   *   The unique name of the block on the tab.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The title.
    */
-  public function offCanvasTitle($block_name) {
-    // https://www.drupal.org/node/2359901 is fixed.
-//    return $this->t('Configure @block', ['@block' => $block->getPlugin()->getPluginDefinition()['admin_label']]);
-//    return $this->t('Configure @block', ['@block' => $block_name]);
-    return $this->t('Configure');
-  }
-
-  public function offCanvasBlock(User $user, $subpage, $block_name) {
-    $tab = $this->tabManager->getTabByPath($user, $subpage);
+  public function offCanvasTitle($tab, $block_name) {
+    $tab = $this->tabManager->getTab($tab);
     if ($tab) {
       $block_config = $tab->getBlock($block_name);
       $block = $this->blockManager->createInstance($block_config['id'], $block_config);
 
-      $content = [
-        '#theme' => 'contacts_dnd_card',
-        '#attributes' => [
-          'data-dnd-contacts-block-tab' => $tab->id(),
-        ],
-        '#id' => $block->getPluginId(),
-        '#block' => $block,
-        '#user' => $user->id(),
-        '#subpage' => $tab->id(),
-        '#mode' => 'configure',
-      ];
+      return $this->t('Configure @block', [
+        '@block' => $block->getPluginDefinition()['admin_label']
+      ]);
+    }
+    return $this->t('Configure');
+  }
+
+  /**
+   * Renders the off Canvas configure form for a Dashboard block.
+   *
+   * @param $tab
+   *   The id of the tab that contains the block.
+   * @param $block_name
+   *   The unique name of the block on the tab.
+   *
+   * @return array
+   *   The renderable block config form.
+   */
+  public function offCanvasBlock($tab, $block_name) {
+    $tab = $this->tabManager->getTab($tab);
+    $content = [];
+    if ($tab) {
+      $block_config = $tab->getBlock($block_name);
+      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+      $content = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $block);
     }
 
-    // Prepend the content with system messages.
-    $content['messages'] = [
-      '#type' => 'status_messages',
-      '#weight' => -99,
-    ];
-
-    // Return ajax response.
     return $content;
   }
 
@@ -274,55 +279,6 @@ class DashboardController extends ControllerBase {
     $response->setContent(json_encode($response_data));
     $response->headers->set('Content-Type', 'application/json');
     $response->setStatusCode(Response::HTTP_OK);
-    return $response;
-  }
-
-  /**
-   * Return the AJAX command for changing tab.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user we are viewing.
-   * @param string $subpage
-   *   The subpage we want to view.
-   * @param string $block_name
-   *   The user we are viewing.
-   * @param string $mode
-   *   The mode to render the block for.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   The response commands.
-   */
-  public function ajaxManageModeConfigureBlock(UserInterface $user, $subpage, $block_name, $mode = 'configure') {
-    $tab = $this->tabManager->getTabByPath($user, $subpage);
-    if ($tab) {
-      $blocks = $this->tabManager->getBlocks($tab, $user);
-
-      if (isset($blocks[$block_name])) {
-        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        $block = $blocks[$block_name];
-
-        $block_content = [
-          '#theme' => 'contacts_dnd_card',
-          '#attributes' => [
-            'data-dnd-contacts-block-tab' => $tab->id(),
-          ],
-          '#id' => $block->getPluginId(),
-          '#block' => $block,
-          '#user' => $user->id(),
-          '#subpage' => $subpage,
-          '#mode' => $mode,
-        ];
-      }
-    }
-
-    // Create AJAX Response object.
-    $response = new AjaxResponse();
-
-    if (!empty($block_content)) {
-      $response->addCommand(new ReplaceCommand("div[data-dnd-contacts-block-name='{$block_name}'][data-dnd-block-mode!='meta']", $block_content));
-    }
-
-    // Return ajax response.
     return $response;
   }
 

@@ -63,7 +63,6 @@ dashboard.manage:
     - core/drupal.ajax
     - core/drupalSettings
     - core/underscore
-#    - core/modernizr
     - core/jquery.once
 
 # Styling for the listings.

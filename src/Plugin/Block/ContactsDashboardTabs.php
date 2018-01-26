@@ -168,7 +168,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
       '#type' => 'contact_tab_content',
-      '#tab' => $this->tabManager->getTabByPath($this->user, $this->subpage),
+      '#tab' => $this->tabManager->getTabByPath($this->subpage, $this->user),
       '#user' => $this->user,
       '#subpage' => $this->subpage,
       '#manage_mode' => $this->stateService->get('manage_mode'),

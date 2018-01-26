@@ -32,6 +32,8 @@
 
       var href = $linkElement.attr('data-ajax-url') || $linkElement.attr('href');
 
+      console.log(href);
+
       if (href) {
         elementSettings.url = href;
         elementSettings.event = 'click';
@@ -39,7 +41,5 @@
       Drupal.ajax(elementSettings);
     });
   };
-  
-  
 
 })(jQuery, Drupal);
