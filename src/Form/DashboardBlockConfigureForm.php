@@ -92,8 +92,7 @@ class DashboardBlockConfigureForm extends FormBase {
 
     $configuration = $this->block->getConfiguration();
     $this->blockName = $configuration['name'];
-    $tab = $this->getRouteMatch()->getParameter('tab');
-    $this->tab = $this->tabManager->getTab($tab);
+    $this->tab = $this->getRouteMatch()->getParameter('tab');
 
     if (isset($form['settings']['admin_label'])) {
       unset($form['settings']['admin_label']);

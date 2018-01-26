@@ -54,7 +54,7 @@ contacts.block.off_canvas_form:
     _title_callback: '\Drupal\contacts\Controller\DashboardController::offCanvasTitle'
   options:
     parameters:
-      user:
-        type: entity:user
+      tab:
+        type: entity:contact_tab
   requirements:
     _permission: 'administer blocks'

@@ -509,30 +509,6 @@ function contacts_block_alter(&$definitions) {
         }
       }
     }
-
-    if (isset($definition['forms']['settings_tray'])) {
-      continue;
-    }
-
-    switch ($definition['id']) {
-      case 'page_title_block':
-        $definition['forms']['settings_tray'] = FALSE;
-        break;
-
-      case 'system_main_block':
-        $definition['forms']['settings_tray'] = FALSE;
-        break;
-
-      case 'help_block':
-        $definition['forms']['settings_tray'] = FALSE;
-        break;
-
-      // Otherwise, use the block plugin's normal form rather than
-      // a custom form for Settings Tray.
-      default:
-        $definition['forms']['settings_tray'] = $definition['class'];
-        break;
-    }
   }
 }
 

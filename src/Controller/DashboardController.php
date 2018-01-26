@@ -140,16 +140,15 @@ class DashboardController extends ControllerBase {
   /**
    * Provides a title callback to get the block's admin label.
    *
-   * @param $tab
-   *   The id of the tab that contains the block.
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
    * @param $block_name
    *   The unique name of the block on the tab.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The title.
    */
-  public function offCanvasTitle($tab, $block_name) {
-    $tab = $this->tabManager->getTab($tab);
+  public function offCanvasTitle(ContactTab $tab, $block_name) {
     if ($tab) {
       $block_config = $tab->getBlock($block_name);
       $block = $this->blockManager->createInstance($block_config['id'], $block_config);
@@ -164,16 +163,15 @@ class DashboardController extends ControllerBase {
   /**
    * Renders the off Canvas configure form for a Dashboard block.
    *
-   * @param $tab
-   *   The id of the tab that contains the block.
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
    * @param $block_name
    *   The unique name of the block on the tab.
    *
    * @return array
    *   The renderable block config form.
    */
-  public function offCanvasBlock($tab, $block_name) {
-    $tab = $this->tabManager->getTab($tab);
+  public function offCanvasBlock(ContactTab $tab, $block_name) {
     $content = [];
     if ($tab) {
       $block_config = $tab->getBlock($block_name);
