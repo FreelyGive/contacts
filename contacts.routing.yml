@@ -30,13 +30,9 @@ contacts.add_org_form:
     _admin_route: TRUE
 
 contacts.ajax.manage_mode:
-  path: '/admin/contacts/ajax/manage-mode/{user}/{subpage}'
+  path: '/admin/contacts/ajax/manage-mode'
   defaults:
     _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageMode'
-  options:
-    parameters:
-      user:
-        type: entity:user
   requirements:
     _permission: 'administer contacts'
 

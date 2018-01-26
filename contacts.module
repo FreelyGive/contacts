@@ -253,7 +253,7 @@ function contacts_toolbar() {
       '#tag' => 'button',
       '#value' => t('Manage'),
       '#attributes' => [
-        'class' => ['toolbar-icon', 'toolbar-icon-edit', 'use-ajax', 'toolbar-dashboard-manage'],
+        'class' => ['toolbar-icon', 'toolbar-icon-edit', 'toolbar-dashboard-manage'],
         'aria-pressed' => 'false',
         'type' => 'button',
       ],

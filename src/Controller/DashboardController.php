@@ -13,8 +13,10 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
+use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -116,25 +118,31 @@ class DashboardController extends ControllerBase {
   /**
    * Return the AJAX command for changing tab.
    *
-   * @param \Drupal\user\UserInterface $user
-   *   The user we are viewing.
-   * @param string $subpage
-   *   The subpage we want to view.
    * @param bool|null $manage_mode
    *   The user we are viewing.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
    */
-  public function ajaxManageMode(UserInterface $user, $subpage, $manage_mode = NULL) {
+  public function ajaxManageMode($manage_mode = NULL) {
     if (is_null($manage_mode)) {
       // Toggle manage mode.
       $manage_mode = $this->state()->get('manage_mode');
     }
 
-    $this->state()->set('manage_mode', !$manage_mode);
+    $referer = \Drupal::request()->server->get('HTTP_REFERER');
+    $fake_request = Request::create($referer);
 
-    return $this->ajaxTab($user, $subpage);
+    /* @var \Drupal\Core\Url $url_object */
+    $url_object = \Drupal::service('path.validator')->getUrlIfValid($fake_request->getRequestUri());
+    if ($url_object) {
+      $this->state()->set('manage_mode', !$manage_mode);
+
+      $route_params = $url_object->getRouteParameters();
+      return $this->ajaxTab(User::load($route_params['user']), $route_params['subpage']);
+    }
+
+    return FALSE;
   }
 
   /**

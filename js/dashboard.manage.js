@@ -1,16 +1,4 @@
 (function ($, Drupal, drupalSettings, _, JSON, storage) {
-  // var cachedPermissionsHash = storage.getItem('Drupal.contactsManage.permissionsHash');
-  // var permissionsHash = drupalSettings.user.permissionsHash;
-  // if (cachedPermissionsHash !== permissionsHash) {
-  //   if (typeof permissionsHash === 'string') {
-  //     _.chain(storage).keys().each(function (key) {
-  //       if (key.substring(0, 22) === 'Drupal.contactsManage.') {
-  //         storage.removeItem(key);
-  //       }
-  //     });
-  //   }
-  //   storage.setItem('Drupal.contactsManage.permissionsHash', permissionsHash);
-  // }
 
   function initDashboardManage($block) {
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
@@ -58,7 +46,8 @@
       }
 
       $placeholders.each(function () {
-        $(this).attr('data-ajax-url', '/admin/contacts/ajax/manage-mode/3/summary')
+        $(this).attr('data-ajax-url', '/admin/contacts/ajax/manage-mode');
+        $(this).addClass('use-ajax');
 
         $(document).trigger('drupalManageTabAdded', {
           $el: $(this)
@@ -76,7 +65,9 @@
   $(document).on('drupalManageLinkAdded', function (event, data) {
     Drupal.ajax.bindAjaxLinks(data.$el[0]);
   });
+
   $(document).on('drupalManageTabAdded', function (event, data) {
     Drupal.ajax.bindAjaxLinks(data.$el[0]);
   });
+
 })(jQuery, Drupal, drupalSettings, _, window.JSON, window.sessionStorage);
