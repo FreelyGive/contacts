@@ -12,82 +12,74 @@
   //   storage.setItem('Drupal.contactsManage.permissionsHash', permissionsHash);
   // }
 
-  function initDashboardManagge($blocks, html) {
-    var $region = $blocks.closest('.manage-region');
-
-    $blocks.html(html).addClass('manage-wrapper').prepend(Drupal.theme('manageTrigger'));
-
+  function initDashboardManage($block) {
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
-    // @todo swap contextual-links for manage link.
-    $blocks.find('.contextual-links a').each(function () {
-      var url = this.getAttribute('href');
-      var glue = url.indexOf('?') === -1 ? '?' : '&';
-      this.setAttribute('href', url + glue + destination);
-    });
+    var user = $block.attr('data-dnd-contacts-block-user'),
+        tab = $block.attr('data-dnd-contacts-block-tab'),
+        name = $block.attr('data-dnd-contacts-block-name'),
+        url = '/admin/contacts/ajax/manage-off-canvas/'+user+'/'+tab+'/'+name+'?'+destination;
+    $block.addClass('manage-wrapper').prepend(Drupal.theme('manageTrigger', url));
 
     $(document).trigger('drupalManageLinkAdded', {
-      $el: $blocks,
-      $region: $region
+      $el: $block
     });
   }
 
-  // @todo refactor contactsDashboardManage...
   Drupal.behaviors.contactsDashboardManage = {
     attach: function attach(context) {
       var $context = $(context);
 
-      var $placeholders = $context.find('[data-contextual-id]').once('contextual-render');
+      var $placeholders = $context.find('[data-dnd-contacts-block-name]').once('contextual-render');
       if ($placeholders.length === 0) {
         return;
       }
 
       var ids = [];
       $placeholders.each(function () {
-        ids.push($(this).attr('data-contextual-id'));
+        ids.push($(this).attr('data-dnd-contacts-block-name'));
       });
 
-      var uncachedIDs = _.filter(ids, function (contextualID) {
-        var html = storage.getItem('Drupal.contactsManage.' + contextualID);
-        if (html && html.length) {
-          window.setTimeout(function () {
-            initDashboardManagge($context.find('[data-contextual-id="' + contextualID + '"]'), html);
-          });
-          return false;
+      _.each(ids, function (id) {
+        $placeholders = $context.find('[data-dnd-contacts-block-name="' + id + '"]');
+
+        for (var i = 0; i < $placeholders.length; i++) {
+          initDashboardManage($placeholders.eq(i));
         }
-        return true;
       });
+    }
+  };
 
-      if (uncachedIDs.length > 0) {
-        $.ajax({
-          url: Drupal.url('contextual/render'),
-          type: 'POST',
-          data: { 'ids[]': uncachedIDs },
-          dataType: 'json',
-          success: function success(results) {
-            _.each(results, function (html, contextualID) {
-              storage.setItem('Drupal.contactsManage.' + contextualID, html);
+  Drupal.behaviors.contactsDashboardManageToolbar = {
+    attach: function attach(context) {
+      var $context = $(context);
 
-              if (html.length > 0) {
-                $placeholders = $context.find('[data-contextual-id="' + contextualID + '"]');
-
-                for (var i = 0; i < $placeholders.length; i++) {
-                  initDashboardManagge($placeholders.eq(i), html);
-                }
-              }
-            });
-          }
-        });
+      var $placeholders = $context.find('.toolbar-dashboard-manage').once('toolbar-render');
+      if ($placeholders.length === 0) {
+        return;
       }
+
+      $placeholders.each(function () {
+        $(this).attr('data-ajax-url', '/admin/contacts/ajax/manage-mode/3/summary')
+
+        $(document).trigger('drupalManageTabAdded', {
+          $el: $(this)
+        });
+      });
     }
   };
 
   Drupal.contactsManage = {};
 
-  Drupal.theme.manageTrigger = function () {
-    return '<button class="trigger visually-hidden focusable" type="button"></button>';
+  Drupal.theme.manageTrigger = function (url) {
+    return '<button data-ajax-url="'+url+'" data-dialog-type="dialog" data-dialog-renderer="off_canvas" class="use-ajax trigger" type="button"></button>';
   };
 
   $(document).on('drupalManageLinkAdded', function (event, data) {
-    Drupal.ajax.bindAjaxLinks(data.$el[0]);
+    console.log(data.$el);
+    // Drupal.ajax.bindAjaxLinks(data.$el[0]);
+  });
+  $(document).on('drupalManageTabAdded', function (event, data) {
+    console.log(data.$el);
+    // Drupal.ajax.bindAjaxLinks(data.$el[0]);
   });
 })(jQuery, Drupal, drupalSettings, _, window.JSON, window.sessionStorage);

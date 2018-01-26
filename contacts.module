@@ -49,7 +49,6 @@ function contacts_theme() {
         'user' => NULL,
         'subpage' => NULL,
         'block' => [],
-        'configure_link' => NULL,
         'attributes' => [],
         'label' => '',
         'description' => '',
@@ -77,29 +76,14 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
 
   list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
 
+  $variables['attributes']['class'][] = 'dnd-block';
   $variables['attributes']['data-dnd-contacts-block-id'] = $variables['id'];
   $variables['attributes']['data-dnd-contacts-block-name'] = $configuration['name'];
+  $variables['attributes']['data-dnd-contacts-block-user'] = $variables['user'];
   $variables['attributes']['data-dnd-block-mode'] = $variables['mode'];
 
   switch ($variables['mode']) {
     case 'manage':
-      $variables['content']['configure_link'] = [
-        '#type' => 'link',
-        '#url' => Url::fromUri('internal:/'),
-        '#title' => t('Configure'),
-        '#options' => [
-          'attributes' => [
-            'class' => ['use-ajax'],
-            'data-ajax-url' => Url::fromRoute('contacts.ajax.manage_mode_configure_block', [
-              'user' => $variables['user'],
-              'subpage' => $variables['subpage'],
-              'block_name' => $configuration['name'],
-            ])->toString(),
-            'target' => '_blank',
-          ],
-        ],
-      ];
-
       $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
       $variables['content']['description'] = [
         '#type' => 'html_tag',
@@ -275,7 +259,7 @@ function contacts_toolbar() {
       '#tag' => 'button',
       '#value' => t('Manage'),
       '#attributes' => [
-        'class' => ['toolbar-icon', 'toolbar-icon-edit'],
+        'class' => ['toolbar-icon', 'toolbar-icon-edit', 'use-ajax', 'toolbar-dashboard-manage'],
         'aria-pressed' => 'false',
         'type' => 'button',
       ],
@@ -285,11 +269,11 @@ function contacts_toolbar() {
     '#wrapper_attributes' => [
       'class' => ['contacts-toolbar-tab'],
     ],
-//    '#attached' => [
-//      'library' => [
-//        'contextual/drupal.contextual-toolbar',
-//      ],
-//    ],
+    '#attached' => [
+      'library' => [
+        'contacts/dashboard.manage',
+      ],
+    ],
   ];
 
   return $items;

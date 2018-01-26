@@ -25,7 +25,7 @@
     
     if (response.activeTab) {
       $('.contacts-ajax-tabs .' + activeClass).removeClass(activeClass);
-      $('.contacts-ajax-tabs .' + response.activeTab).find('a').andSelf().addClass(activeClass);
+      $('.contacts-ajax-tabs .' + response.activeTab).find('a').addBack().addClass(activeClass);
     }
 
     if (response.url && historySupport) {

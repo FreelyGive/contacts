@@ -13,6 +13,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
+use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -142,16 +143,31 @@ class DashboardController extends ControllerBase {
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The title.
    */
-  public function offCanvasTitle($block) {
+  public function offCanvasTitle($block_name) {
     // https://www.drupal.org/node/2359901 is fixed.
 //    return $this->t('Configure @block', ['@block' => $block->getPlugin()->getPluginDefinition()['admin_label']]);
-    return $this->t('Configure @block', ['@block' => $block]);
+//    return $this->t('Configure @block', ['@block' => $block_name]);
+    return $this->t('Configure');
   }
 
-  public function offCanvasBlock(ContactTab $tab, $block) {
-    $block = $tab->getBlock($block);
+  public function offCanvasBlock(User $user, $subpage, $block_name) {
+    $tab = $this->tabManager->getTabByPath($user, $subpage);
+    if ($tab) {
+      $block_config = $tab->getBlock($block_name);
+      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
 
-    $content = [];
+      $content = [
+        '#theme' => 'contacts_dnd_card',
+        '#attributes' => [
+          'data-dnd-contacts-block-tab' => $tab->id(),
+        ],
+        '#id' => $block->getPluginId(),
+        '#block' => $block,
+        '#user' => $user->id(),
+        '#subpage' => $tab->id(),
+        '#mode' => 'configure',
+      ];
+    }
 
     // Prepend the content with system messages.
     $content['messages'] = [
