@@ -5,11 +5,12 @@ namespace Drupal\contacts\Controller;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
+use Drupal\contacts\Form\DashboardBlockConfigureForm;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -17,6 +18,7 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
+use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -78,14 +80,17 @@ class DashboardController extends ControllerBase {
    *   The path validator service.
    * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
    *   The context handler.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The form builder service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler, FormBuilderInterface $form_builder) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
     $this->state = $state;
     $this->request = $request_stack->getCurrentRequest();
     $this->pathValidator = $path_validator;
     $this->contextHandler = $context_handler;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -98,7 +103,8 @@ class DashboardController extends ControllerBase {
       $container->get('state'),
       $container->get('request_stack'),
       $container->get('path.validator'),
-      $container->get('context.handler')
+      $container->get('context.handler'),
+      $container->get('form_builder')
     );
   }
 
@@ -192,6 +198,51 @@ class DashboardController extends ControllerBase {
     }
 
     return FALSE;
+  }
+
+  /**
+   * Provides a title callback to get the block's admin label.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
+   * @param $block_name
+   *   The unique name of the block on the tab.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The title.
+   */
+  public function offCanvasTitle(ContactTab $tab, $block_name) {
+    if ($tab) {
+      $block_config = $tab->getBlock($block_name);
+      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+
+      return $this->t('Configure @block', [
+        '@block' => $block->getPluginDefinition()['admin_label']
+      ]);
+    }
+    return $this->t('Configure');
+  }
+
+  /**
+   * Renders the off Canvas configure form for a Dashboard block.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
+   * @param $block_name
+   *   The unique name of the block on the tab.
+   *
+   * @return array
+   *   The renderable block config form.
+   */
+  public function offCanvasBlock(ContactTab $tab, $block_name) {
+    $content = [];
+    if ($tab) {
+      $block_config = $tab->getBlock($block_name);
+      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+      $content = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $block);
+    }
+
+    return $content;
   }
 
   /**

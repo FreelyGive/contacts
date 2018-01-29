@@ -43,14 +43,14 @@ contacts.ajax.update_blocks:
   requirements:
     _permission: 'manage contacts dashboard'
 
-contacts.ajax.manage_mode_configure_block:
-  path: '/admin/contacts/ajax/manage-configure-block/{user}/{subpage}/{block_name}/{mode}'
+contacts.block.off_canvas_form:
+  path: '/admin/contacts/ajax/manage-off-canvas/{tab}/{block_name}'
   defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeConfigureBlock'
-    mode: 'configure'
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlock'
+    _title_callback: '\Drupal\contacts\Controller\DashboardController::offCanvasTitle'
   options:
     parameters:
-      user:
-        type: entity:user
+      tab:
+        type: entity:contact_tab
   requirements:
-    _permission: 'view contacts'
+    _permission: 'administer blocks'

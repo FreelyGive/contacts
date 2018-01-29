@@ -3,9 +3,6 @@
 namespace Drupal\contacts\Form;
 
 use Drupal\contacts\ContactsTabManager;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\RemoveCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -37,20 +34,6 @@ class DashboardBlockConfigureForm extends FormBase {
    * @var \Drupal\contacts\Entity\ContactTab
    */
   protected $tab;
-
-  /**
-   * The subpage machine name.
-   *
-   * @var string
-   */
-  protected $subpage;
-
-  /**
-   * The contact user object.
-   *
-   * @var \Drupal\user\Entity\User
-   */
-  protected $user;
 
   /**
    * The entity type manager.
@@ -109,9 +92,7 @@ class DashboardBlockConfigureForm extends FormBase {
 
     $configuration = $this->block->getConfiguration();
     $this->blockName = $configuration['name'];
-    $this->user = $this->getRouteMatch()->getParameter('user');
-    $this->subpage = $this->getRouteMatch()->getParameter('subpage');
-    $this->tab = $this->tabManager->getTabByPath($this->user, $this->subpage);
+    $this->tab = $this->getRouteMatch()->getParameter('tab');
 
     if (isset($form['settings']['admin_label'])) {
       unset($form['settings']['admin_label']);
@@ -125,13 +106,6 @@ class DashboardBlockConfigureForm extends FormBase {
       '#type' => 'submit',
       '#value' => 'Save',
       '#attributes' => ['class' => ['button--primary']],
-      '#ajax' => [
-        'callback' => [$this, 'updateBlock'],
-        'progress' => [
-          'type' => 'throbber',
-          'message' => "Updating...",
-        ],
-      ],
     ];
 
     $form['cancel'] = [
@@ -141,13 +115,6 @@ class DashboardBlockConfigureForm extends FormBase {
       '#limit_validation_errors' => [],
       '#attributes' => [
         'class' => ['btn', 'btn-outline-secondary'],
-      ],
-      '#ajax' => [
-        'callback' => [$this, 'updateBlock'],
-        'progress' => [
-          'type' => 'throbber',
-          'message' => "Updating...",
-        ],
       ],
     ];
 
@@ -182,53 +149,6 @@ class DashboardBlockConfigureForm extends FormBase {
    */
   public function cancelBlock(array &$form, FormStateInterface $form_state) {
     // Do nothing.
-  }
-
-  /**
-   * AJAX response callback to update form markup.
-   *
-   * @param array $form
-   *   Drupal form array.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Drupal form state.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   Ajax response to update markup.
-   */
-  public function updateBlock(array $form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-
-    $block_content = [
-      '#theme' => 'contacts_dnd_card',
-      '#attributes' => [
-        'data-contacts-manage-block-tab' => $this->tab->id(),
-      ],
-      '#id' => $this->block->getPluginId(),
-      '#block' => $this->block,
-      '#user' => $this->user->id(),
-      '#subpage' => $this->subpage,
-      '#mode' => 'manage',
-    ];
-
-    $response->addCommand(new ReplaceCommand("div[data-contacts-manage-block-name='{$this->blockName}'][data-contacts-manage-block-mode!='meta']", $block_content));
-    return $response;
-  }
-
-  /**
-   * AJAX response callback to update form markup.
-   *
-   * @param array $form
-   *   Drupal form array.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Drupal form state.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   Ajax response to update markup.
-   */
-  public function removeBlock(array $form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-    $response->addCommand(new RemoveCommand("div[data-contacts-manage-block-name='{$this->blockName}'][data-contacts-manage-block-mode!='meta']"));
-    return $response;
   }
 
 }
