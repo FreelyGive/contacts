@@ -18,6 +18,7 @@ use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Plugin\PluginBase;
 
 /**
  * Implements hook_theme().
@@ -40,7 +41,73 @@ function contacts_theme() {
       'base hook' => 'user',
       'template' => 'user--contacts-dashboard-row-small',
     ],
+    'contacts_dnd_card' => [
+      'variables' => [
+        'id' => NULL,
+        'mode' => NULL,
+        'user' => NULL,
+        'subpage' => NULL,
+        'block' => [],
+        'attributes' => [],
+        'label' => '',
+        'description' => '',
+      ],
+      'template' => 'contacts-dnd-card',
+    ],
   ];
+}
+
+/**
+ * Prepares variables for contacts drag and drop cards.
+ *
+ * Default template: contacts-dnd-card.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_dnd_card(array &$variables) {
+  /* @var \Drupal\Core\Block\BlockManager $block_manager */
+  $block_manager = \Drupal::service('plugin.manager.block');
+  $definition = $block_manager->getDefinition($variables['id']);
+  $configuration = $variables['block']->getConfiguration();
+
+  list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
+
+  $variables['attributes']['class'][] = 'dnd-block';
+  $variables['attributes']['data-dnd-contacts-block-id'] = $variables['id'];
+  $variables['attributes']['data-dnd-contacts-block-name'] = $configuration['name'];
+  $variables['attributes']['data-dnd-contacts-block-user'] = $variables['user'];
+  $variables['attributes']['data-dnd-block-mode'] = $variables['mode'];
+
+  switch ($variables['mode']) {
+    case 'manage':
+      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+      $variables['content']['description'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'strong',
+        '#value' => $variables['description'],
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+      ];
+
+      if ($variables['block_plugin'] == 'contacts_entity') {
+        $variables['entity'] = $definition['_entity_type_id'];
+        $variables['bundle'] = $definition['_bundle_id'];
+        $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'];
+        $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
+
+        $variables['footer']['links'] = [
+          '#theme' => 'item_list',
+          '#list_type' => 'ul',
+          '#items' => $variables['block']->getManageLinks(),
+        ];
+      }
+      break;
+  }
+
+  $variables['attributes'] = new Attribute($variables['attributes']);
 }
 
 /**
@@ -159,6 +226,52 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
   }
+}
+
+/**
+ * Implements hook_toolbar().
+ */
+function contacts_toolbar() {
+  $items = [];
+  $items['manage_mode'] = [
+    '#cache' => [
+      'contexts' => [
+        'user.permissions',
+      ],
+    ],
+  ];
+
+  if (!\Drupal::currentUser()->hasPermission('administer contacts')) {
+    return $items;
+  }
+
+  $items['manage_mode'] += [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'html_tag',
+      '#tag' => 'button',
+      '#value' => t('Manage Dashboard'),
+      '#attributes' => [
+        'class' => [
+          'toolbar-icon',
+          'toolbar-icon-edit',
+          'toolbar-dashboard-manage',
+        ],
+        'aria-pressed' => 'false',
+        'type' => 'button',
+      ],
+    ],
+    'tray' => [],
+
+    '#wrapper_attributes' => [
+      'class' => [
+        'contacts-toolbar-tab',
+        'visually-hidden',
+      ],
+    ],
+  ];
+
+  return $items;
 }
 
 /**

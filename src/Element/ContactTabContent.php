@@ -22,6 +22,7 @@ use Drupal\Core\Render\Element\RenderElement;
  *   '#tab' => $tab,
  *   '#subpage' => 'example',
  *   '#user' => $user,
+ *   '#manage_mode' => TRUE,
  * ];
  * @endcode
  *
@@ -50,6 +51,7 @@ class ContactTabContent extends RenderElement {
     $class = get_class($this);
     return [
       '#attributes' => [],
+      '#region_attributes' => [],
       '#not_found' => $this->t('Page not found.'),
       '#pre_render' => [
         [$class, 'preRenderTabContent'],
@@ -83,25 +85,42 @@ class ContactTabContent extends RenderElement {
       $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // @todo fix weight.
-        $block_content = [
-          '#theme' => 'block',
-          '#attributes' => [],
-          '#configuration' => $block->getConfiguration(),
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#weight' => $block->getConfiguration()['weight'],
-          'content' => $block->build(),
-        ];
-
-        // Add edit link to title.
-        if ($block instanceof DashboardBlockInterface) {
-          $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
-          $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
+        // For some reason build() brings in the theme hooks required...
+        $content = $block->build();
+        if ($element['#manage_mode']) {
+          $block_content = [
+            '#theme' => 'contacts_dnd_card',
+            '#attributes' => [
+              'data-dnd-contacts-block-tab' => $element['#tab']->id(),
+            ],
+            '#id' => $block->getPluginId(),
+            '#block' => $block,
+            '#user' => $element['#user']->id(),
+            '#subpage' => $element['#subpage'],
+            '#mode' => 'manage',
+          ];
         }
+        else {
+          // @todo fix weight.
+          $block_content = [
+            '#theme' => 'block',
+            '#attributes' => [],
+            '#configuration' => $block->getConfiguration(),
+            '#plugin_id' => $block->getPluginId(),
+            '#base_plugin_id' => $block->getBaseId(),
+            '#derivative_plugin_id' => $block->getDerivativeId(),
+            '#weight' => $block->getConfiguration()['weight'],
+            'content' => $content,
+          ];
 
-        $block_content['content']['#title'] = $block->label();
+          // Add edit link to title.
+          if ($block instanceof DashboardBlockInterface) {
+            $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
+            $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
+          }
+
+          $block_content['content']['#title'] = $block->label();
+        }
         $regions[$block->getConfiguration()['region']][] = $block_content;
       }
 

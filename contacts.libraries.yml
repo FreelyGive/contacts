@@ -14,6 +14,7 @@ tabs:
     - core/jquery
     - core/drupal.ajax
     - contacts/drupal.ajax
+    - contacts/dashboard.manage
 
 # Make views rows linkable.
 views.linkrow:
@@ -46,6 +47,23 @@ dashboard.layout:
   css:
     layout:
       css/dashboard-layout.css: {}
+
+# Contacts dashboard management.
+dashboard.manage:
+  js:
+    # Ensure to run before contextual/drupal.context-toolbar.
+    # Core.
+    js/dashboard.manage.js: { weight: -2 }
+  css:
+    theme:
+      css/dashboard.manage.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupalSettings
+    - core/underscore
+    - core/jquery.once
 
 # Styling for the listings.
 listings:

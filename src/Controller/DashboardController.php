@@ -9,9 +9,11 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,10 +42,13 @@ class DashboardController extends ControllerBase {
    *   The tab manager.
    * @param \Drupal\Core\Block\BlockManager $block_manager
    *   The block plugin manager.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
+    $this->stateService = $state;
   }
 
   /**
@@ -52,7 +57,8 @@ class DashboardController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('contacts.tab_manager'),
-      $container->get('plugin.manager.block')
+      $container->get('plugin.manager.block'),
+      $container->get('state')
     );
   }
 
@@ -79,10 +85,11 @@ class DashboardController extends ControllerBase {
       '#type' => 'container',
       'content' => [
         '#type' => 'contact_tab_content',
-        '#attributes' => ['class' => ['dash-content']],
         '#subpage' => $subpage,
         '#user' => $user,
-        '#tab' => $this->tabManager->getTabByPath($user, $subpage),
+        '#tab' => $this->tabManager->getTabByPath($subpage, $user),
+        '#manage_mode' => $this->state()->get('manage_mode'),
+        '#attributes' => ['class' => ['dash-content']],
       ],
     ];
 
@@ -102,6 +109,38 @@ class DashboardController extends ControllerBase {
   }
 
   /**
+   * Return the AJAX command for changing tab.
+   *
+   * @param bool|null $manage_mode
+   *   The user we are viewing.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageMode($manage_mode = NULL) {
+    if (is_null($manage_mode)) {
+      // Toggle manage mode.
+      $manage_mode = $this->state()->get('manage_mode');
+    }
+
+    $referer = \Drupal::request()->server->get('HTTP_REFERER');
+    $fake_request = Request::create($referer);
+
+    /* @var \Drupal\Core\Url $url_object */
+    $url_object = \Drupal::service('path.validator')->getUrlIfValid($fake_request->getRequestUri());
+    if ($url_object) {
+      $this->state()->set('manage_mode', !$manage_mode);
+
+      $route_params = $url_object->getRouteParameters();
+      /* @var \Drupal\user\UserInterface $contact */
+      $contact = $this->entityTypeManager()->getStorage('user')->load($route_params['user']);
+      return $this->ajaxTab($contact, $route_params['subpage']);
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Add a block to a tab.
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
@@ -112,7 +151,7 @@ class DashboardController extends ControllerBase {
    * @return mixed
    *   The block configuration array or FALSE if adding failed.
    */
-  public function addBlock(ContactTab &$tab, $block_config) {
+  public function ajaxAddBlock(ContactTab &$tab, $block_config) {
     if (empty($block_config['id'])) {
       // @todo Throw error - cannot create block without ID.
       return FALSE;
@@ -147,7 +186,7 @@ class DashboardController extends ControllerBase {
    * @return \Symfony\Component\HttpFoundation\Response
    *   The response.
    */
-  public function updateBlocks() {
+  public function ajaxUpdateBlocks() {
     /* @var \Drupal\contacts\Entity\ContactTab $tab */
     $regions = \Drupal::request()->request->get('regions');
     $tab = \Drupal::request()->request->get('tab');
@@ -176,7 +215,7 @@ class DashboardController extends ControllerBase {
         }
         else {
           // Add a new block.
-          if ($this->addBlock($tab, $block)) {
+          if ($this->ajaxAddBlock($tab, $block)) {
             $changed = TRUE;
           }
         }

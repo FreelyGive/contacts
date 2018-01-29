@@ -101,7 +101,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTab(UserInterface $contact, $id) {
+  public function getTab($id, UserInterface $contact = NULL) {
     /* @var \Drupal\contacts\Entity\ContactTabInterface $tab */
     $tab = $this->entityTypeManager->getStorage('contact_tab')->load($id);
 
@@ -116,11 +116,12 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTabByPath(UserInterface $contact, $path) {
+  public function getTabByPath($path, UserInterface $contact = NULL) {
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['path' => $path]);
     $tab = reset($tabs);
 
-    if ($tab) {
+    // Check this tab is valid for the contact.
+    if ($tab && $this->verifyTab($tab, $contact)) {
       return $tab;
     }
 
@@ -130,7 +131,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTabs(UserInterface $contact) {
+  public function getTabs(UserInterface $contact = NULL) {
     // Load all our active tabs.
     /* @var \Drupal\contacts\Entity\ContactTabInterface[] $tabs */
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['status' => TRUE]);
@@ -215,7 +216,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function verifyTab(ContactTabInterface $tab, UserInterface $contact, array $blocks = []) {
+  public function verifyTab(ContactTabInterface $tab, UserInterface $contact = NULL, array $blocks = []) {
     // Get the block if we don't already have it.
     if (empty($blocks)) {
       $blocks = $this->getBlocks($tab, $contact, FALSE);
@@ -231,7 +232,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       /* @var $block \Drupal\Core\Block\BlockPluginInterface */
       if (!isset($block->_contactTabVerified)) {
         // Check access on the block.
-        if (!$block->access($this->currentUser)) {
+        if ($contact && !$block->access($this->currentUser)) {
           $block->_contactTabVerified = FALSE;
           continue;
         }
