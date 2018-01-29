@@ -5,11 +5,11 @@
 
 /* Tab appearance. */
 .toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
-    float: right; /* LTR */
+  float: right; /* LTR */
 }
 [dir="rtl"] .toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
-    float: left;
+  float: left;
 }
 .toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {
-    margin: 0;
+  margin: 0;
 }
