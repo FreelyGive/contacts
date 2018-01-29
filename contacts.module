@@ -251,9 +251,13 @@ function contacts_toolbar() {
     'tab' => [
       '#type' => 'html_tag',
       '#tag' => 'button',
-      '#value' => t('Manage'),
+      '#value' => t('Manage Dashboard'),
       '#attributes' => [
-        'class' => ['toolbar-icon', 'toolbar-icon-edit', 'toolbar-dashboard-manage'],
+        'class' => [
+          'toolbar-icon',
+          'toolbar-icon-edit',
+          'toolbar-dashboard-manage',
+        ],
         'aria-pressed' => 'false',
         'type' => 'button',
       ],
@@ -261,11 +265,9 @@ function contacts_toolbar() {
     'tray' => [],
 
     '#wrapper_attributes' => [
-      'class' => ['contacts-toolbar-tab'],
-    ],
-    '#attached' => [
-      'library' => [
-        'contacts/dashboard.manage',
+      'class' => [
+        'contacts-toolbar-tab',
+        'visually-hidden',
       ],
     ],
   ];

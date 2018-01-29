@@ -139,7 +139,9 @@ class DashboardController extends ControllerBase {
       $this->state()->set('manage_mode', !$manage_mode);
 
       $route_params = $url_object->getRouteParameters();
-      return $this->ajaxTab(User::load($route_params['user']), $route_params['subpage']);
+      /* @var \Drupal\user\UserInterface $contact */
+      $contact = $this->entityTypeManager()->getStorage('user')->load($route_params['user']);
+      return $this->ajaxTab($contact, $route_params['subpage']);
     }
 
     return FALSE;

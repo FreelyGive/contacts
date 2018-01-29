@@ -48,3 +48,18 @@
     box-shadow: none;
     z-index: 2;
 }
+
+/**
+ * Styling for contacts module's toolbar tab.
+ */
+
+/* Tab appearance. */
+.toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
+    float: right; /* LTR */
+}
+[dir="rtl"] .toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
+    float: left;
+}
+.toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {
+    margin: 0;
+}
