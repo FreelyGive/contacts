@@ -38,7 +38,7 @@
     "patches": {
       "drupal/core": {
         "#2865059: Multiple machine name elements from same source": "https://www.drupal.org/files/issues/2865059-13-allow_multiple_machine_name_per_source.patch",
-        "#736066: ajax.js insert command sometimes wraps content in a div": "https://www.drupal.org/files/issues/736066-259.patch"
+        "#736066: ajax.js insert command sometimes wraps content in a div": "https://www.drupal.org/files/issues/736066-296.patch"
       },
       "drupal/ctools": {
         "#2667652: Option to expose filters in block on views block display": "https://www.drupal.org/files/issues/ctools-option_to_expose-2667652-3.patch",
