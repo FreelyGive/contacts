@@ -21,7 +21,8 @@
     "drupal/facets": "1.x-dev",
     "drupal/decoupled_auth": "1.x-dev",
     "drupal/contacts_theme": "1.x-dev",
-    "drupal/ctools": "~3.0-beta1"
+    "drupal/ctools": "~3.0-beta1",
+    "drupal/color_field": "~2.0-rc1"
   },
   "autoload": {
     "psr-4": {
