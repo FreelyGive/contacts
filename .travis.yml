@@ -20,17 +20,21 @@ env:
     # DRUPAL_TI Testing.
     - SIMPLETEST_DB="mysql://root:@localhost/drupal_travis_db"
     - SIMPLETEST_BASE_URL="http://localhost:8888"
+    # Ignore deprecation warnings.
+    - SYMFONY_DEPRECATIONS_HELPER=weak
 
   matrix:
     # Latest stable release
-    - DRUPAL_CORE="~8.0@stable"
-    # Latest dev branch
-    - DRUPAL_CORE="8.4.x-dev"
+    - DRUPAL_CORE="~8.5@alpha"
+    # Latest current dev branche
+    - DRUPAL_CORE="8.5.x-dev@dev"
+    # Latest future dev branch
+    - DRUPAL_CORE="8.6.x-dev@dev"
 
 matrix:
   fast_finish: true
   allow_failures:
-    - env DRUPAL_CORE="~8.0@dev"
+    - env DRUPAL_CORE="8.6.x-dev@dev"
 
 mysql:
   database: drupal_travis_db
