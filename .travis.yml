@@ -20,6 +20,8 @@ env:
     # DRUPAL_TI Testing.
     - SIMPLETEST_DB="mysql://root:@localhost/drupal_travis_db"
     - SIMPLETEST_BASE_URL="http://localhost:8888"
+    # Ignore deprecation warnings.
+    - SYMFONY_DEPRECATIONS_HELPER=weak
 
   matrix:
     # Latest stable release
