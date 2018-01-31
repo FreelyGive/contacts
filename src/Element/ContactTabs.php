@@ -122,12 +122,6 @@ class ContactTabs extends RenderElement {
     return $element;
   }
 
-
-  function test() {
-
-
-  }
-
   /**
    * Gets the tab manager service.
    *

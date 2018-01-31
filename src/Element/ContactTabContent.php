@@ -70,8 +70,8 @@ class ContactTabContent extends RenderElement {
    */
   public static function preRenderTabContent(array $element) {
     $tab_manager = static::getTabManager();
-    // Check this tab is valid for the contact.
 
+    // Verify tab if necesary.
     if (!$element['#manage_mode']) {
       $tab_manager->verifyTab($element['#tab'], $element['#user']);
     }

@@ -6,7 +6,6 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
-use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Session\AccountProxy;
