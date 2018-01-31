@@ -23,14 +23,14 @@ env:
 
   matrix:
     # Latest stable release
-    - DRUPAL_CORE="~8.0@stable"
+    - DRUPAL_CORE="~8.0@alpha"
     # Latest dev branch
-    - DRUPAL_CORE="8.5.x-dev"
+    - DRUPAL_CORE="8.5.x-dev@dev"
 
 matrix:
   fast_finish: true
   allow_failures:
-    - env DRUPAL_CORE="~8.0@dev"
+    - env DRUPAL_CORE="8.5.x-dev@dev"
 
 mysql:
   database: drupal_travis_db
