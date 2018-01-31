@@ -82,7 +82,7 @@ class ContactTabContent extends RenderElement {
         $regions[$region] = [];
       }
 
-      $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
+      $blocks = $tab_manager->getBlocks($element['#tab'], TRUE, $element['#user']);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         // For some reason build() brings in the theme hooks required...

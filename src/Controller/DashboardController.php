@@ -87,7 +87,7 @@ class DashboardController extends ControllerBase {
         '#type' => 'contact_tab_content',
         '#subpage' => $subpage,
         '#user' => $user,
-        '#tab' => $this->tabManager->getTabByPath($subpage, $user),
+        '#tab' => $this->tabManager->getTabByPath($subpage),
         '#manage_mode' => $this->state()->get('manage_mode'),
         '#attributes' => ['class' => ['dash-content']],
       ],

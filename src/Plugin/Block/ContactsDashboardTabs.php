@@ -9,6 +9,7 @@ use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Session\AccountProxy;
 
 /**
  * Provides a block to view contact dashboard tabs.
@@ -34,6 +35,13 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    * @var \Drupal\Core\State\StateInterface
    */
   protected $stateService;
+
+  /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountProxy;
+   */
+  protected $currentUser;
 
   /**
    * Whether we are building tabs via AJAX.
@@ -69,11 +77,14 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   The tab manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Drupal\Core\Session\AccountProxy $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, StateInterface $state) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ContactsTabManager $tab_manager, StateInterface $state, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->tabManager = $tab_manager;
     $this->stateService = $state;
+    $this->currentUser = $current_user;
     $this->ajax = TRUE;
   }
 
@@ -86,7 +97,8 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       $plugin_id,
       $plugin_definition,
       $container->get('contacts.tab_manager'),
-      $container->get('state')
+      $container->get('state'),
+      $container->get('current_user')
     );
   }
 
@@ -124,7 +136,12 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       ],
     ];
 
-    foreach ($this->tabManager->getTabs($this->user) as $tab) {
+    // Show manage link if user has permission.
+    if ($this->currentUser->hasPermission('manage contacts dashboard')) {
+      $content['attached']['library'][] = 'contacts/dashboard.manage';
+    }
+
+    foreach ($this->tabManager->getTabs() as $tab) {
       $url_stub = $tab->getPath();
       $content['#tabs'][$url_stub] = [
         'text' => $tab->label(),
@@ -168,7 +185,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
       '#type' => 'contact_tab_content',
-      '#tab' => $this->tabManager->getTabByPath($this->subpage, $this->user),
+      '#tab' => $this->tabManager->getTabByPath($this->subpage),
       '#user' => $this->user,
       '#subpage' => $this->subpage,
       '#manage_mode' => $this->stateService->get('manage_mode'),

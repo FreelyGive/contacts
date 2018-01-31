@@ -241,7 +241,7 @@ function contacts_toolbar() {
     ],
   ];
 
-  if (!\Drupal::currentUser()->hasPermission('administer contacts')) {
+  if (!\Drupal::currentUser()->hasPermission('manage contacts dashboard')) {
     return $items;
   }
 
@@ -262,7 +262,6 @@ function contacts_toolbar() {
       ],
     ],
     'tray' => [],
-
     '#wrapper_attributes' => [
       'class' => [
         'contacts-toolbar-tab',

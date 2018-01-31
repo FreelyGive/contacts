@@ -14,7 +14,6 @@ tabs:
     - core/jquery
     - core/drupal.ajax
     - contacts/drupal.ajax
-    - contacts/dashboard.manage
 
 # Make views rows linkable.
 views.linkrow:

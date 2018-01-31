@@ -34,11 +34,11 @@ contacts.ajax.manage_mode:
   defaults:
     _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageMode'
   requirements:
-    _permission: 'administer contacts'
+    _permission: 'manage contacts dashboard'
 
 contacts.ajax.update_blocks:
   path: '/admin/contacts/ajax/update-layout'
   defaults:
     _controller: '\Drupal\contacts\Controller\DashboardController::ajaxUpdateBlocks'
   requirements:
-    _permission: 'administer contacts'
+    _permission: 'manage contacts dashboard'

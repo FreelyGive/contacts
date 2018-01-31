@@ -3,6 +3,10 @@ administer contacts:
   description: 'Configure the contacts dashboard and related settings.'
   restrict access: TRUE
 
+manage contacts dashboard:
+  title: 'Manage contacts dashboard'
+  description: 'Add, remove and rearrange dashboard tab content.'
+
 view contacts:
   title: 'View contacts'
   description: 'View contacts via the Contact Dashboard.'
