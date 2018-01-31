@@ -25,7 +25,7 @@ env:
     # Latest stable release
     - DRUPAL_CORE="~8.0@stable"
     # Latest dev branch
-    - DRUPAL_CORE="8.4.x-dev"
+    - DRUPAL_CORE="8.5.x-dev"
 
 matrix:
   fast_finish: true
