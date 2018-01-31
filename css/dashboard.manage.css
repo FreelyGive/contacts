@@ -4,10 +4,10 @@
  */
 
 /* Tab appearance. */
-.toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
+.toolbar .toolbar-bar .contacts-toolbar-tab {
   float: right; /* LTR */
 }
-[dir="rtl"] .toolbar .toolbar-bar .contacts-toolbar-tab.toolbar-tab {
+[dir="rtl"] .toolbar .toolbar-bar .contacts-toolbar-tab {
   float: left;
 }
 .toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {

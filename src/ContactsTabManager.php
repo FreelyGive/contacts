@@ -213,7 +213,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
    * {@inheritdoc}
    */
   public function verifyTab(ContactTabInterface $tab, UserInterface $contact) {
-    $blocks = $this->getBlocks($tab);
+    $blocks = $this->getBlocks($tab, TRUE, $contact);
 
     if (empty($blocks)) {
       return FALSE;

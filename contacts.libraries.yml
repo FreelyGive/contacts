@@ -59,7 +59,7 @@ dashboard.manage:
   dependencies:
     - core/jquery
     - core/drupal
-    - core/drupal.ajax
+    - contacts/drupal.ajax
     - core/drupalSettings
     - core/underscore
     - core/jquery.once

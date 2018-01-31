@@ -71,7 +71,13 @@ class ContactTabContent extends RenderElement {
   public static function preRenderTabContent(array $element) {
     $tab_manager = static::getTabManager();
     // Check this tab is valid for the contact.
-    if ($element['#tab'] && $tab_manager->verifyTab($element['#tab'], $element['#user'])) {
+
+    if (!$element['#manage_mode']) {
+      $tab_manager->verifyTab($element['#tab'], $element['#user']);
+    }
+
+    $blocks = $tab_manager->getBlocks($element['#tab'], !$element['#manage_mode'], $element['#user']);
+    if (!empty($blocks)) {
       $layout = $element['#tab']->get('layout') ?: 'contacts_tab_content.stacked';
       $layout_manager = static::getLayoutManager();
       $layoutInstance = $layout_manager->createInstance($layout, []);
@@ -82,7 +88,6 @@ class ContactTabContent extends RenderElement {
         $regions[$region] = [];
       }
 
-      $blocks = $tab_manager->getBlocks($element['#tab'], TRUE, $element['#user']);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         // For some reason build() brings in the theme hooks required...

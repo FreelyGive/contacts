@@ -81,6 +81,20 @@ class DashboardController extends ControllerBase {
       'subpage' => $subpage,
     ]);
 
+    // Get the manage mode state.
+    $manage_mode = $this->state()->get('manage_mode');
+
+    $tabs = [
+      '#type' => 'container',
+      'content' => [
+        '#type' => 'contact_tabs',
+        '#ajax' => TRUE,
+        '#subpage' => $subpage,
+        '#user' => $user,
+        '#manage_mode' => $manage_mode,
+      ],
+    ];
+
     $content = [
       '#type' => 'container',
       'content' => [
@@ -88,7 +102,7 @@ class DashboardController extends ControllerBase {
         '#subpage' => $subpage,
         '#user' => $user,
         '#tab' => $this->tabManager->getTabByPath($subpage),
-        '#manage_mode' => $this->state()->get('manage_mode'),
+        '#manage_mode' => $manage_mode,
         '#attributes' => ['class' => ['dash-content']],
       ],
     ];
@@ -103,6 +117,7 @@ class DashboardController extends ControllerBase {
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
     $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
+    $response->addCommand(new HtmlCommand('#contacts-tabs', $tabs));
 
     // Return ajax response.
     return $response;

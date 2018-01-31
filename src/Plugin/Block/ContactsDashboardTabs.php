@@ -125,53 +125,16 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    */
   public function buildTabs(array &$build) {
     // @TODO Permission check.
-
-    // Build content array.
-    $content = [
-      '#theme' => 'contacts_dash_tabs',
-      '#weight' => -1,
-      '#tabs' => [],
-      '#attached' => [
-        'library' => ['contacts/tabs'],
-      ],
+    $build['tabs'] = [
+      '#prefix' => '<div id="contacts-tabs" class="contacts-tabs">',
+      '#suffix' => '</div>',
+      '#type' => 'contact_tabs',
+      '#ajax' => $this->ajax,
+      '#user' => $this->user,
+      '#subpage' => $this->subpage,
+      '#manage_mode' => $this->stateService->get('manage_mode'),
+      '#attributes' => ['class' => ['dash-content']],
     ];
-
-    // Show manage link if user has permission.
-    if ($this->currentUser->hasPermission('manage contacts dashboard')) {
-      $content['attached']['library'][] = 'contacts/dashboard.manage';
-    }
-
-    foreach ($this->tabManager->getTabs() as $tab) {
-      $url_stub = $tab->getPath();
-      $content['#tabs'][$url_stub] = [
-        'text' => $tab->label(),
-        'link' => Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
-          'user' => $this->user->id(),
-          'subpage' => $url_stub,
-        ]),
-      ];
-
-      // Swap links for AJAX request links.
-      if ($this->ajax) {
-        $content['#tabs'][$url_stub]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
-          'user' => $this->user->id(),
-          'subpage' => $url_stub,
-        ])->toString();
-        $content['#tabs'][$url_stub]['link_attributes']['class'][] = 'use-ajax';
-        $content['#tabs'][$url_stub]['link_attributes']['data-ajax-progress'] = 'fullscreen';
-      }
-
-      // Add tab id to attributes.
-      $content['#tabs'][$url_stub]['link_attributes']['data-contacts-tab-id'] = $tab->getOriginalId();
-    }
-
-    // Add active class to current tab.
-    if (isset($content['#tabs'][$this->subpage])) {
-      $content['#tabs'][$this->subpage]['attributes']['class'][] = 'is-active';
-      $content['#tabs'][$this->subpage]['link_attributes']['class'][] = 'is-active';
-    }
-
-    $build['tabs'] = $content;
   }
 
   /**
