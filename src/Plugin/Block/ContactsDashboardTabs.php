@@ -39,7 +39,7 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
   /**
    * The current user service.
    *
-   * @var \Drupal\Core\Session\AccountProxy;
+   * @var \Drupal\Core\Session\AccountProxy
    */
   protected $currentUser;
 

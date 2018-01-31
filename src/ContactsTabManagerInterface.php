@@ -57,7 +57,7 @@ interface ContactsTabManagerInterface {
    */
   public function getBlocks(ContactTabInterface $tab, $apply_context = FALSE, UserInterface $contact = NULL);
 
-    /**
+  /**
    * Verify that a tab is valid for the given contact.
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
