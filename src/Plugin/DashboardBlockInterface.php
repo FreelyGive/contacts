@@ -28,4 +28,12 @@ interface DashboardBlockInterface {
    */
   public function getEditLink($mode);
 
+  /**
+   * Process the render array for a manage block.
+   *
+   * @param array $variables
+   *   Render array variables.
+   */
+  public function processDragMode(array &$variables);
+
 }

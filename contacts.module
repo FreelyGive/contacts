@@ -19,6 +19,7 @@ use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Plugin\PluginBase;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 
 /**
  * Implements hook_theme().
@@ -68,9 +69,6 @@ function contacts_theme() {
  *   - region_attributes: HTML markup attributes for the content wrapper.
  */
 function template_preprocess_contacts_dnd_card(array &$variables) {
-  /* @var \Drupal\Core\Block\BlockManager $block_manager */
-  $block_manager = \Drupal::service('plugin.manager.block');
-  $definition = $block_manager->getDefinition($variables['id']);
   $configuration = $variables['block']->getConfiguration();
 
   list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
@@ -92,17 +90,8 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
         '#suffix' => '</div>',
       ];
 
-      if ($variables['block_plugin'] == 'contacts_entity') {
-        $variables['entity'] = $definition['_entity_type_id'];
-        $variables['bundle'] = $definition['_bundle_id'];
-        $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'];
-        $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
-
-        $variables['footer']['links'] = [
-          '#theme' => 'item_list',
-          '#list_type' => 'ul',
-          '#items' => $variables['block']->getManageLinks(),
-        ];
+      if ($variables['block'] instanceof DashboardBlockInterface) {
+        $variables['block']->processDragMode($variables);
       }
       break;
   }
