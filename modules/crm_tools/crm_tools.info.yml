@@ -5,4 +5,4 @@ type: module
 core: 8.x
 
 dependencies:
-  - color_field:color_field (>=8.2.0)
+  - color_field:color_field (>=8.x-2.0-rc1)
