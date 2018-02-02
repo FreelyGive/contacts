@@ -13,7 +13,6 @@ use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\user\EntityOwnerInterface;
@@ -55,13 +54,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $formBuilder;
 
   /**
-   * The current route match.
-   *
-   * @var \Drupal\Core\Routing\CurrentRouteMatch
-   */
-  protected $routeMatch;
-
-  /**
    * The current request.
    *
    * @var \Symfony\Component\HttpFoundation\Request
@@ -89,7 +81,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     return new static($configuration, $plugin_id, $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
-      $container->get('current_route_match'),
       $container->get('request_stack'),
       $container->get('current_user'),
       $container->get('plugin.manager.block')
@@ -109,8 +100,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $form_builder
    *   The entity form builder.
-   * @param \Drupal\Core\Routing\CurrentRouteMatch $route_match
-   *   The current route match.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    * @param \Drupal\Core\Session\AccountProxy $current_user
@@ -118,11 +107,10 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * @param \Drupal\Core\Block\BlockManager $block_manager
    *   The block manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, AccountProxy $current_user, BlockManager $block_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user, BlockManager $block_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
-    $this->routeMatch = $route_match;
     $this->request = $request_stack->getCurrentRequest();
     $this->currentUser = $current_user;
     $this->blockManager = $block_manager;
@@ -186,7 +174,10 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
-    $params = $this->routeMatch->getRawParameters()->all();
+    $params = [
+      'user' => $this->getContextValue('user')->id(),
+      'subpage' => $this->getContextValue('subpage'),
+    ];
 
     if (empty($params['user']) || empty($params['subpage'])) {
       return FALSE;
@@ -373,11 +364,12 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    */
   protected function buildForm(EntityInterface $entity) {
     // Manually build our action and redirect.
-    $route_name = $this->routeMatch->getRouteName();
-    if ($route_name == 'contacts.ajax_subpage') {
-      $route_name = 'page_manager.page_view_contacts_dashboard_contact';
-    }
-    $route_params = $this->routeMatch->getRawParameters()->all();
+    $route_name = 'page_manager.page_view_contacts_dashboard_contact';
+    $route_params = [
+      'user' => $this->getContextValue('user')->id(),
+      'subpage' => $this->getContextValue('subpage'),
+    ];
+
     $options = ['query' => $this->request->query->all()];
     // @see \Drupal\Core\Form\FormBuilder::buildFormAction.
     unset($options['query'][FormBuilder::AJAX_FORM_REQUEST], $options['query'][MainContentViewSubscriber::WRAPPER_FORMAT]);

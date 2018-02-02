@@ -194,6 +194,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
           // Build our contexts.
           $contexts = [
             'user' => new Context(new ContextDefinition('entity:user'), $contact),
+            'subpage' => new Context(new ContextDefinition('string'), $tab->getPath()),
           ];
 
           // Gather any relationships.
