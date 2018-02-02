@@ -210,13 +210,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   /**
    * {@inheritdoc}
    */
-  public function processDragMode(array &$variables) {
+  public function processManageMode(array &$variables) {
     $definition = $this->blockManager->getDefinition($variables['id']);
 
     $variables['entity'] = $definition['_entity_type_id'];
     $variables['bundle'] = $definition['_bundle_id'];
-    $variables['attributes']['data-dnd-contacts-entity-type'] = $variables['entity'];
-    $variables['attributes']['data-dnd-contacts-entity-bundle'] = $variables['bundle'];
+    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'];
+    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'];
 
     $variables['footer']['links'] = [
       '#theme' => 'item_list',

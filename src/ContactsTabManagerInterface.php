@@ -45,24 +45,21 @@ interface ContactsTabManagerInterface {
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab entity to retrieve the blocks for.
-   * @param bool $apply_context
-   *   Whether to apply context mappings to the block plugins. This require the
-   *   contact for context. Defaults to TRUE.
    * @param \Drupal\user\UserInterface|null $contact
-   *   (Optional) The contact we are retrieving the tab for. Required if we are
-   *   applying block contexts.
+   *   (Optional) The contact we are retrieving the tab for. Providing the user
+   *   will apply block contexts.
    *
    * @return \Drupal\Core\Block\BlockPluginInterface[]
    *   The tab block plugins array.
    */
-  public function getBlocks(ContactTabInterface $tab, $apply_context = FALSE, UserInterface $contact = NULL);
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL);
 
   /**
    * Verify that a tab is valid for the given contact.
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab.
-   * @param \Drupal\user\UserInterface| $contact
+   * @param \Drupal\user\UserInterface $contact
    *   The contact to verify against.
    *
    * @return bool

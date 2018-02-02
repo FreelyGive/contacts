@@ -141,7 +141,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlocks(ContactTabInterface $tab, $apply_context = FALSE, UserInterface $contact = NULL) {
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL) {
     $blocks = $tab->getBlockPlugins();
     if (empty($blocks)) {
       // Get our block plugin, applying context if relevant..
@@ -155,7 +155,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       }
     }
 
-    if ($apply_context && $contact) {
+    if ($contact !== NULL) {
       $this->applyBlockContext($tab, $blocks, $contact);
     }
 
@@ -213,7 +213,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
    * {@inheritdoc}
    */
   public function verifyTab(ContactTabInterface $tab, UserInterface $contact) {
-    $blocks = $this->getBlocks($tab, TRUE, $contact);
+    $blocks = $this->getBlocks($tab, $contact);
 
     if (empty($blocks)) {
       return FALSE;

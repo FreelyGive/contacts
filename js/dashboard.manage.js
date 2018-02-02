@@ -10,7 +10,6 @@
       }
 
       $placeholders.each(function () {
-        $(this).parent().removeClass('visually-hidden');
         $(this).attr('data-ajax-url', '/admin/contacts/ajax/manage-mode');
         $(this).addClass('use-ajax');
 

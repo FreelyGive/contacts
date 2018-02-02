@@ -50,8 +50,6 @@ dashboard.layout:
 # Contacts dashboard management.
 dashboard.manage:
   js:
-    # Ensure to run before contextual/drupal.context-toolbar.
-    # Core.
     js/dashboard.manage.js: { weight: -2 }
   css:
     theme:

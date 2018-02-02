@@ -78,11 +78,6 @@ class ContactTabs extends RenderElement {
       ],
     ];
 
-    // Show manage link if user has permission.
-    if (static::getCurrentUser()->hasPermission('manage contacts dashboard')) {
-      $element['content']['#attached']['library'][] = 'contacts/dashboard.manage';
-    }
-
     foreach ($tab_manager->getTabs() as $tab) {
       if (!$element['#manage_mode']) {
         if (!$tab_manager->verifyTab($tab, $element['#user'])) {

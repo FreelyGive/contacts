@@ -34,6 +34,6 @@ interface DashboardBlockInterface {
    * @param array $variables
    *   Render array variables.
    */
-  public function processDragMode(array &$variables);
+  public function processManageMode(array &$variables);
 
 }

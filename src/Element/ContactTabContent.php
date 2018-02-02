@@ -71,12 +71,16 @@ class ContactTabContent extends RenderElement {
   public static function preRenderTabContent(array $element) {
     $tab_manager = static::getTabManager();
 
-    // Verify tab if necesary.
-    if (!$element['#manage_mode']) {
+    // Verify tab if necessary.
+    if ($element['#manage_mode']) {
+      // Set user to NULL to avoid attempting to apply context mappings.
+      $element['#user'] = NULL;
+    }
+    else {
       $tab_manager->verifyTab($element['#tab'], $element['#user']);
     }
 
-    $blocks = $tab_manager->getBlocks($element['#tab'], !$element['#manage_mode'], $element['#user']);
+    $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
     if (!empty($blocks)) {
       $layout = $element['#tab']->get('layout') ?: 'contacts_tab_content.stacked';
       $layout_manager = static::getLayoutManager();
@@ -94,9 +98,9 @@ class ContactTabContent extends RenderElement {
         $content = $block->build();
         if ($element['#manage_mode']) {
           $block_content = [
-            '#theme' => 'contacts_dnd_card',
+            '#theme' => 'contacts_manage_block',
             '#attributes' => [
-              'data-dnd-contacts-block-tab' => $element['#tab']->id(),
+              'data-contacts-manage-block-tab' => $element['#tab']->id(),
             ],
             '#id' => $block->getPluginId(),
             '#block' => $block,

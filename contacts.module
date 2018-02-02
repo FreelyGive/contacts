@@ -42,7 +42,7 @@ function contacts_theme() {
       'base hook' => 'user',
       'template' => 'user--contacts-dashboard-row-small',
     ],
-    'contacts_dnd_card' => [
+    'contacts_manage_block' => [
       'variables' => [
         'id' => NULL,
         'mode' => NULL,
@@ -53,31 +53,29 @@ function contacts_theme() {
         'label' => '',
         'description' => '',
       ],
-      'template' => 'contacts-dnd-card',
+      'template' => 'contacts-manage-block',
     ],
   ];
 }
 
 /**
- * Prepares variables for contacts drag and drop cards.
+ * Prepares variables for contacts manage blocks.
  *
- * Default template: contacts-dnd-card.html.twig.
+ * Default template: contacts-manage-block.html.twig.
  *
  * @param array $variables
  *   An associative array containing:
  *   - attributes: HTML markup attributes for the content wrapper.
  *   - region_attributes: HTML markup attributes for the content wrapper.
  */
-function template_preprocess_contacts_dnd_card(array &$variables) {
+function template_preprocess_contacts_manage_block(array &$variables) {
   $configuration = $variables['block']->getConfiguration();
 
   list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
 
-  $variables['attributes']['class'][] = 'dnd-block';
-  $variables['attributes']['data-dnd-contacts-block-id'] = $variables['id'];
-  $variables['attributes']['data-dnd-contacts-block-name'] = $configuration['name'];
-  $variables['attributes']['data-dnd-contacts-block-user'] = $variables['user'];
-  $variables['attributes']['data-dnd-block-mode'] = $variables['mode'];
+  $variables['attributes']['data-contacts-manage-block-id'] = $variables['id'];
+  $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
+  $variables['attributes']['data-contacts-manage-block-mode'] = $variables['mode'];
 
   switch ($variables['mode']) {
     case 'manage':
@@ -91,7 +89,7 @@ function template_preprocess_contacts_dnd_card(array &$variables) {
       ];
 
       if ($variables['block'] instanceof DashboardBlockInterface) {
-        $variables['block']->processDragMode($variables);
+        $variables['block']->processManageMode($variables);
       }
       break;
   }
@@ -226,9 +224,14 @@ function contacts_toolbar() {
     '#cache' => [
       'contexts' => [
         'user.permissions',
+        'url.path',
       ],
     ],
   ];
+
+  if (\Drupal::routeMatch()->getRouteName() !== 'page_manager.page_view_contacts_dashboard_contact') {
+    return $items;
+  }
 
   if (!\Drupal::currentUser()->hasPermission('manage contacts dashboard')) {
     return $items;
@@ -254,8 +257,10 @@ function contacts_toolbar() {
     '#wrapper_attributes' => [
       'class' => [
         'contacts-toolbar-tab',
-        'visually-hidden',
       ],
+    ],
+    '#attached' => [
+      'library' => ['contacts/dashboard.manage']
     ],
   ];
 
