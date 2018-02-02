@@ -5,7 +5,6 @@ namespace Drupal\contacts\Plugin\Block;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
-use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Entity\EntityFormBuilderInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -68,13 +67,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $currentUser;
 
   /**
-   * The block manager.
-   *
-   * @var \Drupal\Core\Block\BlockManager
-   */
-  protected $blockManager;
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -82,8 +74,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
       $container->get('request_stack'),
-      $container->get('current_user'),
-      $container->get('plugin.manager.block')
+      $container->get('current_user')
     );
   }
 
@@ -104,16 +95,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The request stack.
    * @param \Drupal\Core\Session\AccountProxy $current_user
    *   The current user service.
-   * @param \Drupal\Core\Block\BlockManager $block_manager
-   *   The block manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user, BlockManager $block_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
     $this->request = $request_stack->getCurrentRequest();
     $this->currentUser = $current_user;
-    $this->blockManager = $block_manager;
   }
 
   /**
@@ -202,12 +190,10 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * {@inheritdoc}
    */
   public function processManageMode(array &$variables) {
-    $definition = $this->blockManager->getDefinition($variables['id']);
+    $definition = $this->getPluginDefinition();
 
-    $variables['entity'] = $definition['_entity_type_id'];
-    $variables['bundle'] = $definition['_bundle_id'];
-    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'];
-    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'];
+    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'] = $definition['_entity_type_id'];
+    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'] = $definition['_bundle_id'];
 
     $variables['footer']['links'] = [
       '#theme' => 'item_list',

@@ -215,9 +215,6 @@ class ContactsTabManager implements ContactsTabManagerInterface {
           continue;
         }
       }
-
-      // @todo Don't allow block to be added if relationships have not been
-      // satisfied.
     }
   }
 
