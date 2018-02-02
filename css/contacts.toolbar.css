@@ -1,0 +1,36 @@
+/**
+ * @file
+ * Styling for the contacts module toolbar.
+ */
+
+/**
+ * Toolbar tab icon.
+ */
+.toolbar-bar .toolbar-icon-page-manager-page-view-contacts-dashboard:before {
+  background-image: url(../images/contacts.png);
+}
+.toolbar-bar .toolbar-icon-page-manager-page-view-contacts-dashboard:active:before,
+.toolbar-bar .toolbar-icon-page-manager-page-view-contacts-dashboard.active:before {
+  background-image: url(../images/contacts.png);
+}
+
+.toolbar-bar .toolbar-icon-edit:before {
+  background-color: #bebebe;
+  mask: url(../images/pencil.svg) no-repeat 50% 50%;
+  -webkit-mask: url(../images/pencil.svg) no-repeat 50% 50%;
+  mask-size: 100% auto;
+  -webkit-mask-size: 100% auto;
+}
+.toolbar-bar .toolbar-icon-edit:active:before,
+.toolbar-bar .toolbar-icon-edit.is-active:before {
+  background-color: #ffffff;
+}
+.toolbar .toolbar-bar .contacts-toolbar-tab {
+  float: right; /* LTR */
+}
+[dir="rtl"] .toolbar .toolbar-bar .contacts-toolbar-tab {
+  float: left;
+}
+.toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {
+  margin: 0;
+}

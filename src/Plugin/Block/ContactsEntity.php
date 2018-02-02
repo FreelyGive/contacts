@@ -12,10 +12,10 @@ use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\user\EntityOwnerInterface;
+use Drupal\Core\Session\AccountProxy;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -53,18 +53,18 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   protected $formBuilder;
 
   /**
-   * The current route match.
-   *
-   * @var \Drupal\Core\Routing\CurrentRouteMatch
-   */
-  protected $routeMatch;
-
-  /**
    * The current request.
    *
    * @var \Symfony\Component\HttpFoundation\Request
    */
   protected $request;
+
+  /**
+   * The current user service.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
+   */
+  protected $currentUser;
 
   /**
    * {@inheritdoc}
@@ -73,8 +73,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     return new static($configuration, $plugin_id, $plugin_definition,
       $container->get('entity_type.manager'),
       $container->get('entity.form_builder'),
-      $container->get('current_route_match'),
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('current_user')
     );
   }
 
@@ -91,17 +91,17 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The entity type manager.
    * @param \Drupal\Core\Entity\EntityFormBuilderInterface $form_builder
    *   The entity form builder.
-   * @param \Drupal\Core\Routing\CurrentRouteMatch $route_match
-   *   The current route match.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
+   * @param \Drupal\Core\Session\AccountProxy $current_user
+   *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;
-    $this->routeMatch = $route_match;
     $this->request = $request_stack->getCurrentRequest();
+    $this->currentUser = $current_user;
   }
 
   /**
@@ -162,7 +162,15 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
-    $params = $this->routeMatch->getRawParameters()->all();
+    $params = [
+      'user' => $this->getContextValue('user')->id(),
+      'subpage' => $this->getContextValue('subpage'),
+    ];
+
+    if (empty($params['user']) || empty($params['subpage'])) {
+      return FALSE;
+    }
+
     $query = ['edit' => $this->configuration['edit_id']];
     $link = Link::createFromRoute('Edit', 'page_manager.page_view_contacts_dashboard_contact', $params, [
       'query' => $query,
@@ -176,6 +184,22 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     ]);
 
     return $link;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processManageMode(array &$variables) {
+    $definition = $this->getPluginDefinition();
+
+    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'] = $definition['_entity_type_id'];
+    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'] = $definition['_bundle_id'];
+
+    $variables['footer']['links'] = [
+      '#theme' => 'item_list',
+      '#list_type' => 'ul',
+      '#items' => $this->getManageLinks(),
+    ];
   }
 
   /**
@@ -326,11 +350,12 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    */
   protected function buildForm(EntityInterface $entity) {
     // Manually build our action and redirect.
-    $route_name = $this->routeMatch->getRouteName();
-    if ($route_name == 'contacts.ajax_subpage') {
-      $route_name = 'page_manager.page_view_contacts_dashboard_contact';
-    }
-    $route_params = $this->routeMatch->getRawParameters()->all();
+    $route_name = 'page_manager.page_view_contacts_dashboard_contact';
+    $route_params = [
+      'user' => $this->getContextValue('user')->id(),
+      'subpage' => $this->getContextValue('subpage'),
+    ];
+
     $options = ['query' => $this->request->query->all()];
     // @see \Drupal\Core\Form\FormBuilder::buildFormAction.
     unset($options['query'][FormBuilder::AJAX_FORM_REQUEST], $options['query'][MainContentViewSubscriber::WRAPPER_FORMAT]);
@@ -378,6 +403,56 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     return $dependencies;
+  }
+
+  /**
+   * Get list of links to display on manage block.
+   *
+   * @return array
+   *   Array of links to be based to an 'item_list' render array.
+   */
+  protected function getManageLinks() {
+    $entity_id = $this->pluginDefinition['_entity_type_id'];
+    $bundle_id = $this->pluginDefinition['_bundle_id'];
+    $entity_definition = $this->entityTypeManager->getDefinition($entity_id);
+    $bundle_type = $entity_definition->getBundleEntityType();
+    $operations = [];
+    // Add manage fields and display links if this entity type is the bundle
+    // of another and that type has field UI enabled.
+    if ($bundle_type && $entity_definition->get('field_ui_base_route')) {
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
+        $operations['manage-fields'] = [
+          '#type' => 'link',
+          '#title' => t('Manage fields'),
+          '#weight' => 15,
+          '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
+        $operations['manage-form-display'] = [
+          '#type' => 'link',
+          '#title' => t('Manage form display'),
+          '#weight' => 20,
+          '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
+        $operations['manage-display'] = [
+          '#type' => 'link',
+          '#title' => t('Manage display'),
+          '#weight' => 25,
+          '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
+            $bundle_type => $bundle_id,
+          ]),
+        ];
+      }
+    }
+
+    return $operations;
   }
 
 }

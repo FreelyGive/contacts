@@ -13,39 +13,35 @@ interface ContactsTabManagerInterface {
   /**
    * Get a specific tab.
    *
-   * @param \Drupal\user\UserInterface $contact
-   *   The contact.
    * @param string $id
    *   The tab id.
    *
    * @return \Drupal\Core\Entity\EntityInterface|null
    *   The tab, if it exists.
    */
-  public function getTab(UserInterface $contact, $id);
+  public function getTab($id);
 
   /**
    * Get a specific tab from a path.
    *
-   * @param \Drupal\user\UserInterface $contact
-   *   The contact.
    * @param string $path
    *   The path for the tab.
    *
    * @return \Drupal\contacts\Entity\ContactTab|null
    *   The tab, if it exists.
    */
-  public function getTabByPath(UserInterface $contact, $path);
+  public function getTabByPath($path);
 
   /**
-   * Get the tabs for a contact.
+   * Get the all tabs or tabs for a contact (if provided).
    *
-   * @param \Drupal\user\UserInterface $contact
-   *   The contact.
+   * @param \Drupal\user\UserInterface|null $contact
+   *   (Optional) The contact we are retrieving the tabs for.
    *
    * @return \Drupal\contacts\Entity\ContactTabInterface[]
    *   The tabs, keyed by ID and sorted by weight.
    */
-  public function getTabs(UserInterface $contact);
+  public function getTabs(UserInterface $contact = NULL);
 
   /**
    * Get the block plugins for a tab.
@@ -53,16 +49,13 @@ interface ContactsTabManagerInterface {
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab entity to retrieve the blocks for.
    * @param \Drupal\user\UserInterface|null $contact
-   *   (Optional) The contact we are retrieving the tab for. Required if we are
-   *   to verify the tab.
-   * @param bool $verify
-   *   Whether to verify the tab. This may require the contact for context.
-   *   Defaults to TRUE.
+   *   (Optional) The contact we are retrieving the tab for. Providing the user
+   *   will apply block contexts.
    *
-   * @return \Drupal\Core\Block\BlockPluginInterface[]|false
-   *   The build render array or FALSE if we cannot build it.
+   * @return \Drupal\Core\Block\BlockPluginInterface[]
+   *   The tab block plugins array.
    */
-  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE);
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL);
 
   /**
    * Verify that a tab is valid for the given contact.
@@ -70,7 +63,7 @@ interface ContactsTabManagerInterface {
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab.
    * @param \Drupal\user\UserInterface $contact
-   *   The contact.
+   *   The contact to verify against.
    *
    * @return bool
    *   Whether the tab is valid.

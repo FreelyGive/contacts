@@ -1,0 +1,11 @@
+<div {{ attributes }}>
+    <h5>{{ label }}</h5>
+    {% if content %}
+        <div class="content">
+            {{ content }}
+        </div>
+    {% endif %}
+    {% if footer %}
+        {{ footer }}
+    {% endif %}
+</div>

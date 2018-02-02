@@ -101,26 +101,18 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTab(UserInterface $contact, $id) {
-    /* @var \Drupal\contacts\Entity\ContactTabInterface $tab */
-    $tab = $this->entityTypeManager->getStorage('contact_tab')->load($id);
-
-    // Check this tab is valid for the contact.
-    if ($tab && $this->verifyTab($tab, $contact)) {
-      return $tab;
-    }
-
-    return NULL;
+  public function getTab($id) {
+    return $this->entityTypeManager->getStorage('contact_tab')->load($id);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTabByPath(UserInterface $contact, $path) {
+  public function getTabByPath($path) {
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['path' => $path]);
-    $tab = reset($tabs);
 
-    if ($tab) {
+    if (!empty($tabs)) {
+      $tab = reset($tabs);
       return $tab;
     }
 
@@ -130,7 +122,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTabs(UserInterface $contact) {
+  public function getTabs(UserInterface $contact = NULL) {
     // Load all our active tabs.
     /* @var \Drupal\contacts\Entity\ContactTabInterface[] $tabs */
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['status' => TRUE]);
@@ -138,10 +130,12 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       return [];
     }
 
-    // Remove any tabs that are not for this contact.
-    foreach ($tabs as $id => $tab) {
-      if (!$this->verifyTab($tab, $contact)) {
-        unset($tabs[$id]);
+    // If provided verify tabs against user.
+    if ($contact !== NULL) {
+      foreach ($tabs as $key => $tab) {
+        if (!$this->verifyTab($tab, $contact)) {
+          unset($tabs[$key]);
+        }
       }
     }
 
@@ -156,7 +150,7 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL, $verify = TRUE) {
+  public function getBlocks(ContactTabInterface $tab, UserInterface $contact = NULL) {
     $blocks = $tab->getBlockPlugins();
     if (empty($blocks)) {
       // Get our block plugin, applying context if relevant..
@@ -166,67 +160,75 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       foreach ($block_configurations as $key => $block_configuration) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         $block = $this->blockManager->createInstance($block_configuration['id'], $block_configuration);
-        if ($contact && $block instanceof ContextAwarePluginInterface) {
-          try {
-            // Build our contexts.
-            $contexts = [
-              'user' => new Context(new ContextDefinition('entity:user'), $contact),
-            ];
-
-            // Gather any relationships.
-            foreach ($tab->getRelationships() as $relationship) {
-              if (isset($contexts[$relationship['source']])) {
-                /* @var \Drupal\ctools\Plugin\RelationshipInterface $plugin */
-                $plugin = $this->relationshipManager->createInstance($relationship['id']);
-                $plugin->setContext('base', $contexts[$relationship['source']]);
-                $contexts[$relationship['name']] = $plugin->getRelationship();
-              }
-            }
-
-            // Apply the mappings.
-            $this->contextHandler->applyContextMapping($block, $contexts);
-          }
-          catch (ContextException $exception) {
-            continue;
-          }
-        }
-
-        // @todo Don't allow block to be added if relationships have not been
-        // satisfied.
         $blocks[$key] = $block;
       }
-
-      $tab->setBlockPlugins($blocks);
     }
 
-    // Verify the tab unless we've been asked not to.
-    if ($verify) {
-      $this->verifyTab($tab, $contact, $blocks);
-
-      // Filter our blocks that don't verify.
-      $blocks = array_filter($blocks, function ($block) {
-        return $block->_contactTabVerified;
-      });
+    if ($contact !== NULL) {
+      $this->applyBlockContext($tab, $blocks, $contact);
     }
+
+    $tab->setBlockPlugins($blocks);
 
     return $blocks;
   }
 
   /**
+   * Apply block plugin context requirements.
+   *
+   * Where contexts are not able to be matched, blocks will be removed from tab.
+   *
+   * @param \Drupal\contacts\Entity\ContactTabInterface $tab
+   *   The tab entity the blocks are on.
+   * @param \Drupal\Core\Block\BlockPluginInterface[] $blocks
+   *   Blocks to apply the contexts to.
+   * @param \Drupal\user\UserInterface $contact
+   *   The contact we are applying contexts for.
+   */
+  protected function applyBlockContext(ContactTabInterface $tab, array &$blocks, UserInterface $contact) {
+    // Apply context to our block plugins if relevant.
+    foreach ($blocks as $key => &$block) {
+      /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+      if ($block instanceof ContextAwarePluginInterface) {
+        try {
+          // Build our contexts.
+          $contexts = [
+            'user' => new Context(new ContextDefinition('entity:user'), $contact),
+            'subpage' => new Context(new ContextDefinition('string'), $tab->getPath()),
+          ];
+
+          // Gather any relationships.
+          foreach ($tab->getRelationships() as $relationship) {
+            if (isset($contexts[$relationship['source']])) {
+              /* @var \Drupal\ctools\Plugin\RelationshipInterface $plugin */
+              $plugin = $this->relationshipManager->createInstance($relationship['id']);
+              $plugin->setContext('base', $contexts[$relationship['source']]);
+              $contexts[$relationship['name']] = $plugin->getRelationship();
+            }
+          }
+
+          // Apply the mappings.
+          $this->contextHandler->applyContextMapping($block, $contexts);
+        }
+        catch (ContextException $exception) {
+          unset($blocks[$key]);
+          continue;
+        }
+      }
+    }
+  }
+
+  /**
    * {@inheritdoc}
    */
-  public function verifyTab(ContactTabInterface $tab, UserInterface $contact, array $blocks = []) {
-    // Get the block if we don't already have it.
-    if (empty($blocks)) {
-      $blocks = $this->getBlocks($tab, $contact, FALSE);
+  public function verifyTab(ContactTabInterface $tab, UserInterface $contact) {
+    $blocks = $this->getBlocks($tab, $contact);
 
-      if (empty($blocks)) {
-        return FALSE;
-      }
+    if (empty($blocks)) {
+      return FALSE;
     }
 
     // Make sure each block is verified and capture if any have.
-    $verified = FALSE;
     foreach ($blocks as $block) {
       /* @var $block \Drupal\Core\Block\BlockPluginInterface */
       if (!isset($block->_contactTabVerified)) {
@@ -239,14 +241,15 @@ class ContactsTabManager implements ContactsTabManagerInterface {
         // @todo: Add additional checks...
         $block->_contactTabVerified = TRUE;
       }
-
-      // If any blocks verify, the tab verifies.
-      if ($block->_contactTabVerified) {
-        $verified = TRUE;
-      }
     }
 
-    return $verified;
+    // Once verified, only store verified blocks on tab.
+    $blocks = array_filter($blocks, function ($block) {
+      return $block->_contactTabVerified;
+    });
+    $tab->setBlockPlugins($blocks);
+
+    return !empty($blocks);
   }
 
 }

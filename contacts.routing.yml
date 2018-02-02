@@ -29,9 +29,16 @@ contacts.add_org_form:
   options:
     _admin_route: TRUE
 
-contacts.ajax_update_blocks:
+contacts.ajax.manage_mode:
+  path: '/admin/contacts/ajax/manage-mode'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageMode'
+  requirements:
+    _permission: 'manage contacts dashboard'
+
+contacts.ajax.update_blocks:
   path: '/admin/contacts/ajax/update-layout'
   defaults:
-    _controller: '\Drupal\contacts\Controller\DashboardController::updateBlocks'
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxUpdateBlocks'
   requirements:
-    _permission: 'administer contacts'
+    _permission: 'manage contacts dashboard'

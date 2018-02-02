@@ -18,6 +18,8 @@ use Drupal\views\Plugin\views\cache\CachePluginBase;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Plugin\PluginBase;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 
 /**
  * Implements hook_theme().
@@ -40,7 +42,58 @@ function contacts_theme() {
       'base hook' => 'user',
       'template' => 'user--contacts-dashboard-row-small',
     ],
+    'contacts_manage_block' => [
+      'variables' => [
+        'id' => NULL,
+        'mode' => NULL,
+        'subpage' => NULL,
+        'block' => [],
+        'attributes' => [],
+        'label' => '',
+        'description' => '',
+      ],
+      'template' => 'contacts-manage-block',
+    ],
   ];
+}
+
+/**
+ * Prepares variables for contacts manage blocks.
+ *
+ * Default template: contacts-manage-block.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - attributes: HTML markup attributes for the content wrapper.
+ *   - region_attributes: HTML markup attributes for the content wrapper.
+ */
+function template_preprocess_contacts_manage_block(array &$variables) {
+  $configuration = $variables['block']->getConfiguration();
+
+  list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
+
+  $variables['attributes']['data-contacts-manage-block-id'] = $variables['id'];
+  $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
+  $variables['attributes']['data-contacts-manage-block-mode'] = $variables['mode'];
+
+  switch ($variables['mode']) {
+    case 'manage':
+      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+      $variables['content']['description'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'strong',
+        '#value' => $variables['description'],
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+      ];
+
+      if ($variables['block'] instanceof DashboardBlockInterface) {
+        $variables['block']->processManageMode($variables);
+      }
+      break;
+  }
+
+  $variables['attributes'] = new Attribute($variables['attributes']);
 }
 
 /**
@@ -197,13 +250,67 @@ function contacts_entity_type_build(array &$entity_types) {
 }
 
 /**
+ * Implements hook_toolbar().
+ *
+ * Add contacts manage icon css to toolbar.
+ */
+function contacts_toolbar() {
+  $items = [];
+  $items['contacts_manage'] = [
+    '#cache' => [
+      'contexts' => [
+        'user.permissions',
+        'route.name',
+      ],
+    ],
+  ];
+
+  if (\Drupal::routeMatch()->getRouteName() !== 'page_manager.page_view_contacts_dashboard_contact') {
+    return $items;
+  }
+
+  if (!\Drupal::currentUser()->hasPermission('manage contacts dashboard')) {
+    return $items;
+  }
+
+  $items['contacts_manage'] += [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'html_tag',
+      '#tag' => 'button',
+      '#value' => t('Manage Dashboard'),
+      '#attributes' => [
+        'class' => [
+          'toolbar-icon',
+          'toolbar-icon-edit',
+          'toolbar-dashboard-manage',
+        ],
+        'aria-pressed' => 'false',
+        'type' => 'button',
+      ],
+    ],
+    'tray' => [],
+    '#wrapper_attributes' => [
+      'class' => [
+        'contacts-toolbar-tab',
+      ],
+    ],
+    '#attached' => [
+      'library' => ['contacts/dashboard.manage'],
+    ],
+  ];
+
+  return $items;
+}
+
+/**
  * Implements hook_toolbar_alter().
  *
  * Add contacts icon css to toolbar.
  */
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
-  $items['administration']['#attached']['library'][] = 'contacts/contacts.icons';
+  $items['administration']['#attached']['library'][] = 'contacts/contacts.toolbar';
 }
 
 /**

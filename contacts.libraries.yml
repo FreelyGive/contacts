@@ -36,16 +36,29 @@ action.group:
     - core/jquery
 
 # Toolbar icons.
-contacts.icons:
+contacts.toolbar:
   css:
     theme:
-      css/contacts.icons.css: {}
+      css/contacts.toolbar.css: {}
 
 # Contacts dashboard layout.
 dashboard.layout:
   css:
     layout:
       css/dashboard-layout.css: {}
+
+# Contacts dashboard management.
+dashboard.manage:
+  js:
+    js/dashboard.manage.js: { weight: -2 }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/underscore
+    - core/jquery.once
+    - contacts/drupal.ajax
+    - contacts/contacts.toolbar
 
 # Styling for the listings.
 listings:

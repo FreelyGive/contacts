@@ -2,16 +2,16 @@
 
 namespace Drupal\contacts\Element;
 
-use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
-use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Render\Element\RenderElement;
 
 /**
  * Provides a dashboard tab content render element.
  *
  * Properties:
+ * - #layout: The layout instance to assign blocks to.
  * - #tab: The tab entity being viewed.
+ * - #blocks: Array of block plugins from tab.
  * - #user: The user entity being viewed.
  * - #subpage: The tab's dashboard subpage id.
  *
@@ -19,9 +19,12 @@ use Drupal\Core\Render\Element\RenderElement;
  * @code
  * $build['examples_tab_content'] = [
  *   '#type' => 'contact_tab_content',
+ *   '#layout' => $layout,
  *   '#tab' => $tab,
+ *   '#blocks' => [],
  *   '#subpage' => 'example',
  *   '#user' => $user,
+ *   '#manage_mode' => TRUE,
  * ];
  * @endcode
  *
@@ -30,26 +33,13 @@ use Drupal\Core\Render\Element\RenderElement;
 class ContactTabContent extends RenderElement {
 
   /**
-   * The tab manager service.
-   *
-   * @var \Drupal\contacts\ContactsTabManager
-   */
-  static protected $tabManager;
-
-  /**
-   * The layout manager service.
-   *
-   * @var \Drupal\Core\Layout\LayoutPluginManager
-   */
-  static protected $layoutManager;
-
-  /**
    * {@inheritdoc}
    */
   public function getInfo() {
     $class = get_class($this);
     return [
       '#attributes' => [],
+      '#region_attributes' => [],
       '#not_found' => $this->t('Page not found.'),
       '#pre_render' => [
         [$class, 'preRenderTabContent'],
@@ -67,45 +57,55 @@ class ContactTabContent extends RenderElement {
    *   The passed-in element containing the renderable regions in '#content'.
    */
   public static function preRenderTabContent(array $element) {
-    $tab_manager = static::getTabManager();
-    // Check this tab is valid for the contact.
-    if ($element['#tab'] && $tab_manager->verifyTab($element['#tab'], $element['#user'])) {
-      $layout = $element['#tab']->get('layout') ?: 'contacts_tab_content.stacked';
-      $layout_manager = static::getLayoutManager();
-      $layoutInstance = $layout_manager->createInstance($layout, []);
+    $blocks = $element['#blocks'];
+    if (!empty($blocks)) {
 
-      // Get available regions from tab.
-      $regions = [];
-      foreach (array_keys($layoutInstance->getPluginDefinition()->getRegions()) as $region) {
-        $regions[$region] = [];
+      // Get available regions from layout if not already provided.
+      if (empty($element['#regions'])) {
+        foreach (array_keys($element['#layout']->getPluginDefinition()->getRegions()) as $region) {
+          $element['#regions'][$region] = [];
+        }
       }
 
-      $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // @todo fix weight.
-        $block_content = [
-          '#theme' => 'block',
-          '#attributes' => [],
-          '#configuration' => $block->getConfiguration(),
-          '#plugin_id' => $block->getPluginId(),
-          '#base_plugin_id' => $block->getBaseId(),
-          '#derivative_plugin_id' => $block->getDerivativeId(),
-          '#weight' => $block->getConfiguration()['weight'],
-          'content' => $block->build(),
-        ];
-
-        // Add edit link to title.
-        if ($block instanceof DashboardBlockInterface) {
-          $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
-          $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
+        if ($element['#manage_mode']) {
+          $block_content = [
+            '#theme' => 'contacts_manage_block',
+            '#attributes' => [
+              'data-contacts-manage-block-tab' => $element['#tab']->id(),
+            ],
+            '#id' => $block->getPluginId(),
+            '#block' => $block,
+            '#subpage' => $element['#subpage'],
+            '#mode' => 'manage',
+          ];
         }
+        else {
+          $content = $block->build();
+          $block_content = [
+            '#theme' => 'block',
+            '#attributes' => [],
+            '#configuration' => $block->getConfiguration(),
+            '#plugin_id' => $block->getPluginId(),
+            '#base_plugin_id' => $block->getBaseId(),
+            '#derivative_plugin_id' => $block->getDerivativeId(),
+            '#weight' => $block->getConfiguration()['weight'],
+            'content' => $content,
+          ];
 
-        $block_content['content']['#title'] = $block->label();
-        $regions[$block->getConfiguration()['region']][] = $block_content;
+          // Add edit link to title.
+          if ($block instanceof DashboardBlockInterface) {
+            $block_content['#dashboard_label_edit_link'] = $block->getEditLink(DashboardBlockInterface::EDIT_LINK_TITLE);
+            $block_content['#pre_render'][] = 'contacts_dashboard_block_edit_link_pre_render';
+          }
+
+          $block_content['content']['#title'] = $block->label();
+        }
+        $element['#regions'][$block->getConfiguration()['region']][] = $block_content;
       }
 
-      $element['content'] = $layoutInstance->build($regions);
+      $element['content'] = $element['#layout']->build($element['#regions']);
       $element['content']['#attributes'] = $element['#attributes'];
     }
     else {
@@ -113,52 +113,6 @@ class ContactTabContent extends RenderElement {
     }
 
     return $element;
-  }
-
-  /**
-   * Gets the tab manager service.
-   *
-   * @return \Drupal\contacts\ContactsTabManager
-   *   The tab manager service.
-   */
-  protected static function getTabManager() {
-    if (!isset(self::$tabManager)) {
-      self::$tabManager = \Drupal::service('contacts.tab_manager');
-    }
-    return self::$tabManager;
-  }
-
-  /**
-   * Sets the tab manager service to use.
-   *
-   * @param \Drupal\contacts\ContactsTabManager $tab_manager
-   *   The tab manager service.
-   */
-  public static function setTabManager(ContactsTabManager $tab_manager) {
-    self::$tabManager = $tab_manager;
-  }
-
-  /**
-   * Gets the layout manager service.
-   *
-   * @return \Drupal\Core\Layout\LayoutPluginManager
-   *   The layout manager service.
-   */
-  protected static function getLayoutManager() {
-    if (!isset(self::$layoutManager)) {
-      self::$layoutManager = \Drupal::service('plugin.manager.core.layout');
-    }
-    return self::$layoutManager;
-  }
-
-  /**
-   * Sets the layout manager service to use.
-   *
-   * @param \Drupal\Core\Layout\LayoutPluginManager $layout_manager
-   *   The layout manager service.
-   */
-  public static function setLayoutManager(LayoutPluginManager $layout_manager) {
-    self::$layoutManager = $layout_manager;
   }
 
 }
