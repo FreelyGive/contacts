@@ -12,6 +12,7 @@ use Drupal\Core\Render\Element\RenderElement;
  *
  * Properties:
  * - #tab: The tab entity being viewed.
+ * - #blocks: Array of block plugins from tab.
  * - #user: The user entity being viewed.
  * - #subpage: The tab's dashboard subpage id.
  *
@@ -20,6 +21,7 @@ use Drupal\Core\Render\Element\RenderElement;
  * $build['examples_tab_content'] = [
  *   '#type' => 'contact_tab_content',
  *   '#tab' => $tab,
+ *   '#blocks' => [],
  *   '#subpage' => 'example',
  *   '#user' => $user,
  *   '#manage_mode' => TRUE,
@@ -29,13 +31,6 @@ use Drupal\Core\Render\Element\RenderElement;
  * @RenderElement("contact_tab_content")
  */
 class ContactTabContent extends RenderElement {
-
-  /**
-   * The tab manager service.
-   *
-   * @var \Drupal\contacts\ContactsTabManager
-   */
-  static protected $tabManager;
 
   /**
    * The layout manager service.
@@ -69,18 +64,7 @@ class ContactTabContent extends RenderElement {
    *   The passed-in element containing the renderable regions in '#content'.
    */
   public static function preRenderTabContent(array $element) {
-    $tab_manager = static::getTabManager();
-
-    // Verify tab if necessary.
-    if ($element['#manage_mode']) {
-      // Set user to NULL to avoid attempting to apply context mappings.
-      $element['#user'] = NULL;
-    }
-    else {
-      $tab_manager->verifyTab($element['#tab'], $element['#user']);
-    }
-
-    $blocks = $tab_manager->getBlocks($element['#tab'], $element['#user']);
+    $blocks = $element['#blocks'];
     if (!empty($blocks)) {
       $layout = $element['#tab']->get('layout') ?: 'contacts_tab_content.stacked';
       $layout_manager = static::getLayoutManager();
@@ -94,8 +78,6 @@ class ContactTabContent extends RenderElement {
 
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        // For some reason build() brings in the theme hooks required...
-        $content = $block->build();
         if ($element['#manage_mode']) {
           $block_content = [
             '#theme' => 'contacts_manage_block',
@@ -104,13 +86,12 @@ class ContactTabContent extends RenderElement {
             ],
             '#id' => $block->getPluginId(),
             '#block' => $block,
-            '#user' => $element['#user']->id(),
             '#subpage' => $element['#subpage'],
             '#mode' => 'manage',
           ];
         }
         else {
-          // @todo fix weight.
+          $content = $block->build();
           $block_content = [
             '#theme' => 'block',
             '#attributes' => [],
@@ -141,29 +122,6 @@ class ContactTabContent extends RenderElement {
     }
 
     return $element;
-  }
-
-  /**
-   * Gets the tab manager service.
-   *
-   * @return \Drupal\contacts\ContactsTabManager
-   *   The tab manager service.
-   */
-  protected static function getTabManager() {
-    if (!isset(self::$tabManager)) {
-      self::$tabManager = \Drupal::service('contacts.tab_manager');
-    }
-    return self::$tabManager;
-  }
-
-  /**
-   * Sets the tab manager service to use.
-   *
-   * @param \Drupal\contacts\ContactsTabManager $tab_manager
-   *   The tab manager service.
-   */
-  public static function setTabManager(ContactsTabManager $tab_manager) {
-    self::$tabManager = $tab_manager;
   }
 
   /**

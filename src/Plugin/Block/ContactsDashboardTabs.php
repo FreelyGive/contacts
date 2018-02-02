@@ -113,6 +113,9 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $this->buildTabs($build);
     $this->buildContent($build);
 
+    $build['#prefix'] = '<div id="contacts-tabs" class="contacts-tabs">';
+    $build['#suffix'] = '</div>';
+
     return $build;
   }
 
@@ -123,15 +126,27 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   Drupal renderable array being added to.
    */
   public function buildTabs(array &$build) {
+    $manage_mode = $this->stateService->get('manage_mode');
+    $verify = !$manage_mode ? $this->user : NULL;
+
+    // Get verified tabs (if verification is required).
+    $tabs = $this->tabManager->getTabs($verify);
+    $tab_data = [];
+    foreach ($tabs as $tab) {
+      $tab_data[$tab->getOriginalId()] = [
+        'label' => $tab->label(),
+        'path' => $tab->getPath(),
+      ];
+    }
+
     // @TODO Permission check.
     $build['tabs'] = [
-      '#prefix' => '<div id="contacts-tabs" class="contacts-tabs">',
-      '#suffix' => '</div>',
       '#type' => 'contact_tabs',
+      '#tabs' => $tab_data,
       '#ajax' => $this->ajax,
       '#user' => $this->user,
       '#subpage' => $this->subpage,
-      '#manage_mode' => $this->stateService->get('manage_mode'),
+      '#manage_mode' => $manage_mode,
       '#attributes' => ['class' => ['dash-content']],
     ];
   }
@@ -143,14 +158,25 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
    *   Drupal renderable array being added to.
    */
   public function buildContent(array &$build) {
+    $tab = $this->tabManager->getTabByPath($this->subpage);
+    $manage_mode = $this->stateService->get('manage_mode');
+
+    // Verify tab if necessary.
+    $verify = !$manage_mode ? $this->user : NULL;
+    if ($verify) {
+      $this->tabManager->verifyTab($tab, $verify);
+    }
+
+    $blocks = $this->tabManager->getBlocks($tab, $verify);
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',
       '#type' => 'contact_tab_content',
-      '#tab' => $this->tabManager->getTabByPath($this->subpage),
+      '#tab' => $tab,
       '#user' => $this->user,
       '#subpage' => $this->subpage,
-      '#manage_mode' => $this->stateService->get('manage_mode'),
+      '#blocks' => $blocks,
+      '#manage_mode' => $manage_mode,
       '#attributes' => ['class' => ['dash-content']],
     ];
 

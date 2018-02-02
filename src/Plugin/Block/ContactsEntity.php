@@ -433,7 +433,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * @return array
    *   Array of links to be based to an 'item_list' render array.
    */
-  public function getManageLinks() {
+  protected function getManageLinks() {
     $entity_id = $this->pluginDefinition['_entity_type_id'];
     $bundle_id = $this->pluginDefinition['_bundle_id'];
     $entity_definition = $this->entityTypeManager->getDefinition($entity_id);

@@ -33,12 +33,15 @@ interface ContactsTabManagerInterface {
   public function getTabByPath($path);
 
   /**
-   * Get the tabs for a contact.
+   * Get the all tabs or tabs for a contact (if provided).
+   *
+   * @param \Drupal\user\UserInterface|null $contact
+   *   (Optional) The contact we are retrieving the tabs for.
    *
    * @return \Drupal\contacts\Entity\ContactTabInterface[]
    *   The tabs, keyed by ID and sorted by weight.
    */
-  public function getTabs();
+  public function getTabs(UserInterface $contact = NULL);
 
   /**
    * Get the block plugins for a tab.

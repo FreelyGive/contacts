@@ -122,12 +122,21 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTabs() {
+  public function getTabs(UserInterface $contact = NULL) {
     // Load all our active tabs.
     /* @var \Drupal\contacts\Entity\ContactTabInterface[] $tabs */
     $tabs = $this->entityTypeManager->getStorage('contact_tab')->loadByProperties(['status' => TRUE]);
     if (empty($tabs)) {
       return [];
+    }
+
+    // If provided verify tabs against user.
+    if ($contact !== NULL) {
+      foreach ($tabs as $key => $tab) {
+        if (!$this->verifyTab($tab, $contact)) {
+          unset($tabs[$key]);
+        }
+      }
     }
 
     // Sort our tabs by weight.
@@ -166,6 +175,8 @@ class ContactsTabManager implements ContactsTabManagerInterface {
 
   /**
    * Apply block plugin context requirements.
+   *
+   * Where contexts are not able to be matched, blocks will be removed from tab.
    *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab entity the blocks are on.

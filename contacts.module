@@ -46,7 +46,6 @@ function contacts_theme() {
       'variables' => [
         'id' => NULL,
         'mode' => NULL,
-        'user' => NULL,
         'subpage' => NULL,
         'block' => [],
         'attributes' => [],

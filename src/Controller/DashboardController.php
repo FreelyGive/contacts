@@ -2,6 +2,7 @@
 
 namespace Drupal\contacts\Controller;
 
+use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
@@ -9,11 +10,17 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Path\PathValidatorInterface;
+use Drupal\Core\Plugin\Context\Context;
+use Drupal\Core\Plugin\Context\ContextDefinition;
+use Drupal\Core\Plugin\Context\ContextHandlerInterface;
+use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -36,6 +43,27 @@ class DashboardController extends ControllerBase {
   protected $blockManager;
 
   /**
+   * The current request.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
+
+  /**
+   * The path validator service.
+   *
+   * @var \Drupal\Core\Path\PathValidatorInterface
+   */
+  protected $pathValidator;
+
+  /**
+   * The context handler.
+   *
+   * @var \Drupal\Core\Plugin\Context\ContextHandlerInterface
+   */
+  protected $contextHandler;
+
+  /**
    * Construct the dashboard controller.
    *
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
@@ -44,11 +72,18 @@ class DashboardController extends ControllerBase {
    *   The block plugin manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
+   * @param \Drupal\Core\Path\PathValidatorInterface $path_validator
+   *   The path validator service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
     $this->stateService = $state;
+    $this->request = $request_stack->getCurrentRequest();
+    $this->pathValidator = $path_validator;
+    $this->contextHandler = $context_handler;
   }
 
   /**
@@ -58,7 +93,10 @@ class DashboardController extends ControllerBase {
     return new static(
       $container->get('contacts.tab_manager'),
       $container->get('plugin.manager.block'),
-      $container->get('state')
+      $container->get('state'),
+      $container->get('request_stack'),
+      $container->get('path.validator'),
+      $container->get('context.handler')
     );
   }
 
@@ -81,30 +119,29 @@ class DashboardController extends ControllerBase {
       'subpage' => $subpage,
     ]);
 
-    // Get the manage mode state.
-    $manage_mode = $this->state()->get('manage_mode');
+    $block = $this->blockManager->createInstance('tabs:contacts_dashboard');
 
-    $tabs = [
-      '#type' => 'container',
-      'content' => [
-        '#type' => 'contact_tabs',
-        '#ajax' => TRUE,
-        '#subpage' => $subpage,
-        '#user' => $user,
-        '#manage_mode' => $manage_mode,
-      ],
-    ];
+    // Build our contexts.
+    if ($block instanceof ContextAwarePluginInterface) {
+      $contexts = [
+        'user' => new Context(new ContextDefinition('entity:user'), $user),
+        'subpage' => new Context(new ContextDefinition('string'), $subpage),
+      ];
 
-    $content = [
-      '#type' => 'container',
-      'content' => [
-        '#type' => 'contact_tab_content',
-        '#subpage' => $subpage,
-        '#user' => $user,
-        '#tab' => $this->tabManager->getTabByPath($subpage),
-        '#manage_mode' => $manage_mode,
-        '#attributes' => ['class' => ['dash-content']],
-      ],
+      // Apply the contexts to the block.
+      $this->contextHandler->applyContextMapping($block, $contexts);
+    }
+
+    $block_content = $block->build();
+    $content['tabs'] = [
+      '#theme' => 'block',
+      '#attributes' => [],
+      '#configuration' => $block->getConfiguration(),
+      '#plugin_id' => $block->getPluginId(),
+      '#base_plugin_id' => $block->getBaseId(),
+      '#derivative_plugin_id' => $block->getDerivativeId(),
+      '#weight' => $block->getConfiguration()['weight'],
+      'content' => $block_content,
     ];
 
     // Prepend the content with system messages.
@@ -116,8 +153,7 @@ class DashboardController extends ControllerBase {
     // Create AJAX Response object.
     $response = new AjaxResponse();
     $response->addCommand(new ContactsTab($subpage, $url->toString()));
-    $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
-    $response->addCommand(new HtmlCommand('#contacts-tabs', $tabs));
+    $response->addCommand(new HtmlCommand('#contacts-tabs', $content));
 
     // Return ajax response.
     return $response;
@@ -138,11 +174,12 @@ class DashboardController extends ControllerBase {
       $manage_mode = $this->state()->get('manage_mode');
     }
 
-    $referer = \Drupal::request()->server->get('HTTP_REFERER');
-    $fake_request = Request::create($referer);
+    // Get parameters from referrer request.
+    $referrer = $this->request->server->get('HTTP_REFERER');
+    $fake_request = Request::create($referrer);
 
     /* @var \Drupal\Core\Url $url_object */
-    $url_object = \Drupal::service('path.validator')->getUrlIfValid($fake_request->getRequestUri());
+    $url_object = $this->pathValidator->getUrlIfValid($fake_request->getRequestUri());
     if ($url_object) {
       $this->state()->set('manage_mode', !$manage_mode);
 
