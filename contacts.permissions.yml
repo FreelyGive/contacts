@@ -5,7 +5,7 @@ administer contacts:
 
 manage contacts dashboard:
   title: 'Manage contacts dashboard'
-  description: 'Add, remove and rearrange dashboard tab content.'
+  description: 'Configure dashboard tabs and tab content.'
 
 view contacts:
   title: 'View contacts'

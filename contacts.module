@@ -215,58 +215,6 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
 }
 
 /**
- * Implements hook_toolbar().
- */
-function contacts_toolbar() {
-  $items = [];
-  $items['manage_mode'] = [
-    '#cache' => [
-      'contexts' => [
-        'user.permissions',
-        'url.path',
-      ],
-    ],
-  ];
-
-  if (\Drupal::routeMatch()->getRouteName() !== 'page_manager.page_view_contacts_dashboard_contact') {
-    return $items;
-  }
-
-  if (!\Drupal::currentUser()->hasPermission('manage contacts dashboard')) {
-    return $items;
-  }
-
-  $items['manage_mode'] += [
-    '#type' => 'toolbar_item',
-    'tab' => [
-      '#type' => 'html_tag',
-      '#tag' => 'button',
-      '#value' => t('Manage Dashboard'),
-      '#attributes' => [
-        'class' => [
-          'toolbar-icon',
-          'toolbar-icon-edit',
-          'toolbar-dashboard-manage',
-        ],
-        'aria-pressed' => 'false',
-        'type' => 'button',
-      ],
-    ],
-    'tray' => [],
-    '#wrapper_attributes' => [
-      'class' => [
-        'contacts-toolbar-tab',
-      ],
-    ],
-    '#attached' => [
-      'library' => ['contacts/dashboard.manage'],
-    ],
-  ];
-
-  return $items;
-}
-
-/**
  * Pre render callback for dashboard blocks to add edit link to title.
  *
  * @param array $element
@@ -302,13 +250,67 @@ function contacts_entity_type_build(array &$entity_types) {
 }
 
 /**
+ * Implements hook_toolbar().
+ *
+ * Add contacts manage icon css to toolbar.
+ */
+function contacts_toolbar() {
+  $items = [];
+  $items['contacts_manage'] = [
+    '#cache' => [
+      'contexts' => [
+        'user.permissions',
+        'route.name',
+      ],
+    ],
+  ];
+
+  if (\Drupal::routeMatch()->getRouteName() !== 'page_manager.page_view_contacts_dashboard_contact') {
+    return $items;
+  }
+
+  if (!\Drupal::currentUser()->hasPermission('manage contacts dashboard')) {
+    return $items;
+  }
+
+  $items['contacts_manage'] += [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'html_tag',
+      '#tag' => 'button',
+      '#value' => t('Manage Dashboard'),
+      '#attributes' => [
+        'class' => [
+          'toolbar-icon',
+          'toolbar-icon-edit',
+          'toolbar-dashboard-manage',
+        ],
+        'aria-pressed' => 'false',
+        'type' => 'button',
+      ],
+    ],
+    'tray' => [],
+    '#wrapper_attributes' => [
+      'class' => [
+        'contacts-toolbar-tab',
+      ],
+    ],
+    '#attached' => [
+      'library' => ['contacts/dashboard.manage'],
+    ],
+  ];
+
+  return $items;
+}
+
+/**
  * Implements hook_toolbar_alter().
  *
  * Add contacts icon css to toolbar.
  */
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
-  $items['administration']['#attached']['library'][] = 'contacts/contacts.icons';
+  $items['administration']['#attached']['library'][] = 'contacts/contacts.toolbar';
 }
 
 /**

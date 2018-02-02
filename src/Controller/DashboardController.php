@@ -81,7 +81,7 @@ class DashboardController extends ControllerBase {
   public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
-    $this->stateService = $state;
+    $this->state = $state;
     $this->request = $request_stack->getCurrentRequest();
     $this->pathValidator = $path_validator;
     $this->contextHandler = $context_handler;

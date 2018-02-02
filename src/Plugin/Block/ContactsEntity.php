@@ -434,8 +434,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     // Add manage fields and display links if this entity type is the bundle
     // of another and that type has field UI enabled.
     if ($bundle_type && $entity_definition->get('field_ui_base_route')) {
-      $account = $this->currentUser;
-      if ($account->hasPermission('administer ' . $entity_id . ' fields')) {
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
         $operations['manage-fields'] = [
           '#type' => 'link',
           '#title' => t('Manage fields'),
@@ -445,7 +444,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
           ]),
         ];
       }
-      if ($account->hasPermission('administer ' . $entity_id . ' form display')) {
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
         $operations['manage-form-display'] = [
           '#type' => 'link',
           '#title' => t('Manage form display'),
@@ -455,7 +454,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
           ]),
         ];
       }
-      if ($account->hasPermission('administer ' . $entity_id . ' display')) {
+      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
         $operations['manage-display'] = [
           '#type' => 'link',
           '#title' => t('Manage display'),

@@ -3,13 +3,13 @@
 namespace Drupal\contacts\Element;
 
 use Drupal\contacts\Plugin\DashboardBlockInterface;
-use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Render\Element\RenderElement;
 
 /**
  * Provides a dashboard tab content render element.
  *
  * Properties:
+ * - #layout: The layout instance to assign blocks to.
  * - #tab: The tab entity being viewed.
  * - #blocks: Array of block plugins from tab.
  * - #user: The user entity being viewed.
@@ -19,6 +19,7 @@ use Drupal\Core\Render\Element\RenderElement;
  * @code
  * $build['examples_tab_content'] = [
  *   '#type' => 'contact_tab_content',
+ *   '#layout' => $layout,
  *   '#tab' => $tab,
  *   '#blocks' => [],
  *   '#subpage' => 'example',
@@ -30,13 +31,6 @@ use Drupal\Core\Render\Element\RenderElement;
  * @RenderElement("contact_tab_content")
  */
 class ContactTabContent extends RenderElement {
-
-  /**
-   * The layout manager service.
-   *
-   * @var \Drupal\Core\Layout\LayoutPluginManager
-   */
-  static protected $layoutManager;
 
   /**
    * {@inheritdoc}
@@ -65,14 +59,12 @@ class ContactTabContent extends RenderElement {
   public static function preRenderTabContent(array $element) {
     $blocks = $element['#blocks'];
     if (!empty($blocks)) {
-      $layout = $element['#tab']->get('layout') ?: 'contacts_tab_content.stacked';
-      $layout_manager = static::getLayoutManager();
-      $layoutInstance = $layout_manager->createInstance($layout, []);
 
-      // Get available regions from tab.
-      $regions = [];
-      foreach (array_keys($layoutInstance->getPluginDefinition()->getRegions()) as $region) {
-        $regions[$region] = [];
+      // Get available regions from layout if not already provided.
+      if (empty($element['#regions'])) {
+        foreach (array_keys($element['#layout']->getPluginDefinition()->getRegions()) as $region) {
+          $element['#regions'][$region] = [];
+        }
       }
 
       foreach ($blocks as $key => $block) {
@@ -110,10 +102,10 @@ class ContactTabContent extends RenderElement {
 
           $block_content['content']['#title'] = $block->label();
         }
-        $regions[$block->getConfiguration()['region']][] = $block_content;
+        $element['#regions'][$block->getConfiguration()['region']][] = $block_content;
       }
 
-      $element['content'] = $layoutInstance->build($regions);
+      $element['content'] = $element['#layout']->build($element['#regions']);
       $element['content']['#attributes'] = $element['#attributes'];
     }
     else {
@@ -121,29 +113,6 @@ class ContactTabContent extends RenderElement {
     }
 
     return $element;
-  }
-
-  /**
-   * Gets the layout manager service.
-   *
-   * @return \Drupal\Core\Layout\LayoutPluginManager
-   *   The layout manager service.
-   */
-  protected static function getLayoutManager() {
-    if (!isset(self::$layoutManager)) {
-      self::$layoutManager = \Drupal::service('plugin.manager.core.layout');
-    }
-    return self::$layoutManager;
-  }
-
-  /**
-   * Sets the layout manager service to use.
-   *
-   * @param \Drupal\Core\Layout\LayoutPluginManager $layout_manager
-   *   The layout manager service.
-   */
-  public static function setLayoutManager(LayoutPluginManager $layout_manager) {
-    self::$layoutManager = $layout_manager;
   }
 
 }
