@@ -259,7 +259,7 @@ function contacts_toolbar() {
       ],
     ],
     '#attached' => [
-      'library' => ['contacts/dashboard.manage']
+      'library' => ['contacts/dashboard.manage'],
     ],
   ];
 

@@ -2,9 +2,7 @@
 
 namespace Drupal\contacts\Element;
 
-use Drupal\contacts\ContactsTabManager;
 use Drupal\Core\Render\Element\RenderElement;
-use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\Url;
 
 /**

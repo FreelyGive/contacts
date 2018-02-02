@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Controller;
 
-use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
@@ -76,6 +75,8 @@ class DashboardController extends ControllerBase {
    *   The request stack.
    * @param \Drupal\Core\Path\PathValidatorInterface $path_validator
    *   The path validator service.
+   * @param \Drupal\Core\Plugin\Context\ContextHandlerInterface $context_handler
+   *   The context handler.
    */
   public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler) {
     $this->tabManager = $tab_manager;

@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts\Element;
 
-use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Render\Element\RenderElement;
