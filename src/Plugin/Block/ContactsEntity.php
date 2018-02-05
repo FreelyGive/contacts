@@ -175,14 +175,14 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    if (empty($this->getContextValue('user')) || empty($this->getContextValue('subpage'))) {
+      return FALSE;
+    }
+
     $params = [
       'user' => $this->getContextValue('user')->id(),
       'subpage' => $this->getContextValue('subpage'),
     ];
-
-    if (empty($params['user']) || empty($params['subpage'])) {
-      return FALSE;
-    }
 
     $query = ['edit' => $this->configuration['edit_id']];
     $link = Link::createFromRoute('Edit', 'page_manager.page_view_contacts_dashboard_contact', $params, [

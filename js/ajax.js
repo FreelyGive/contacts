@@ -22,7 +22,7 @@
       var $linkElement = $(ajaxLink);
 
       var elementSettings = {
-        progress: { type: 'throbber' },
+        progress: { type: $(this).attr('data-ajax-progress') || 'throbber' },
         dialogType: $linkElement.data('dialog-type'),
         dialog: $linkElement.data('dialog-options'),
         dialogRenderer: $linkElement.data('dialog-renderer'),
