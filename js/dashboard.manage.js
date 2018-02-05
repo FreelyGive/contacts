@@ -2,8 +2,8 @@
 
   function initDashboardManage($block) {
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
-    var tab = $block.attr('data-dnd-contacts-block-tab'),
-        name = $block.attr('data-dnd-contacts-block-name'),
+    var tab = $block.attr('data-contacts-manage-block-tab'),
+        name = $block.attr('data-contacts-manage-block-name'),
         url = '/admin/contacts/ajax/manage-off-canvas/'+tab+'/'+name+'?'+destination;
     $block.addClass('manage-wrapper').prepend(Drupal.theme('manageTrigger', url));
 
@@ -16,18 +16,18 @@
     attach: function attach(context) {
       var $context = $(context);
 
-      var $placeholders = $context.find('[data-dnd-contacts-block-name]').once('contextual-render');
+      var $placeholders = $context.find('[data-contacts-manage-block-name]').once('contextual-render');
       if ($placeholders.length === 0) {
         return;
       }
 
       var ids = [];
       $placeholders.each(function () {
-        ids.push($(this).attr('data-dnd-contacts-block-name'));
+        ids.push($(this).attr('data-contacts-manage-block-name'));
       });
 
       _.each(ids, function (id) {
-        $placeholders = $context.find('[data-dnd-contacts-block-name="' + id + '"]');
+        $placeholders = $context.find('[data-contacts-manage-block-name="' + id + '"]');
 
         for (var i = 0; i < $placeholders.length; i++) {
           initDashboardManage($placeholders.eq(i));

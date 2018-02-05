@@ -108,7 +108,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * @param \Drupal\Core\Session\AccountProxy $current_user
    *   The current user service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, CurrentRouteMatch $route_match, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository, AccountProxy $current_user) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFormBuilderInterface $form_builder, RequestStack $request_stack, EntityDisplayRepository $entity_display_repository, AccountProxy $current_user) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->formBuilder = $form_builder;

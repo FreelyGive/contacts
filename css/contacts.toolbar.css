@@ -34,3 +34,48 @@
 .toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {
   margin: 0;
 }
+
+/**
+ * Configure trigger.
+ */
+.manage-wrapper .trigger {
+  background-image: url(../../../../core/misc/icons/bebebe/pencil.svg);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  /* Override the .focusable height: auto */
+  height: 26px !important;
+  /* Override the .focusable height: auto */
+  width: 26px !important;
+  text-indent: -9999px;
+  background-attachment: scroll;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 13px;
+  float: right; /* LTR */
+  margin: 0;
+  overflow: hidden;
+  padding: 0 2px;
+  position: relative;
+  right: 6px; /* LTR */
+  cursor: pointer;
+}
+.manage-wrapper .trigger:hover {
+  background-image: url(../../../../core/misc/icons/787878/pencil.svg);
+}
+.manage-wrapper .trigger:focus {
+  background-image: url(../../../../core/misc/icons/5181c6/pencil.svg);
+  outline: none;
+}
+[dir="rtl"] .manage-wrapper .trigger {
+  float: left;
+  right: auto;
+  left: 6px;
+}
+.manage-wrapper.open .trigger {
+  border: 1px solid #ccc;
+  border-bottom-color: transparent;
+  border-radius: 13px 13px 0 0;
+  box-shadow: none;
+  z-index: 2;
+}

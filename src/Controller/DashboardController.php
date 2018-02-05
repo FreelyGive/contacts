@@ -368,7 +368,7 @@ class DashboardController extends ControllerBase {
         $block = $blocks[$block_name];
 
         $block_content = [
-          '#theme' => 'contacts_dnd_card',
+          '#theme' => 'contacts_manage_block',
           '#attributes' => [
             'data-contacts-manage-block-tab' => $tab->id(),
           ],
