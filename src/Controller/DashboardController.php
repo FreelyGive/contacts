@@ -18,7 +18,6 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -205,7 +204,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
    *   The the tab entity that contains the block.
-   * @param $block_name
+   * @param string $block_name
    *   The unique name of the block on the tab.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
@@ -217,7 +216,7 @@ class DashboardController extends ControllerBase {
       $block = $this->blockManager->createInstance($block_config['id'], $block_config);
 
       return $this->t('Configure @block', [
-        '@block' => $block->getPluginDefinition()['admin_label']
+        '@block' => $block->getPluginDefinition()['admin_label'],
       ]);
     }
     return $this->t('Configure');
@@ -228,7 +227,7 @@ class DashboardController extends ControllerBase {
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
    *   The the tab entity that contains the block.
-   * @param $block_name
+   * @param string $block_name
    *   The unique name of the block on the tab.
    *
    * @return array
@@ -358,7 +357,7 @@ class DashboardController extends ControllerBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   The response commands.
    */
-  public function ajaxManageModeConfigureBlock($user, $subpage, $block_name, $mode = 'configure') {
+  public function ajaxManageModeConfigureBlock(UserInterface $user, $subpage, $block_name, $mode = 'configure') {
     $tab = $this->tabManager->getTabByPath($subpage);
     if ($tab) {
       $blocks = $this->tabManager->getBlocks($tab, $user);
