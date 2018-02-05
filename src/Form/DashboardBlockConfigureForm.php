@@ -83,7 +83,8 @@ class DashboardBlockConfigureForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $this->block = $form_state->getBuildInfo()['args'][0];
+    $this->tab = $form_state->getBuildInfo()['args'][0];
+    $this->block = $form_state->getBuildInfo()['args'][1];
 
     $form['#tree'] = TRUE;
     $form['settings'] = [];
@@ -92,12 +93,13 @@ class DashboardBlockConfigureForm extends FormBase {
 
     $configuration = $this->block->getConfiguration();
     $this->blockName = $configuration['name'];
-    $this->tab = $this->getRouteMatch()->getParameter('tab');
 
+    // We currently do not support editing of admin label.
     if (isset($form['settings']['admin_label'])) {
       unset($form['settings']['admin_label']);
     }
 
+    // We currently do not support editing of context mapping.
     if (isset($form['settings']['context_mapping'])) {
       unset($form['settings']['context_mapping']);
     }
@@ -105,7 +107,6 @@ class DashboardBlockConfigureForm extends FormBase {
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => 'Save',
-      '#attributes' => ['class' => ['button--primary']],
     ];
 
     $form['cancel'] = [
@@ -113,9 +114,6 @@ class DashboardBlockConfigureForm extends FormBase {
       '#value' => 'Cancel',
       '#submit' => [[$this, 'cancelBlock']],
       '#limit_validation_errors' => [],
-      '#attributes' => [
-        'class' => ['btn', 'btn-outline-secondary'],
-      ],
     ];
 
     return $form;

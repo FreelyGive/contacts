@@ -1,4 +1,4 @@
-(function ($, Drupal, drupalSettings, _, JSON, storage) {
+(function ($, Drupal, drupalSettings, _) {
 
   function initDashboardManage($block) {
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
@@ -56,8 +56,6 @@
     }
   };
 
-  Drupal.contactsManage = {};
-
   Drupal.theme.manageTrigger = function (url) {
     return '<button data-ajax-url="'+url+'" data-dialog-type="dialog" data-dialog-renderer="off_canvas" class="use-ajax trigger" type="button"></button>';
   };
@@ -70,4 +68,4 @@
     Drupal.ajax.bindAjaxLinks(data.$el[0]);
   });
 
-})(jQuery, Drupal, drupalSettings, _, window.JSON, window.sessionStorage);
+})(jQuery, Drupal, drupalSettings, _);

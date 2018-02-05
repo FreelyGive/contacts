@@ -211,15 +211,12 @@ class DashboardController extends ControllerBase {
    *   The title.
    */
   public function offCanvasTitle(ContactTab $tab, $block_name) {
-    if ($tab) {
-      $block_config = $tab->getBlock($block_name);
-      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+    $block_config = $tab->getBlock($block_name);
+    $block = $this->blockManager->createInstance($block_config['id'], $block_config);
 
-      return $this->t('Configure @block', [
-        '@block' => $block->getPluginDefinition()['admin_label'],
-      ]);
-    }
-    return $this->t('Configure');
+    return $this->t('Configure @block', [
+      '@block' => $block->getPluginDefinition()['admin_label'],
+    ]);
   }
 
   /**
@@ -234,14 +231,9 @@ class DashboardController extends ControllerBase {
    *   The renderable block config form.
    */
   public function offCanvasBlock(ContactTab $tab, $block_name) {
-    $content = [];
-    if ($tab) {
-      $block_config = $tab->getBlock($block_name);
-      $block = $this->blockManager->createInstance($block_config['id'], $block_config);
-      $content = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $block);
-    }
-
-    return $content;
+    $block_config = $tab->getBlock($block_name);
+    $block = $this->blockManager->createInstance($block_config['id'], $block_config);
+    return $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
   }
 
   /**
@@ -339,55 +331,6 @@ class DashboardController extends ControllerBase {
     $response->setContent(json_encode($response_data));
     $response->headers->set('Content-Type', 'application/json');
     $response->setStatusCode(Response::HTTP_OK);
-    return $response;
-  }
-
-  /**
-   * Return the AJAX command for changing tab.
-   *
-   * @param \Drupal\user\UserInterface $user
-   *   The user we are viewing.
-   * @param string $subpage
-   *   The subpage we want to view.
-   * @param string $block_name
-   *   The user we are viewing.
-   * @param string $mode
-   *   The mode to render the block for.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   The response commands.
-   */
-  public function ajaxManageModeConfigureBlock(UserInterface $user, $subpage, $block_name, $mode = 'configure') {
-    $tab = $this->tabManager->getTabByPath($subpage);
-    if ($tab) {
-      $blocks = $this->tabManager->getBlocks($tab, $user);
-
-      if (isset($blocks[$block_name])) {
-        /* @var \Drupal\Core\Block\BlockPluginInterface $block */
-        $block = $blocks[$block_name];
-
-        $block_content = [
-          '#theme' => 'contacts_manage_block',
-          '#attributes' => [
-            'data-contacts-manage-block-tab' => $tab->id(),
-          ],
-          '#id' => $block->getPluginId(),
-          '#block' => $block,
-          '#user' => $user->id(),
-          '#subpage' => $subpage,
-          '#mode' => $mode,
-        ];
-      }
-    }
-
-    // Create AJAX Response object.
-    $response = new AjaxResponse();
-
-    if (!empty($block_content)) {
-      $response->addCommand(new ReplaceCommand("div[data-contacts-manage-block-name='{$block_name}'][data-contacts-manage-block-mode!='meta']", $block_content));
-    }
-
-    // Return ajax response.
     return $response;
   }
 
