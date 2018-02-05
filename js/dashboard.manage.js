@@ -48,6 +48,7 @@
       $placeholders.each(function () {
         $(this).attr('data-ajax-url', '/admin/contacts/ajax/manage-mode');
         $(this).addClass('use-ajax');
+        $(this).attr('data-ajax-progress', 'fullscreen');
 
         $(document).trigger('drupalManageTabAdded', {
           $el: $(this)
@@ -57,7 +58,7 @@
   };
 
   Drupal.theme.manageTrigger = function (url) {
-    return '<button data-ajax-url="'+url+'" data-dialog-type="dialog" data-dialog-renderer="off_canvas" class="use-ajax trigger" type="button"></button>';
+    return '<button data-ajax-url="'+url+'" data-dialog-type="dialog" data-dialog-renderer="off_canvas" data-ajax-progress="fullscreen" class="use-ajax trigger" type="button"></button>';
   };
 
   $(document).on('drupalManageLinkAdded', function (event, data) {
