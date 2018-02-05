@@ -72,10 +72,9 @@ class ContactTabContent extends RenderElement {
         if ($element['#manage_mode']) {
           $block_content = [
             '#theme' => 'contacts_manage_block',
-            '#attributes' => [
-              'data-contacts-manage-block-tab' => $element['#tab']->id(),
-            ],
+            '#attributes' => [],
             '#id' => $block->getPluginId(),
+            '#tab' => $element['#tab'],
             '#block' => $block,
             '#subpage' => $element['#subpage'],
             '#mode' => 'manage',

@@ -184,6 +184,11 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
     $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
     $layout = $this->layoutManager->createInstance($layout, []);
 
+    $regions = [];
+    foreach (array_keys($layout->getPluginDefinition()->getRegions()) as $region) {
+      $regions[$region] = [];
+    }
+
     $build['content'] = [
       '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
       '#suffix' => '</div>',

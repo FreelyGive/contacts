@@ -34,3 +34,32 @@
 .toolbar .toolbar-bar .contacts-toolbar-tab .toolbar-item {
   margin: 0;
 }
+
+/**
+ * Configure block trigger.
+ */
+.manage-wrapper .trigger {
+  background-color: #bebebe;
+  mask: url(../images/pencil.svg) no-repeat center center;
+  -webkit-mask: url(../images/pencil.svg) no-repeat center center;
+  mask-size: 16px 16px;
+  -webkit-mask-size: 16px 16px;
+  height: 26px;
+  width: 26px;
+  float: right; /* LTR */
+  padding: 0 2px;
+  position: relative;
+  right: 6px; /* LTR */
+  cursor: pointer;
+}
+.manage-wrapper .trigger:hover {
+  background-color: #787878;
+}
+.manage-wrapper .trigger:focus {
+  background-color: #5181c6;
+}
+[dir="rtl"] .manage-wrapper .trigger {
+  float: left;
+  right: auto;
+  left: 6px;
+}

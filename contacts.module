@@ -20,6 +20,7 @@ use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
+use Drupal\contacts\Form\DashboardBlockConfigureForm;
 
 /**
  * Implements hook_theme().
@@ -45,6 +46,7 @@ function contacts_theme() {
     'contacts_manage_block' => [
       'variables' => [
         'id' => NULL,
+        'tab' => NULL,
         'mode' => NULL,
         'subpage' => NULL,
         'block' => [],
@@ -75,6 +77,7 @@ function template_preprocess_contacts_manage_block(array &$variables) {
   $variables['attributes']['data-contacts-manage-block-id'] = $variables['id'];
   $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
   $variables['attributes']['data-contacts-manage-block-mode'] = $variables['mode'];
+  $variables['attributes']['data-contacts-manage-block-tab'] = $variables['tab']->id();
 
   switch ($variables['mode']) {
     case 'manage':
@@ -90,6 +93,12 @@ function template_preprocess_contacts_manage_block(array &$variables) {
       if ($variables['block'] instanceof DashboardBlockInterface) {
         $variables['block']->processManageMode($variables);
       }
+      break;
+
+    case 'configure':
+      $variables['label'] = 'Configure block';
+      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['tab'], $variables['block']);
+      $variables['content']['configure_form'] = $form;
       break;
   }
 
