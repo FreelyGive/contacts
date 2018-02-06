@@ -218,11 +218,11 @@ class ContactsDashboardTest extends BrowserTestBase {
 
       // Check the label.
       if ($values['label']) {
-        $session->elementAttributeContains('css', $base_selector . '.contacts-row-main h3.contact-label a', 'href', $values['url']);
-        $session->elementTextContains('css', $base_selector . '.contacts-row-main h3.contact-label a', $values['label']);
+        $session->elementAttributeContains('css', $base_selector . '.contacts-row-main h4.contact-label a', 'href', $values['url']);
+        $session->elementTextContains('css', $base_selector . '.contacts-row-main h4.contact-label a', $values['label']);
       }
       else {
-        $session->elementNotExists('css', $base_selector . '.contacts-row-main h3.contact-label');
+        $session->elementNotExists('css', $base_selector . '.contacts-row-main h4.contact-label');
       }
 
       // Check the email.
