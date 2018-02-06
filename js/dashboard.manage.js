@@ -10,7 +10,7 @@
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
     var tab = $block.data('contacts-manage-block-tab'),
       name = $block.data('contacts-manage-block-name'),
-      url = [['/admin/contacts/ajax/manage-off-canvas/', tab, name].join('/'), destination].join('?');
+      url = [['/admin/contacts/ajax/manage-off-canvas', tab, name].join('/'), destination].join('?');
 
     $block.addClass('manage-wrapper');
     var link = $block.find('.manage-trigger');
