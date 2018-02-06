@@ -169,7 +169,7 @@
           handle: '.handle',
           items: '.draggable',
           connectWith: '.drag-area',
-
+          scrollSpeed: 10,
           update: function update(event, ui) {
             var itemRegion = ui.item.closest('.drag-area');
             if (event.target === itemRegion[0]) {
