@@ -1,17 +1,108 @@
 (function ($, Drupal, drupalSettings, _) {
 
+  /**
+   * Update ajax url for Manage Dashboard links.
+   *
+   * @param $block
+   *   Dashboard block to update the manage link for.
+   */
   function initDashboardManage($block) {
     var destination = 'destination=' + Drupal.encodePath(drupalSettings.path.currentPath);
-    var tab = $block.attr('data-contacts-manage-block-tab'),
-        name = $block.attr('data-contacts-manage-block-name'),
-        url = '/admin/contacts/ajax/manage-off-canvas/'+tab+'/'+name+'?'+destination;
-    $block.addClass('manage-wrapper').prepend(Drupal.theme('manageTrigger', url));
+    var tab = $block.data('contacts-manage-block-tab'),
+      name = $block.data('contacts-manage-block-name'),
+      url = [['/admin/contacts/ajax/manage-off-canvas/', tab, name].join('/'), destination].join('?');
+
+    $block.addClass('manage-wrapper');
+    var link = $block.find('.manage-trigger');
+    if (link.length !== 0) {
+      link.find('a').attr('data-ajax-url', url);
+    }
 
     $(document).trigger('drupalManageLinkAdded', {
       $el: $block
     });
   }
 
+  /**
+   * Scans a particular region for blocks and builds structured data.
+   *
+   * @param tab
+   *   ID of the current Dashboard tab.
+   * @param region
+   *   ID of the region to build data for.
+   * @param ids
+   *   The ordered list of block ids.
+   *
+   * @returns {{tab: string, region: string, blocks: Array}}
+   *   Structured data of blocks in region.
+   */
+  function buildDashboardRegionData(tab, region, ids) {
+    var data = {
+      'tab': tab,
+      'region': region,
+      'blocks': []
+    };
+
+    for (var weight = 0; weight < ids.length; weight++) {
+      var el = $('[data-contacts-manage-block-name=' + ids[weight] + ']');
+
+      // @todo check that profile type and relationship are available.
+      var block_data = {
+        name: ids[weight],
+        id: el.data('contacts-manage-block-id'),
+        entity_type: el.data('contacts-manage-entity-type'),
+        entity_bundle: el.data('contacts-manage-entity-bundle'),
+        entity_relationship: el.data('contacts-manage-entity-relationship')
+      };
+      data.blocks.push(block_data);
+    }
+
+    return data;
+  }
+
+  /**
+   * Update the Dashboard tab with changes made to block contents.
+   *
+   * @param tab
+   *   ID of tab to be updated.
+   * @param context
+   *   The context of the tab.
+   */
+  function updateDashboardDrag(tab, context) {
+    var $dragAreas = $(context).find('.drag-area');
+
+    if ($dragAreas.length === 0) {
+      return;
+    }
+
+    var regions = [];
+    $dragAreas.each(function () {
+      var sortedIDs = $(this).sortable("toArray", {attribute: 'data-contacts-manage-block-name'});
+      if (sortedIDs.length !== 0) {
+        var region = $(this, context).data('contacts-manage-region-id');
+        var data = buildDashboardRegionData(tab, region, sortedIDs);
+        regions.push(data);
+      }
+    });
+
+    var url = $(context).find('[data-contacts-manage-update-url]').data('contacts-manage-update-url'),
+      postData = {
+        regions: regions,
+        tab: tab
+      };
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: $.param(postData)
+    }).done(function (data) {
+      console.log(data);
+    });
+  }
+
+  /**
+   * Find all dashboard blocks and set manage ajax links.
+   */
   Drupal.behaviors.contactsDashboardManage = {
     attach: function attach(context) {
       var $context = $(context);
@@ -23,7 +114,7 @@
 
       var ids = [];
       $placeholders.each(function () {
-        ids.push($(this).attr('data-contacts-manage-block-name'));
+        ids.push($(this).data('contacts-manage-block-name'));
       });
 
       _.each(ids, function (id) {
@@ -36,6 +127,9 @@
     }
   };
 
+  /**
+   * Set toolbar manage mode ajax link.
+   */
   Drupal.behaviors.contactsDashboardManageToolbar = {
     attach: function attach(context) {
       var $context = $(context);
@@ -57,8 +151,36 @@
     }
   };
 
-  Drupal.theme.manageTrigger = function (url) {
-    return '<button data-ajax-url="'+url+'" data-dialog-type="dialog" data-dialog-renderer="off_canvas" data-ajax-progress="fullscreen" class="use-ajax trigger" type="button"></button>';
+  /**
+   * Add sorting of dashboard blocks in manage mode.
+   */
+  Drupal.behaviors.contactsDashboardManageDrag = {
+    attach: function attach(context) {
+
+      var $dragAreas = $(context).find('.drag-area');
+
+      if ($dragAreas.length === 0) {
+        return;
+      }
+
+      $dragAreas.each(function () {
+        $(this).sortable({
+          placeholder: "drag-area-placeholder",
+          handle: '.handle',
+          items: '.draggable',
+          connectWith: '.drag-area',
+
+          update: function update(event, ui) {
+            var itemRegion = ui.item.closest('.drag-area');
+            if (event.target === itemRegion[0]) {
+
+              var tab = ui.item.closest('[data-contacts-manage-block-tab]').data('contacts-manage-block-tab');
+              updateDashboardDrag(tab, context);
+            }
+          }
+        });
+      });
+    }
   };
 
   $(document).on('drupalManageLinkAdded', function (event, data) {

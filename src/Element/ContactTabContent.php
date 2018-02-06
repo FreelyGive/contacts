@@ -3,7 +3,9 @@
 namespace Drupal\contacts\Element;
 
 use Drupal\contacts\Plugin\DashboardBlockInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\RenderElement;
+use Drupal\Core\Url;
 
 /**
  * Provides a dashboard tab content render element.
@@ -67,12 +69,18 @@ class ContactTabContent extends RenderElement {
         }
       }
 
+      // Add drag-area class.
+      if ($element['#manage_mode']) {
+        $element['#region_attributes']['class'][] = 'drag-area';
+        $element['#region_attributes']['data-contacts-manage-update-url'] = Url::fromRoute('contacts.ajax.update_blocks')->toString();
+      }
+
       foreach ($blocks as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         if ($element['#manage_mode']) {
           $block_content = [
             '#theme' => 'contacts_manage_block',
-            '#attributes' => [],
+            '#attributes' => ['class' => ['draggable']],
             '#id' => $block->getPluginId(),
             '#tab' => $element['#tab'],
             '#block' => $block,
@@ -106,6 +114,9 @@ class ContactTabContent extends RenderElement {
 
       $element['content'] = $element['#layout']->build($element['#regions']);
       $element['content']['#attributes'] = $element['#attributes'];
+      foreach (Element::children($element['content']) as $region) {
+        $element['content'][$region]['#attributes'] = $element['#region_attributes'];
+      }
     }
     else {
       drupal_set_message($element['#not_found'], 'warning');

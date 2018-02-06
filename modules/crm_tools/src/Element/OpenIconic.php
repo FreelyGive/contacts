@@ -91,7 +91,7 @@ class OpenIconic extends RenderElement {
       '#prefix' => '<svg' . $attributes . '>',
       '#suffix' => '</svg>',
       '#attributes' => [
-        'xlink:href' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg#' . $icon,
+        'xlink:href' => "#$icon",
         'class' => ["icon-$icon"],
       ],
     ];
