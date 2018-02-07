@@ -3,6 +3,10 @@
 namespace Drupal\contacts\Form;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Controller\DashboardController;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseDialogCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -104,16 +108,32 @@ class DashboardBlockConfigureForm extends FormBase {
       unset($form['settings']['context_mapping']);
     }
 
-    $form['submit'] = [
+    $form['actions'] = ['#type' => 'actions'];
+
+
+    $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => 'Save',
+      '#ajax' => ['callback' => '::ajaxSubmit'],
+      '#button_type' => 'primary',
     ];
 
-    $form['cancel'] = [
+    $form['actions']['cancel'] = [
       '#type' => 'submit',
       '#value' => 'Cancel',
-      '#submit' => [[$this, 'cancelBlock']],
       '#limit_validation_errors' => [],
+      '#attributes' => ['class' => ['dialog-cancel']],
+    ];
+
+    $form['actions']['actions']['cancel']['#attributes']['class'][] = 'dialog-cancel';
+
+
+    $form['actions']['remove'] = [
+      '#type' => 'submit',
+      '#value' => 'Remove',
+      '#submit' => [[$this, 'removeBlock']],
+      '#limit_validation_errors' => [],
+      '#ajax' => ['callback' => '::ajaxSubmit'],
     ];
 
     return $form;
@@ -147,6 +167,45 @@ class DashboardBlockConfigureForm extends FormBase {
    */
   public function cancelBlock(array &$form, FormStateInterface $form_state) {
     // Do nothing.
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeBlock(array &$form, FormStateInterface $form_state) {
+    $blocks = $this->tab->getBlocks();
+    unset($blocks[$this->blockName]);
+    $this->tab->setBlocks($blocks);
+    $this->tab->save();
+  }
+
+  /**
+   * Submit form dialog #ajax callback.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   An AJAX response that display validation error messages or represents a
+   *   successful submission.
+   */
+  public function ajaxSubmit(array &$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    if ($form_state->hasAnyErrors()) {
+      $form['status_messages'] = [
+        '#type' => 'status_messages',
+        '#weight' => -1000,
+      ];
+      $response->addCommand(new ReplaceCommand('[data-drupal-selector="' . $form['#attributes']['data-drupal-selector'] . '"]', $form));
+    }
+    else {
+      $dashboard_controller = \Drupal::service('class_resolver')->getInstanceFromDefinition(DashboardController::class);
+      $response = $dashboard_controller->ajaxManageModeRefresh($this->tab);
+      $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    }
+    return $response;
   }
 
 }

@@ -113,8 +113,12 @@ class ContactTabContent extends RenderElement {
       }
 
       $element['content'] = $element['#layout']->build($element['#regions']);
+
       $element['content']['#attributes'] = $element['#attributes'];
       foreach (Element::children($element['content']) as $region) {
+        if ($element['#manage_mode']) {
+          array_unshift($element['content'][$region], static::buildAddBlockLink($element['#tab']->id(), $region));
+        }
         $element['content'][$region]['#attributes'] = $element['#region_attributes'];
       }
     }
@@ -123,6 +127,43 @@ class ContactTabContent extends RenderElement {
     }
 
     return $element;
+  }
+
+  /**
+   * Builds a link to add a new section at a given delta.
+   *
+   * @param string $tab
+   *   The section storage.
+   * @param string $region
+   *   The delta of the section to splice.
+   *
+   * @return array
+   *   A render array for a link.
+   */
+  protected static function buildAddBlockLink($tab, $region) {
+    return [
+      'link' => [
+        '#type' => 'link',
+        '#title' => t('Add Block'),
+        '#url' => Url::fromRoute('contacts.manage.off_canvas_choose',
+          [
+            'tab' => $tab,
+            'region' => $region,
+          ],
+          [
+            'attributes' => [
+              'class' => ['use-ajax'],
+              'data-dialog-type' => 'dialog',
+              'data-dialog-renderer' => 'off_canvas',
+            ],
+          ]
+        ),
+      ],
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['add-section'],
+      ],
+    ];
   }
 
 }

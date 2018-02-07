@@ -128,6 +128,33 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
+  public function addBlock($id, $block) {
+    // Get default name.
+    $name = preg_replace("/[^A-Za-z0-9 ]/", '_', $id);
+
+    // Check for uniqueness.
+    if (in_array($name, array_keys($this->getBlocks()))) {
+      $i = 0;
+      do {
+        $i++;
+        $new_name = "{$name}_{$i}";
+        $exists = in_array($new_name, array_keys($this->getBlocks()));
+      } while ($exists);
+
+      $name = $new_name;
+    }
+
+
+    // Make sure the name is set properly.
+    $block['id'] = $id;
+    $this->setBlock($name, $block);
+
+    return $name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getBlock($id) {
     if (isset($this->blocks[$id])) {
       return $this->blocks[$id];

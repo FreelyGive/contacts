@@ -94,7 +94,29 @@
     $.ajax({
       type: 'POST',
       url: url,
-      data: $.param(postData)
+      data: postData
+    }).done(function (data) {
+      console.log(data);
+    });
+  }
+
+  function updateDashboardTabs(context) {
+    var $dragAreas = $(context).find('.contacts-ajax-tabs');
+
+    if ($dragAreas.length === 0) {
+      return;
+    }
+
+    var tabs = $dragAreas.sortable("toArray", {attribute: 'data-contacts-drag-tab-id'});
+    var url = '/admin/contacts/ajax/update-tabs',
+      postData = {
+        tabs: tabs
+      };
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: postData
     }).done(function (data) {
       console.log(data);
     });
@@ -154,7 +176,7 @@
   /**
    * Add sorting of dashboard blocks in manage mode.
    */
-  Drupal.behaviors.contactsDashboardManageDrag = {
+  Drupal.behaviors.contactsDashboardManageDragBlocks = {
     attach: function attach(context) {
 
       var $dragAreas = $(context).find('.drag-area');
@@ -176,6 +198,32 @@
 
               var tab = ui.item.closest('[data-contacts-manage-block-tab]').data('contacts-manage-block-tab');
               updateDashboardDrag(tab, context);
+            }
+          }
+        });
+      });
+    }
+  };
+
+  /**
+   * Add sorting of dashboard blocks in manage mode.
+   */
+  Drupal.behaviors.contactsDashboardManageDragTabs = {
+    attach: function attach(context) {
+
+      var $dragAreas = $(context).find('.contacts-ajax-tabs');
+
+      if ($dragAreas.length === 0) {
+        return;
+      }
+
+      $dragAreas.each(function () {
+        $(this).sortable({
+          placeholder: "nav-item nav-link tab-area-placeholder",
+          update: function update(event, ui) {
+            var itemRegion = ui.item.closest('.contacts-ajax-tabs');
+            if (event.target === itemRegion[0]) {
+              updateDashboardTabs(context);
             }
           }
         });

@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @Block(
  *   id = "contacts_entity",
- *   category = @Translation("Contacts"),
+ *   category = @Translation("Dashboard Blocks"),
  *   deriver = "Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver",
  *   dashboard_block = TRUE,
  * )
@@ -172,6 +172,11 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
     // If we are already in edit mode, don't show a link.
     if ($this->request->query->has('edit')) {
+      return FALSE;
+    }
+
+    // If we are already in edit mode, don't show a link.
+    if ($this->getMode() == 'edit') {
       return FALSE;
     }
 
@@ -526,6 +531,45 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     return $operations;
+  }
+
+  public function getManageMeta() {
+    $meta = [
+      '#type' => 'details',
+      '#open' => TRUE,
+      '#title' => 'About this block',
+    ];
+
+    $definition = $this->getPluginDefinition();
+    $entity_type_definition = $this->entityTypeManager->getDefinition($definition['_entity_type_id']);
+    $entity_bundle_type = $entity_type_definition->getBundleEntityType();
+    $bundle_entity = $this->entityTypeManager->getStorage($entity_bundle_type)->load($definition['_bundle_id']);
+
+    $roles = user_roles();
+    uasort($roles, 'contacts_sort_roles');
+    $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
+    $hats = [];
+    // @todo Show hat icons instead of labels.
+    foreach ($roles as $role) {
+      $hats[] = [
+        '#theme' => 'crm_tools_hat',
+        '#role' => $role,
+      ];
+    }
+    $meta['needed_hats'] = [
+      '#theme' => 'item_list',
+      '#items' => $hats,
+      '#title' => 'Allowed for users with hats:',
+    ];
+
+    $tabs = \Drupal::service('contacts.tab_manager')->getTabsWithBlock($this->getPluginId());
+    $meta['placed_tabs'] = [
+      '#theme' => 'item_list',
+      '#items' => $tabs,
+      '#title' => 'Currently placed on tabs:',
+    ];
+
+    return $meta;
   }
 
 }
