@@ -24,43 +24,6 @@
   }
 
   /**
-   * Scans a particular region for blocks and builds structured data.
-   *
-   * @param tab
-   *   ID of the current Dashboard tab.
-   * @param region
-   *   ID of the region to build data for.
-   * @param ids
-   *   The ordered list of block ids.
-   *
-   * @returns {{tab: string, region: string, blocks: Array}}
-   *   Structured data of blocks in region.
-   */
-  function buildDashboardRegionData(tab, region, ids) {
-    var data = {
-      'tab': tab,
-      'region': region,
-      'blocks': []
-    };
-
-    for (var weight = 0; weight < ids.length; weight++) {
-      var el = $('[data-contacts-manage-block-name=' + ids[weight] + ']');
-
-      // @todo check that profile type and relationship are available.
-      var block_data = {
-        name: ids[weight],
-        id: el.data('contacts-manage-block-id'),
-        entity_type: el.data('contacts-manage-entity-type'),
-        entity_bundle: el.data('contacts-manage-entity-bundle'),
-        entity_relationship: el.data('contacts-manage-entity-relationship')
-      };
-      data.blocks.push(block_data);
-    }
-
-    return data;
-  }
-
-  /**
    * Update the Dashboard tab with changes made to block contents.
    *
    * @param tab
@@ -80,7 +43,12 @@
       var sortedIDs = $(this).sortable("toArray", {attribute: 'data-contacts-manage-block-name'});
       if (sortedIDs.length !== 0) {
         var region = $(this, context).data('contacts-manage-region-id');
-        var data = buildDashboardRegionData(tab, region, sortedIDs);
+
+        var data = {
+          'region': region,
+          'blocks': sortedIDs
+        };
+
         regions.push(data);
       }
     });
@@ -166,7 +134,6 @@
       $dragAreas.each(function () {
         $(this).sortable({
           placeholder: "drag-area-placeholder",
-          handle: '.handle',
           items: '.draggable',
           connectWith: '.drag-area',
           scrollSpeed: 10,
