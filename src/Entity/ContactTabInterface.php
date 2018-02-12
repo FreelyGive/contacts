@@ -28,6 +28,24 @@ interface ContactTabInterface extends ConfigEntityInterface {
   public function setPath($path);
 
   /**
+   * Get the layout id for this tab.
+   *
+   * @return string
+   *   The layout for the tab.
+   */
+  public function getLayout();
+
+  /**
+   * Set the layout id for this tab.
+   *
+   * @param string $layout
+   *   The layout for the tab.
+   *
+   * @return $this
+   */
+  public function setLayout($layout);
+
+  /**
    * Get the relationship definitions.
    *
    * @return array

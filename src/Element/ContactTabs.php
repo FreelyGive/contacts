@@ -57,13 +57,14 @@ class ContactTabs extends RenderElement {
       '#theme' => 'contacts_dash_tabs',
       '#weight' => -1,
       '#tabs' => [],
+      '#manage_mode' => $element['#manage_mode'],
       '#attached' => [
         'library' => ['contacts/tabs'],
       ],
     ];
 
     foreach ($element['#tabs'] as $tab_id => $tab) {
-      $element['content']['#tabs'][$tab['path']] = [
+      $element['content']['#tabs'][$tab_id] = [
         'text' => $tab['label'],
         'link' => Url::fromRoute('page_manager.page_view_contacts_dashboard_contact', [
           'user' => $element['#user']->id(),
@@ -73,43 +74,28 @@ class ContactTabs extends RenderElement {
 
       // Add the drag icon.
       if ($element['#manage_mode']) {
-        $text = [
-          '#type' => 'container',
-          'icon' => [
-            '#type' => 'open_iconic',
-            '#size' => '20',
-            '#icon' => 'move',
-            '#color' => 'transparent',
-            '#fill' => '#000',
-          ],
-          'title' => [
-            '#markup' => $element['content']['#tabs'][$tab['path']]['text']
-          ],
-        ];
-        $element['content']['#tabs'][$tab['path']]['text'] = $text;
-        $element['content']['#tabs'][$tab['path']]['link_attributes']['class'][] = 'manage-tab';
-
+        $element['content']['#tabs'][$tab_id]['link_attributes']['class'][] = 'manage-tab';
       }
 
       // Swap links for AJAX request links.
       if ($element['#ajax']) {
-        $element['content']['#tabs'][$tab['path']]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
+        $element['content']['#tabs'][$tab_id]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
           'user' => $element['#user']->id(),
           'subpage' => $tab['path'],
         ])->toString();
-        $element['content']['#tabs'][$tab['path']]['link_attributes']['class'][] = 'use-ajax';
-        $element['content']['#tabs'][$tab['path']]['link_attributes']['data-ajax-progress'] = 'fullscreen';
+        $element['content']['#tabs'][$tab_id]['link_attributes']['class'][] = 'use-ajax';
+        $element['content']['#tabs'][$tab_id]['link_attributes']['data-ajax-progress'] = 'fullscreen';
       }
 
       // Add tab id to attributes.
-      $element['content']['#tabs'][$tab['path']]['attributes']['data-contacts-drag-tab-id'] = $tab_id;
-      $element['content']['#tabs'][$tab['path']]['link_attributes']['data-contacts-tab-id'] = $tab_id;
-    }
+      $element['content']['#tabs'][$tab_id]['attributes']['data-contacts-drag-tab-id'] = $tab_id;
+      $element['content']['#tabs'][$tab_id]['link_attributes']['data-contacts-tab-id'] = $tab_id;
 
-    // Add active class to current tab.
-    if (isset($element['content']['#tabs'][$element['#subpage']])) {
-      $element['content']['#tabs'][$element['#subpage']]['attributes']['class'][] = 'is-active';
-      $element['content']['#tabs'][$element['#subpage']]['link_attributes']['class'][] = 'is-active';
+      // Add active class to current tab.
+      if ($tab['path'] == $element['#subpage']) {
+        $element['content']['#tabs'][$tab_id]['attributes']['class'][] = 'is-active';
+        $element['content']['#tabs'][$tab_id]['link_attributes']['class'][] = 'is-active';
+      }
     }
 
     return $element;

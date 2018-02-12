@@ -8,30 +8,16 @@ use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Form\SubformState;
+use Drupal\Core\Render\Element;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * The configuration form for dashboard blocks.
  */
-class DashboardBlockConfigureForm extends FormBase {
+class DashboardTabConfigureForm extends FormBase {
 
   use AjaxFormHelperTrait;
   use DashboardRebuildTrait;
-
-  /**
-   * The block plugin being configured.
-   *
-   * @var \Drupal\Core\Block\BlockPluginInterface
-   */
-  protected $block;
-
-  /**
-   * The block name key used to identify the block on the tab.
-   *
-   * @var string
-   */
-  protected $blockName;
 
   /**
    * The dashboard tab.
@@ -85,7 +71,7 @@ class DashboardBlockConfigureForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return "dashboard_block_configure_form";
+    return "dashboard_tab_configure_form";
   }
 
   /**
@@ -93,25 +79,16 @@ class DashboardBlockConfigureForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $this->tab = $form_state->getBuildInfo()['args'][0];
-    $this->block = $form_state->getBuildInfo()['args'][1];
-
     $form['#tree'] = TRUE;
-    $form['settings'] = [];
-    $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
-    $form['settings'] = $this->block->buildConfigurationForm($form['settings'], $subform_state);;
 
-    $configuration = $this->block->getConfiguration();
-    $this->blockName = $configuration['name'];
-
-    // We currently do not support editing of admin label.
-    if (isset($form['settings']['admin_label'])) {
-      unset($form['settings']['admin_label']);
-    }
-
-    // We currently do not support editing of context mapping.
-    if (isset($form['settings']['context_mapping'])) {
-      unset($form['settings']['context_mapping']);
-    }
+    $form['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#maxlength' => 255,
+      '#default_value' => $this->tab->label(),
+      '#description' => $this->t("Label for the tab."),
+      '#required' => TRUE,
+    ];
 
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
@@ -129,7 +106,8 @@ class DashboardBlockConfigureForm extends FormBase {
     $form['actions']['remove'] = [
       '#type' => 'submit',
       '#value' => 'Remove',
-      '#submit' => [[$this, 'removeBlock']],
+      '#name' => 'remove',
+      '#submit' => [[$this, 'removeTab']],
       '#limit_validation_errors' => [],
     ];
 
@@ -140,6 +118,11 @@ class DashboardBlockConfigureForm extends FormBase {
       $form['actions']['remove']['#ajax']['callback'] = '::ajaxSubmit';
     }
 
+    $form['messages'] = [
+      '#type' => 'status_messages',
+      '#weight' => -99,
+    ];
+
     return $form;
   }
 
@@ -147,36 +130,34 @@ class DashboardBlockConfigureForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $sub_form_state = SubformState::createForSubform($form['settings'], $form, $form_state);
-    $this->block->validateConfigurationForm($form['settings'], $sub_form_state);
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    dpm($form_state->getValues());
-    $sub_form_state = SubformState::createForSubform($form['settings'], $form, $form_state);
-    dpm($sub_form_state->getValues());
-    $this->block->submitConfigurationForm($form, $sub_form_state);
-    $this->tab->setBlock($this->blockName, $this->block->getConfiguration());
-    $this->tab->save();
+    \Drupal::entityTypeManager()
+      ->getFormObject('contact_tab', 'edit')
+      ->setEntity($this->tab)
+      ->buildEntity($form, $form_state)
+      ->save();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function removeBlock(array &$form, FormStateInterface $form_state) {
-    $blocks = $this->tab->getBlocks();
-    unset($blocks[$this->blockName]);
-    $this->tab->setBlocks($blocks);
-    $this->tab->save();
+  public function removeTab(array &$form, FormStateInterface $form_state) {
+    $this->tab->delete();
   }
 
   /**
    * {@inheritdoc}
    */
   protected function successfulAjaxSubmit(array $form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    if ($trigger['#name'] == 'remove') {
+      $this->tab = $this->tabManager->getTab('summary');
+    }
     return $this->rebuildAndReturn($this->tab);
   }
 

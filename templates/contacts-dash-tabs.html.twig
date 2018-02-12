@@ -2,11 +2,12 @@
   <ul{{ attributes }}>
     {%- for key, item in tabs -%}
       <li{{ item.attributes.addClass(key|clean_class) }}>
-        <a {{ item.link_attributes }} href="{{ item.link }}">{{ item.text }}</a>
+        <a {{ item.link_attributes }} href="{{ item.link }}">
+          {{ item.drag }}
+          {{ item.edit }}
+          {{ item.text }}
+        </a>
       </li>
-      {#<li>#}
-        {#<a class="use-ajax" href="{{ item.link }}">Ajax {{ item.text }}</a>#}
-      {#</li>#}
     {%- endfor -%}
   </ul>
 {% endif %}

@@ -164,6 +164,10 @@ class ContactsTabManager implements ContactsTabManagerInterface {
       }
     }
 
+    if (isset($blocks['contacts_entity_profile_student'])) {
+//      dpm($blocks['contacts_entity_profile_student']->);
+    }
+
     if ($contact !== NULL) {
       $this->applyBlockContext($tab, $blocks, $contact);
     }

@@ -73,6 +73,7 @@ function template_preprocess_crm_tools_hat(array &$variables) {
     $variables['icon'] = [
       '#type' => 'open_iconic',
       '#size' => '15',
+      '#attributes' => ['class' => ['role-icon']],
     ];
     if ($role->getThirdPartySetting('crm_tools', 'crm_tools_icon', FALSE)) {
       $variables['icon']['#icon'] = $role->getThirdPartySetting('crm_tools', 'crm_tools_icon');
@@ -211,6 +212,7 @@ function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_st
       '#attributes' => ['class' => ['icon-preview']],
       'icon' => [
         '#type' => 'open_iconic',
+        '#size' => 25,
         '#icon' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon'),
         '#color' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
       ],

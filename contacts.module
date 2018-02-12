@@ -28,7 +28,7 @@ use Drupal\contacts\Form\DashboardBlockConfigureForm;
 function contacts_theme() {
   return [
     'contacts_dash_tabs' => [
-      'variables' => ['tabs' => []],
+      'variables' => ['tabs' => [], 'manage_mode' => NULL],
       'template' => 'contacts-dash-tabs',
     ],
     'contacts_dash_summary' => [
@@ -47,7 +47,6 @@ function contacts_theme() {
       'variables' => [
         'id' => NULL,
         'tab' => NULL,
-        'mode' => NULL,
         'subpage' => NULL,
         'block' => [],
         'attributes' => [],
@@ -79,27 +78,17 @@ function template_preprocess_contacts_manage_block(array &$variables) {
   $variables['attributes']['data-contacts-manage-block-mode'] = $variables['mode'];
   $variables['attributes']['data-contacts-manage-block-tab'] = $variables['tab']->id();
 
-  switch ($variables['mode']) {
-    case 'manage':
-      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
-      $variables['content']['description'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'strong',
-        '#value' => $variables['description'],
-        '#prefix' => '<div>',
-        '#suffix' => '</div>',
-      ];
+  $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+  $variables['content']['description'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'strong',
+    '#value' => $variables['description'],
+    '#prefix' => '<div>',
+    '#suffix' => '</div>',
+  ];
 
-      if ($variables['block'] instanceof DashboardBlockInterface) {
-        $variables['block']->processManageMode($variables);
-      }
-      break;
-
-    case 'configure':
-      $variables['label'] = 'Configure block';
-      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['tab'], $variables['block']);
-      $variables['content']['configure_form'] = $form;
-      break;
+  if ($variables['block'] instanceof DashboardBlockInterface) {
+    $variables['block']->processManageMode($variables);
   }
 
   $variables['attributes'] = new Attribute($variables['attributes']);
@@ -123,7 +112,37 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
     ],
   ];
 
-  foreach ($variables['tabs'] as &$tab) {
+  foreach ($variables['tabs'] as $tab_id => &$tab) {
+    if ($variables['manage_mode']) {
+      $tab['drag'] = [
+        '#type' => 'open_iconic',
+        '#size' => '15',
+        '#icon' => 'move',
+        '#color' => 'transparent',
+        '#fill' => '#000',
+        '#attributes' => [
+          'class' => ['mr-1', 'drag-handle'],
+        ],
+      ];
+
+      $tab['edit'] = [
+        '#type' => 'open_iconic',
+        '#size' => '15',
+        '#icon' => 'cog',
+        '#color' => 'transparent',
+        '#fill' => '#5bc0de',
+        '#attributes' => [
+          'class' => ['use-ajax', 'mr-2'],
+          'data-ajax-url' => Url::fromRoute('contacts.tab.off_canvas_form',
+            [
+              'tab' => $tab_id,
+            ]
+          )->toString(),
+          'data-dialog-type' => 'dialog',
+          'data-dialog-renderer' => 'off_canvas',
+        ],
+      ];
+    }
     $tab['attributes'] = !empty($tab['attributes']) ? new Attribute($tab['attributes']) : new Attribute();
     $tab['link_attributes'] = !empty($tab['link_attributes']) ? new Attribute($tab['link_attributes']) : new Attribute();
   }
@@ -221,6 +240,19 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
   }
+
+  $roles = user_roles();
+  uasort($roles, 'contacts_sort_roles');
+  $roles = array_intersect(array_keys($roles), $user->getRoles());
+  $variables['hats'] = [];
+
+  foreach ($roles as $role) {
+    $variables['hats'][] = [
+      '#theme' => 'crm_tools_hat',
+      '#role' => $role,
+    ];
+  }
+
 }
 
 /**

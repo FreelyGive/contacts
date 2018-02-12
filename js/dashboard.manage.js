@@ -170,6 +170,20 @@
           $el: $(this)
         });
       });
+
+//      if (!drupalSettings.contacts.manageMode) {
+        var activeTab = $context.find('.nav-link.active');
+        var tab = activeTab.closest('[data-contacts-drag-tab-id]').data('contacts-drag-tab-id');
+        if (tab) {
+          setTimeout(function () {
+            // @todo Remove the click and the timout - solve properly.
+            $(activeTab).click();
+            $.ajax({
+              url: Drupal.url('admin/contacts/ajax/update-offcanvas/'+tab)
+            }).done(function(data) {console.log(data)});
+          }, 100);
+        }
+//      }
     }
   };
 
@@ -220,6 +234,7 @@
       $dragAreas.each(function () {
         $(this).sortable({
           placeholder: "nav-item nav-link tab-area-placeholder",
+          handle: '.drag-handle',
           update: function update(event, ui) {
             var itemRegion = ui.item.closest('.contacts-ajax-tabs');
             if (event.target === itemRegion[0]) {

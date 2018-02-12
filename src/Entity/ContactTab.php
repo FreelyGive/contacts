@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
  * Defines the Contact tab entity.
@@ -13,6 +14,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   handlers = {
  *     "list_builder" = "Drupal\contacts\ContactTabListBuilder",
  *     "form" = {
+ *       "default" = "Drupal\contacts\Form\ContactTabForm",
+ *       "add" = "Drupal\contacts\Form\ContactTabForm",
  *       "edit" = "Drupal\contacts\Form\ContactTabForm",
  *       "delete" = "Drupal\contacts\Form\ContactTabDeleteForm"
  *     },
@@ -29,6 +32,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   },
  *   links = {
  *     "canonical" = "/admin/structure/contact-tabs/{contact_tab}",
+ *     "add-form" = "/admin/structure/contact-tabs/add",
  *     "edit-form" = "/admin/structure/contact-tabs/{contact_tab}/edit",
  *     "delete-form" = "/admin/structure/contact-tabs/{contact_tab}/delete",
  *     "collection" = "/admin/structure/contact-tabs"
@@ -57,6 +61,13 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
    * @var string
    */
   protected $path;
+
+  /**
+   * The tab layout.
+   *
+   * @var string
+   */
+  protected $layout;
 
   /**
    * The contexts in which to show the tab.
@@ -98,6 +109,14 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
   /**
    * {@inheritdoc}
    */
+  public static function preCreate(EntityStorageInterface $storage, array &$values) {
+    $values += ['layout' => 'contacts_tab_content.stacked'];
+    parent::preCreate($storage, $values);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getPath() {
     return $this->path;
   }
@@ -109,6 +128,22 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
     $this->path = $path;
     return $this;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLayout() {
+    return $this->layout;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setLayout($layout) {
+    $this->layout = $layout;
+    return $this;
+  }
+
 
   /**
    * {@inheritdoc}
@@ -246,6 +281,46 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
     }
 
     return $this;
+  }
+
+  public function getManageMeta() {
+    $meta = [];
+//    $meta = [
+//      '#type' => 'details',
+//      '#open' => TRUE,
+//      '#title' => 'About this tab',
+//    ];
+
+//    $definition = $this->getPluginDefinition();
+//    $entity_type_definition = $this->entityTypeManager->getDefinition($definition['_entity_type_id']);
+//    $entity_bundle_type = $entity_type_definition->getBundleEntityType();
+//    $bundle_entity = $this->entityTypeManager->getStorage($entity_bundle_type)->load($definition['_bundle_id']);
+//
+//    $roles = user_roles();
+//    uasort($roles, 'contacts_sort_roles');
+//    $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
+//    $hats = [];
+//    // @todo Show hat icons instead of labels.
+//    foreach ($roles as $role) {
+//      $hats[] = [
+//        '#theme' => 'crm_tools_hat',
+//        '#role' => $role,
+//      ];
+//    }
+//    $meta['needed_hats'] = [
+//      '#theme' => 'item_list',
+//      '#items' => $hats,
+//      '#title' => 'Allowed for users with hats:',
+//    ];
+//
+//    $tabs = \Drupal::service('contacts.tab_manager')->getTabsWithBlock($this->getPluginId());
+//    $meta['placed_tabs'] = [
+//      '#theme' => 'item_list',
+//      '#items' => $tabs,
+//      '#title' => 'Currently placed on tabs:',
+//    ];
+
+    return $meta;
   }
 
 }

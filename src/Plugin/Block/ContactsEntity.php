@@ -459,6 +459,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     ]);
     $form['#action'] = $action->toString();
 
+//    dpm($form['actions']);
+
     return ['form' => $form];
   }
 
@@ -497,36 +499,53 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $operations = [];
     // Add manage fields and display links if this entity type is the bundle
     // of another and that type has field UI enabled.
-    if ($bundle_type && $entity_definition->get('field_ui_base_route')) {
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
-        $operations['manage-fields'] = [
-          '#type' => 'link',
-          '#title' => t('Manage fields'),
-          '#weight' => 15,
-          '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
-      }
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
-        $operations['manage-form-display'] = [
-          '#type' => 'link',
-          '#title' => t('Manage form display'),
-          '#weight' => 20,
-          '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
-      }
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
-        $operations['manage-display'] = [
-          '#type' => 'link',
-          '#title' => t('Manage display'),
-          '#weight' => 25,
-          '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
+    if ($bundle_type) {
+      $link_options = [
+        'attributes' => ['target' => '_blank'],
+        'query' => ['destination' => \Drupal::urlGenerator()->generateFromRoute('<current>')],
+      ];
+
+      // @todo Solve generic entity access permission issue.
+      $operations['manage-entity'] = [
+        '#type' => 'link',
+        '#title' => t('Edit profile type'),
+        '#weight' => 10,
+        '#url' => Url::fromRoute("entity.{$bundle_type}.edit_form", [
+          $bundle_type => $bundle_id,
+        ], $link_options),
+      ];
+
+      if ($entity_definition->get('field_ui_base_route')) {
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
+          $operations['manage-fields'] = [
+            '#type' => 'link',
+            '#title' => t('Manage fields'),
+            '#weight' => 15,
+            '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
+          $operations['manage-form-display'] = [
+            '#type' => 'link',
+            '#title' => t('Manage form display'),
+            '#weight' => 20,
+            '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
+          $operations['manage-display'] = [
+            '#type' => 'link',
+            '#title' => t('Manage display'),
+            '#weight' => 25,
+            '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
       }
     }
 
@@ -568,6 +587,13 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#items' => $tabs,
       '#title' => 'Currently placed on tabs:',
     ];
+
+    $meta['manage_links'] = [
+      '#theme' => 'item_list',
+      '#items' => $this->getManageLinks(),
+      '#title' => 'Manage:',
+    ];
+
 
     return $meta;
   }

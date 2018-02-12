@@ -59,23 +59,21 @@ class ContactTabContent extends RenderElement {
    *   The passed-in element containing the renderable regions in '#content'.
    */
   public static function preRenderTabContent(array $element) {
-    $blocks = $element['#blocks'];
-    if (!empty($blocks)) {
-
-      // Get available regions from layout if not already provided.
-      if (empty($element['#regions'])) {
-        foreach (array_keys($element['#layout']->getPluginDefinition()->getRegions()) as $region) {
-          $element['#regions'][$region] = [];
-        }
+    // Get available regions from layout if not already provided.
+    if (empty($element['#regions'])) {
+      foreach (array_keys($element['#layout']->getPluginDefinition()->getRegions()) as $region) {
+        $element['#regions'][$region] = [];
       }
+    }
 
-      // Add drag-area class.
-      if ($element['#manage_mode']) {
-        $element['#region_attributes']['class'][] = 'drag-area';
-        $element['#region_attributes']['data-contacts-manage-update-url'] = Url::fromRoute('contacts.ajax.update_blocks')->toString();
-      }
+    // Add drag-area class.
+    if ($element['#manage_mode']) {
+      $element['#region_attributes']['class'][] = 'drag-area';
+      $element['#region_attributes']['data-contacts-manage-update-url'] = Url::fromRoute('contacts.ajax.update_blocks')->toString();
+    }
 
-      foreach ($blocks as $key => $block) {
+    if (!empty($element['#blocks'])) {
+      foreach ($element['#blocks'] as $key => $block) {
         /* @var \Drupal\Core\Block\BlockPluginInterface $block */
         if ($element['#manage_mode']) {
           $block_content = [
@@ -85,7 +83,6 @@ class ContactTabContent extends RenderElement {
             '#tab' => $element['#tab'],
             '#block' => $block,
             '#subpage' => $element['#subpage'],
-            '#mode' => 'manage',
           ];
         }
         else {
@@ -111,19 +108,19 @@ class ContactTabContent extends RenderElement {
         }
         $element['#regions'][$block->getConfiguration()['region']][] = $block_content;
       }
-
-      $element['content'] = $element['#layout']->build($element['#regions']);
-
-      $element['content']['#attributes'] = $element['#attributes'];
-      foreach (Element::children($element['content']) as $region) {
-        if ($element['#manage_mode']) {
-          array_unshift($element['content'][$region], static::buildAddBlockLink($element['#tab']->id(), $region));
-        }
-        $element['content'][$region]['#attributes'] = $element['#region_attributes'];
-      }
     }
-    else {
+    elseif (!$element['#manage_mode']) {
       drupal_set_message($element['#not_found'], 'warning');
+    }
+
+    $element['content'] = $element['#layout']->build($element['#regions']);
+
+    $element['content']['#attributes'] = $element['#attributes'];
+    foreach (Element::children($element['content']) as $region) {
+      if ($element['#manage_mode']) {
+        array_unshift($element['content'][$region], static::buildAddBlockLink($element['#tab']->id(), $region));
+      }
+      $element['content'][$region]['#attributes'] = $element['#region_attributes'];
     }
 
     return $element;

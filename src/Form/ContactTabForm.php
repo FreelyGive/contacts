@@ -19,6 +19,13 @@ class ContactTabForm extends EntityForm {
     /* @var \Drupal\contacts\Entity\ContactTabInterface $contact_tab */
     $contact_tab = $this->entity;
 
+    if ($this->operation == 'add') {
+      $form['#title'] = $this->t('Add contact tab');
+    }
+    else {
+      $form['#title'] = $this->t('Edit %label tab', ['%label' => $contact_tab->label()]);
+    }
+
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
