@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - profile
+id: profile.contacts_dashboard
+label: 'Contacts Dashboard'
+targetEntityType: profile
+cache: true

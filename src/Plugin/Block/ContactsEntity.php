@@ -124,8 +124,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     return [
       'mode' => self::MODE_VIEW,
       'create' => NULL,
-      'operation' => 'crm_dashboard',
-      'view_mode' => 'crm_dashboard',
+      'operation' => 'contacts_dashboard',
+      'view_mode' => 'contacts_dashboard',
       'edit_link' => $this->pluginDefinition['_has_forms'] ? self::EDIT_LINK_CONTENT : FALSE,
       'edit_id' => 'edit',
     ] + parent::defaultConfiguration();
@@ -237,6 +237,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    // @todo Can we set the default mode to MODE_VIEW_NEW?
     $form['mode'] = [
       '#type' => 'select',
       '#options' => [self::MODE_FORM => 'Form', self::MODE_VIEW => 'View'],
@@ -458,8 +459,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       'redirect' => $redirect,
     ]);
     $form['#action'] = $action->toString();
-
-//    dpm($form['actions']);
 
     return ['form' => $form];
   }

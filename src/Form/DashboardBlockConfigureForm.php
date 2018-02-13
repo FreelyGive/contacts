@@ -155,9 +155,7 @@ class DashboardBlockConfigureForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    dpm($form_state->getValues());
     $sub_form_state = SubformState::createForSubform($form['settings'], $form, $form_state);
-    dpm($sub_form_state->getValues());
     $this->block->submitConfigurationForm($form, $sub_form_state);
     $this->tab->setBlock($this->blockName, $this->block->getConfiguration());
     $this->tab->save();

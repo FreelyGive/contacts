@@ -181,8 +181,6 @@ class ContactsDashboardTabs extends BlockBase implements ContextAwarePluginInter
 
     $blocks = $this->tabManager->getBlocks($tab, $verify);
 
-//    dpm($blocks['contacts_entity_profile_student']->getContextValue('entity'));
-
     $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
     $layout = $this->layoutManager->createInstance($layout, []);
 
