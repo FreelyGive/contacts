@@ -94,7 +94,7 @@ class ContactTabContent extends RenderElement {
             '#plugin_id' => $block->getPluginId(),
             '#base_plugin_id' => $block->getBaseId(),
             '#derivative_plugin_id' => $block->getDerivativeId(),
-            '#weight' => $block->getConfiguration()['weight'],
+            '#weight' => $block->getConfiguration()['weight'] ?? 0,
             'content' => $content,
           ];
 

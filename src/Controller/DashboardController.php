@@ -607,14 +607,20 @@ class DashboardController extends ControllerBase {
         'manage_profiles' => [
           '#type' => 'link',
           '#title' => t('Manage Profile Types'),
-          '#weight' => 20,
-          '#url' => Url::fromRoute("entity.profile_type.add_form", [], $link_options),
+          '#weight' => 25,
+          '#url' => Url::fromRoute("entity.profile_type.collection", [], $link_options),
         ],
         'add_role' => [
           '#type' => 'link',
           '#title' => t('Add Contact Role'),
-          '#weight' => 20,
+          '#weight' => 30,
           '#url' => Url::fromRoute("user.role_add", [], $link_options),
+        ],
+        'manage_roles' => [
+          '#type' => 'link',
+          '#title' => t('Manage Roles'),
+          '#weight' => 35,
+          '#url' => Url::fromRoute("entity.user_role.collection", [], $link_options),
         ],
       ],
       '#title' => 'Create:',

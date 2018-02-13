@@ -501,7 +501,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     if ($bundle_type) {
       $link_options = [
         'attributes' => ['target' => '_blank'],
-        'query' => ['destination' => \Drupal::urlGenerator()->generateFromRoute('<current>')],
+//        'query' => ['destination' => \Drupal::urlGenerator()->generateFromRoute('<current>')],
       ];
 
       // @todo Solve generic entity access permission issue.
@@ -561,19 +561,25 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $definition = $this->getPluginDefinition();
     $entity_type_definition = $this->entityTypeManager->getDefinition($definition['_entity_type_id']);
     $entity_bundle_type = $entity_type_definition->getBundleEntityType();
-    $bundle_entity = $this->entityTypeManager->getStorage($entity_bundle_type)->load($definition['_bundle_id']);
-
-    $roles = user_roles();
-    uasort($roles, 'contacts_sort_roles');
-    $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
-    $hats = [];
-    // @todo Show hat icons instead of labels.
-    foreach ($roles as $role) {
-      $hats[] = [
-        '#theme' => 'crm_tools_hat',
-        '#role' => $role,
-      ];
+    if ($entity_bundle_type && $definition['_bundle_id']) {
+      $bundle_entity = $this->entityTypeManager->getStorage($entity_bundle_type)->load($definition['_bundle_id']);
     }
+
+    $hats = [];
+
+    if (isset($bundle_entity)) {
+      $roles = user_roles();
+      uasort($roles, 'contacts_sort_roles');
+      $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
+      // @todo Show hat icons instead of labels.
+      foreach ($roles as $role) {
+        $hats[] = [
+          '#theme' => 'crm_tools_hat',
+          '#role' => $role,
+        ];
+      }
+    }
+
     $meta['needed_hats'] = [
       '#theme' => 'item_list',
       '#items' => $hats,

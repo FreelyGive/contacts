@@ -20,6 +20,7 @@ use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Implements hook_theme().
@@ -377,6 +378,20 @@ function contacts_toolbar() {
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
   $items['administration']['#attached']['library'][] = 'contacts/contacts.toolbar';
+}
+
+/**
+ * Implements hook_user_format_name_alter().
+ */
+function contacts_user_format_name_alter(&$name, AccountInterface $account) {
+  // Display the user's uid instead of name.
+  if (in_array('crm_indiv', $account->getRoles())) {
+    $profile = $account->profile_crm_indiv->entity;
+
+    if ($profile) {
+      $name = $profile->crm_name->value;
+    }
+  }
 }
 
 /**
