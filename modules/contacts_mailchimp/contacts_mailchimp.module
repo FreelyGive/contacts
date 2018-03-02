@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_entity_presave().
+ */
+function contacts_mailchimp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  // Unsubscribe any mailchimp mailinglists if the user has opted out of comms
+  $field_name = 'crm_opt_out';
+
+  if($entity->getEntityTypeId() == 'profile' && $entity->bundle() == 'crm_communications' && $entity->hasField($field_name)) {
+    $opt_out = $entity->get($field_name)->value;
+
+    if(isset($entity->original)) {
+      $original = $entity->original->get($field_name)->value;
+    }
+    else {
+      $original = null;
+    }
+
+    //TODO: Investigate making this asynchronous
+    if(($original === 0 || $original == NULL) && $opt_out === 1 && $entity->uid->entity->hasField('mail')) {
+      $email = $entity->uid->entity->mail->value;
+      $lists = mailchimp_get_lists_for_email($email);
+      foreach($lists as $list) {
+        mailchimp_unsubscribe($list->id, $email);
+      }
+    }
+  }
+}

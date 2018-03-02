@@ -1,0 +1,8 @@
+name: Contacts MailChimp Integration
+description: "MailChimp integration for the Contacts module"
+type: module
+core: 8.x
+
+dependencies:
+  - contacts
+  - mailchimp_lists (>=8.x-1.6)

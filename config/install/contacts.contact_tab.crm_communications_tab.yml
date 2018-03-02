@@ -1,0 +1,35 @@
+uuid: 5800747c-04df-4555-902f-b233214033a7
+langcode: en
+status: true
+dependencies:
+  config:
+    - profile.type.crm_communications
+  module:
+    - profile
+id: crm_communications_tab
+label: Communications
+path: communications
+layout: contacts_tab_content.stacked
+weight: null
+relationships:
+  profile_crm_communications:
+    id: 'typed_data_entity_relationship:entity:user:profile_crm_communications'
+    name: profile_crm_communications
+    source: user
+blocks:
+  contacts_entity_profile_crm_communications:
+    id: 'contacts_entity:profile-crm_communications'
+    label: 'Communications Profile block'
+    provider: contacts
+    label_display: '0'
+    mode: view
+    create: true
+    operation: contacts_dashboard
+    view_mode: contacts_dashboard
+    edit_link: content
+    edit_id: edit
+    region: top
+    context_mapping:
+      entity: profile_crm_communications
+      user: user
+    name: contacts_entity_profile_crm_communications
