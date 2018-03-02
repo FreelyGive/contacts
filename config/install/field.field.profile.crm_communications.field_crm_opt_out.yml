@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.profile.crm_opt_out
+    - profile.type.crm_communications
+id: profile.crm_communications.crm_opt_out
+field_name: crm_opt_out
+entity_type: profile
+bundle: crm_communications
+label: 'Opt Out'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean
