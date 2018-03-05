@@ -4,6 +4,7 @@ namespace Drupal\contacts;
 
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\contacts\Entity\ContactTabInterface;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -219,12 +220,14 @@ class ContactsTabManager implements ContactsTabManagerInterface {
   }
 
   /**
+   * Build the block context mapping.
+   *
    * @param \Drupal\contacts\Entity\ContactTabInterface $tab
    *   The tab entity the blocks are on.
    * @param \Drupal\Core\Block\BlockPluginInterface $block
    *   Blocks to apply the contexts to.
    */
-  public function buildBlockContextMapping(ContactTabInterface $tab, $block) {
+  public function buildBlockContextMapping(ContactTabInterface $tab, BlockPluginInterface $block) {
     $relationships = $tab->getRelationships();
 
     $definition = $block->getPluginDefinition();

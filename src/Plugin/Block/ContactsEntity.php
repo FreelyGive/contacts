@@ -501,7 +501,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     if ($bundle_type) {
       $link_options = [
         'attributes' => ['target' => '_blank'],
-//        'query' => ['destination' => \Drupal::urlGenerator()->generateFromRoute('<current>')],
       ];
 
       // @todo Solve generic entity access permission issue.
@@ -551,6 +550,9 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     return $operations;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getManageMeta() {
     $meta = [
       '#type' => 'details',
@@ -598,7 +600,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#items' => $this->getManageLinks(),
       '#title' => 'Manage:',
     ];
-
 
     return $meta;
   }

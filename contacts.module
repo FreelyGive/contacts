@@ -386,10 +386,12 @@ function contacts_toolbar_alter(&$items) {
 function contacts_user_format_name_alter(&$name, AccountInterface $account) {
   // Display the user's uid instead of name.
   if (in_array('crm_indiv', $account->getRoles())) {
-    $profile = $account->profile_crm_indiv->entity;
+    if (!empty($account->profile_crm_indiv)) {
+      $profile = $account->profile_crm_indiv->entity;
 
-    if ($profile) {
-      $name = $profile->crm_name->value;
+      if ($profile) {
+        $name = $profile->crm_name->value;
+      }
     }
   }
 }

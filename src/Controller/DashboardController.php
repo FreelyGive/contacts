@@ -7,6 +7,7 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\contacts\Form\DashboardBlockConfigureForm;
 use Drupal\contacts\Form\DashboardTabConfigureForm;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
@@ -218,12 +219,20 @@ class DashboardController extends ControllerBase {
     return $response;
   }
 
+  /**
+   * Creates a new ajax response for page update triggered by off canvas.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab being updated.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
   public function offCanvasUpdate(ContactTab $tab) {
     $response = new AjaxResponse();
     $this->offCanvasCommand($response, $tab);
     return $response;
   }
-
 
   /**
    * Adds AJAX command to response to show default tab offcanvas content.
@@ -261,7 +270,7 @@ class DashboardController extends ControllerBase {
    */
   public function updateTabCommand(AjaxResponse $response, ContactTab $tab) {
     // Open/close the off-canvas tray.
-    $response->addCommand(new InvokeCommand('[data-contacts-tab-id="'.$tab->id().'"]', 'click'));
+    $response->addCommand(new InvokeCommand('[data-contacts-tab-id="' . $tab->id() . '"]', 'click'));
   }
 
   /**
@@ -285,6 +294,7 @@ class DashboardController extends ControllerBase {
 
     /* @var \Drupal\Core\Url $url_object */
     $url_object = $this->pathValidator->getUrlIfValid($fake_request->getRequestUri());
+
     if ($url_object) {
       $this->state()->set('manage_mode', !$manage_mode);
 
@@ -297,6 +307,15 @@ class DashboardController extends ControllerBase {
     return FALSE;
   }
 
+  /**
+   * Adds AJAX command to response to show default tab offcanvas content.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to get content for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
   public function ajaxManageModeRefresh(ContactTab $tab) {
     $blocks = $this->tabManager->getBlocks($tab);
 
@@ -378,7 +397,7 @@ class DashboardController extends ControllerBase {
 
     return $this->offCanvasBlock($tab, $name);
   }
-  
+
   /**
    * Renders the off Canvas configure form for a Dashboard block.
    *
@@ -396,7 +415,10 @@ class DashboardController extends ControllerBase {
     $content = [];
 
     $content['form '] = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
-    $content['meta'] = $block->getManageMeta();
+
+    if ($block instanceof DashboardBlockInterface) {
+      $content['meta'] = $block->getManageMeta();
+    }
     return $content;
   }
 
@@ -413,7 +435,6 @@ class DashboardController extends ControllerBase {
     $content = [];
 
     $content['form '] = $this->formBuilder->getForm(DashboardTabConfigureForm::class, $tab);
-//    $content['form '] = $this->entityFormBuilder()->getForm($tab, 'edit');
 
     $content['meta'] = $tab->getManageMeta();
     return $content;
@@ -555,8 +576,6 @@ class DashboardController extends ControllerBase {
     return $response;
   }
 
-
-
   /**
    * The default off canvas information in manage mode.
    *
@@ -575,15 +594,6 @@ class DashboardController extends ControllerBase {
       '#tag' => 'h2',
       '#value' => $this->t('@label tab', ['@label' => $tab->label()]),
     ];
-
-//    $output['content']['tab'] = [
-//      '#type' => 'details',
-//      '#open' => TRUE,
-//      '#title' => $tab->label(),
-//    ];
-
-
-    ;
 
     $link_options = [
       'attributes' => ['target' => '_blank'],
@@ -628,4 +638,5 @@ class DashboardController extends ControllerBase {
 
     return $output;
   }
+
 }
