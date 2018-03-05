@@ -5,6 +5,8 @@
  * Module related hook implementations for the contacts module.
  */
 
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
@@ -725,13 +727,12 @@ function contacts_form_user_register_form_alter(&$form, FormStateInterface $form
 }
 
 /**
- * Implements hook_entity_bundle_field_info
+ * Implements hook_entity_bundle_field_info().
  */
-function contacts_entity_bundle_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+function contacts_entity_bundle_field_info(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
   // Create the crm_opt_out field. This is a critical field and by creating it through code, it prevents site admins from deleting the field.
-  if($entity_type->id() == 'profile' && $bundle == 'crm_communications') {
-
-    $fields['crm_opt_out'] = \Drupal\Core\Field\BaseFieldDefinition::create('boolean')
+  if ($entity_type->id() == 'profile' && $bundle == 'crm_communications') {
+    $fields['crm_opt_out'] = BaseFieldDefinition::create('boolean')
       ->setName('crm_opt_out')
       ->setLabel('Opt Out')
       ->setTargetEntityTypeId('profile')
@@ -740,18 +741,18 @@ function contacts_entity_bundle_field_info(\Drupal\Core\Entity\EntityTypeInterfa
       ->setDisplayConfigurable("form", TRUE)
       ->setDisplayConfigurable("view", TRUE)
       ->setDisplayOptions("form", [
-        'type'=>'boolean_checkbox',
+        'type' => 'boolean_checkbox',
         'region' => 'content',
         'settings' => ['display_label', TRUE],
-        'weight' => 0
+        'weight' => 0,
       ])
       ->setDisplayOptions("view", [
-        'type'=>'boolean_checkbox',
+        'type' => 'boolean_checkbox',
         'region' => 'content',
         'settings' => ['display_label', TRUE],
-        'weight' => 0
+        'weight' => 0,
       ])
-      ->setSettings(['on_label'=>'Yes', 'off_label' => 'No']);
+      ->setSettings(['on_label' => 'Yes', 'off_label' => 'No']);
 
     return $fields;
   }
@@ -760,10 +761,10 @@ function contacts_entity_bundle_field_info(\Drupal\Core\Entity\EntityTypeInterfa
 /**
  * Implements hook_entity_field_storage_info().
  */
-function contacts_entity_field_storage_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
-  // Ensure backing storage exists for crm_communications
-  if($entity_type->id() == 'profile') {
-    $storage['crm_opt_out'] = \Drupal\Core\Field\BaseFieldDefinition::create('boolean')
+function contacts_entity_field_storage_info(EntityTypeInterface $entity_type) {
+  // Ensure backing storage exists for crm_communications.
+  if ($entity_type->id() == 'profile') {
+    $storage['crm_opt_out'] = BaseFieldDefinition::create('boolean')
       ->setName('crm_opt_out')
       ->setCardinality(1)
       ->setTargetBundle('crm_communications')
