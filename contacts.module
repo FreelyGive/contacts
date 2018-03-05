@@ -747,7 +747,7 @@ function contacts_entity_bundle_field_info(EntityTypeInterface $entity_type, $bu
         'weight' => 0,
       ])
       ->setDisplayOptions("view", [
-        'type' => 'boolean_checkbox',
+        'type' => 'boolean',
         'region' => 'content',
         'settings' => ['display_label', TRUE],
         'weight' => 0,
