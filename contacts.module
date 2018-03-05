@@ -723,3 +723,52 @@ function contacts_preprocess_block(&$variables, $hook) {
 function contacts_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['account']['roles']['#default_value'][] = 'crm_indiv';
 }
+
+/**
+ * Implements hook_entity_bundle_field_info
+ */
+function contacts_entity_bundle_field_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+  // Create the crm_opt_out field. This is a critical field and by creating it through code, it prevents site admins from deleting the field.
+  if($entity_type->id() == 'profile' && $bundle == 'crm_communications') {
+
+    $fields['crm_opt_out'] = \Drupal\Core\Field\BaseFieldDefinition::create('boolean')
+      ->setName('crm_opt_out')
+      ->setLabel('Opt Out')
+      ->setTargetEntityTypeId('profile')
+      ->setTargetBundle('crm_communications')
+      ->setDefaultValue(0)
+      ->setDisplayConfigurable("form", TRUE)
+      ->setDisplayConfigurable("view", TRUE)
+      ->setDisplayOptions("form", [
+        'type'=>'boolean_checkbox',
+        'region' => 'content',
+        'settings' => ['display_label', TRUE],
+        'weight' => 0
+      ])
+      ->setDisplayOptions("view", [
+        'type'=>'boolean_checkbox',
+        'region' => 'content',
+        'settings' => ['display_label', TRUE],
+        'weight' => 0
+      ])
+      ->setSettings(['on_label'=>'Yes', 'off_label' => 'No']);
+
+    return $fields;
+  }
+}
+
+/**
+ * Implements hook_entity_field_storage_info().
+ */
+function contacts_entity_field_storage_info(\Drupal\Core\Entity\EntityTypeInterface $entity_type) {
+  // Ensure backing storage exists for crm_communications
+  if($entity_type->id() == 'profile') {
+    $storage['crm_opt_out'] = \Drupal\Core\Field\BaseFieldDefinition::create('boolean')
+      ->setName('crm_opt_out')
+      ->setCardinality(1)
+      ->setTargetBundle('crm_communications')
+      ->setTranslatable(TRUE)
+      ->setTargetEntityTypeId('profile');
+    return $storage;
+  }
+}
