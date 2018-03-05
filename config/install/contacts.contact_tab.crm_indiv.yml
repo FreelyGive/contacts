@@ -31,7 +31,5 @@ blocks:
     view_mode: default
     edit_link: content
     edit_id: edit
-    entity_type: profile
-    entity_bundle: crm_indiv
     context_mapping:
       entity: profile_crm_indiv

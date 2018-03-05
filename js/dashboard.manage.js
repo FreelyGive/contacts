@@ -49,10 +49,7 @@
       // @todo check that profile type and relationship are available.
       var block_data = {
         name: ids[weight],
-        id: el.data('contacts-manage-block-id'),
-        entity_type: el.data('contacts-manage-entity-type'),
-        entity_bundle: el.data('contacts-manage-entity-bundle'),
-        entity_relationship: el.data('contacts-manage-entity-relationship')
+        id: el.data('contacts-manage-block-id')
       };
       data.blocks.push(block_data);
     }

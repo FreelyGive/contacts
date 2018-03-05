@@ -210,10 +210,6 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   public function processManageMode(array &$variables) {
     $definition = $this->getPluginDefinition();
 
-    $bundle = $definition['_bundle_key'] ? $definition['_bundle_id'] : $definition['_entity_type_id'];
-    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'] = $definition['_entity_type_id'];
-    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'] = $bundle;
-
     $variables['content']['links'] = [
       '#theme' => 'item_list',
       '#list_type' => 'ul',
