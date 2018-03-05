@@ -730,7 +730,7 @@ function contacts_form_user_register_form_alter(&$form, FormStateInterface $form
  * Implements hook_entity_bundle_field_info().
  */
 function contacts_entity_bundle_field_info(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
-  // Create the crm_opt_out field. This is a critical field and by creating it through code, it prevents site admins from deleting the field.
+  // Create the crm_opt_out field.
   if ($entity_type->id() == 'profile' && $bundle == 'crm_communications') {
     $fields['crm_opt_out'] = BaseFieldDefinition::create('boolean')
       ->setName('crm_opt_out')
