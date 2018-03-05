@@ -36,6 +36,7 @@ function contacts_mailchimp_mailchimp_process_webhook($type, $data) {
   if($type == 'unsubscribe') {
     $ids = \Drupal::entityQuery('profile')
       ->condition('uid.entity.mail', $data['email'])
+      ->condition('type', 'crm_communications')
       ->execute();
 
     $profiles = \Drupal\profile\Entity\Profile::loadMultiple($ids);
