@@ -27,3 +27,25 @@ function contacts_mailchimp_entity_presave(Drupal\Core\Entity\EntityInterface $e
     }
   }
 }
+
+/**
+ * Implements hook_mailchimp_process_webhook().
+ */
+function contacts_mailchimp_mailchimp_process_webhook($type, $data) {
+  // If user unsubscribes from mailchimp, treat it as a full opt-out
+  if($type == 'unsubscribe') {
+    $ids = \Drupal::entityQuery('profile')
+      ->condition('uid.entity.mail', $data['email'])
+      ->execute();
+
+    $profiles = \Drupal\profile\Entity\Profile::loadMultiple($ids);
+
+    /* @var $profile \Drupal\profile\Entity\Profile */
+    foreach($profiles as $profile) {
+      if($profile->hasField('crm_opt_out')) {
+        $profile->set('crm_opt_out', 1);
+        $profile->save();
+      }
+    }
+  }
+}
