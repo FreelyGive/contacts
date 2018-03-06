@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Module related hook implementations for the contacts_mailchimp module.
+ */
+
+use Drupal\profile\Entity\Profile;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function contacts_mailchimp_entity_presave(EntityInterface $entity) {
+  // Unsubscribe any mailchimp mailinglists if the user has opted out of comms.
+  $field_name = 'crm_opt_out';
+
+  if ($entity->getEntityTypeId() == 'profile' && $entity->bundle() == 'crm_communications' && $entity->hasField($field_name)) {
+    $opt_out = $entity->get($field_name)->value;
+
+    if (isset($entity->original)) {
+      $original = $entity->original->get($field_name)->value;
+    }
+    else {
+      $original = NULL;
+    }
+
+    // TODO: Investigate making this asynchronous.
+    if (($original === 0 || $original == NULL) && $opt_out === 1 && $entity->uid->entity->hasField('mail')) {
+      $email = $entity->uid->entity->mail->value;
+      $lists = mailchimp_get_lists_for_email($email);
+      foreach ($lists as $list) {
+        mailchimp_unsubscribe($list->id, $email);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_mailchimp_process_webhook().
+ */
+function contacts_mailchimp_mailchimp_process_webhook($type, $data) {
+  // If user unsubscribes from mailchimp, treat it as a full opt-out.
+  if ($type == 'unsubscribe') {
+    $ids = \Drupal::entityQuery('profile')
+      ->condition('uid.entity.mail', $data['email'])
+      ->condition('type', 'crm_communications')
+      ->execute();
+
+    $profiles = Profile::loadMultiple($ids);
+
+    /* @var $profile \Drupal\profile\Entity\Profile */
+    foreach ($profiles as $profile) {
+      if ($profile->hasField('crm_opt_out')) {
+        $profile->set('crm_opt_out', 1);
+        $profile->save();
+      }
+    }
+  }
+}
