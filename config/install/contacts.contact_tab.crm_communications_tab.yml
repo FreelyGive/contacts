@@ -1,4 +1,3 @@
-uuid: 5800747c-04df-4555-902f-b233214033a7
 langcode: en
 status: true
 dependencies:
@@ -19,7 +18,7 @@ relationships:
 blocks:
   contacts_entity_profile_crm_communications:
     id: 'contacts_entity:profile-crm_communications'
-    label: 'Communications Profile block'
+    label: 'Communication Preferences'
     provider: contacts
     label_display: '0'
     mode: view
