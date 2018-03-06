@@ -119,3 +119,13 @@ contacts.manage.off_canvas_add:
         type: entity:contact_tab
   requirements:
     _permission: 'manage contacts dashboard'
+
+contacts.dedup:
+  path: '/admin/contacts/dedup'
+  defaults:
+    _form: '\Drupal\contacts\Form\DedupForm'
+  requirements:
+    _permission: 'manage contacts dashboard'
+  options:
+    theme: '' # Do not automatically apply the contacts theme (see DashboardNegotiator)
+

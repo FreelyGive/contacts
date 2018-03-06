@@ -28,6 +28,14 @@ class DashboardNegotiator implements ThemeNegotiatorInterface {
    */
   public function determineActiveTheme(RouteMatchInterface $route_match) {
     // Here you return the actual theme name.
+    // If the route provides a custom theme name, use it.
+    // Otherwise default to the contacts theme.
+    $route = $route_match->getRouteObject();
+
+    if ($route->hasOption('theme')) {
+      return $route->getOption('theme');
+    }
+
     return 'contacts_theme';
   }
 

@@ -74,3 +74,9 @@ contact:
   css:
     theme:
       css/contact.css: {}
+
+# Styling for the dedup page
+contacts_dedup_form:
+  css:
+    theme:
+      css/contacts.dedup.css: {}
