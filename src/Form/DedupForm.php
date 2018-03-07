@@ -19,11 +19,7 @@ class DedupForm extends FormBase {
 
   protected $renderer;
   protected $messenger;
-
-  /**
-   * @var \Drupal\Core\Datetime\DateFormatterInterface
-   */
-  private $date_formatter;
+  protected $date_formatter;
 
   /**
    * DedupForm constructor.
@@ -154,10 +150,9 @@ class DedupForm extends FormBase {
       $v1_value = $v1->hasField($final_part) && isset($v1->{$final_part}) ? $v1->{$final_part}->value : NULL;
       $v2_value = $v2->hasField($final_part) && isset($v2->{$final_part}) ? $v2->{$final_part}->value : NULL;
 
-
       if (!$info['use label']) {
-        // If we don't have a list, wrap it in an array so we can process
-        // everything the same.
+        // If we don't have a list,
+        // wrap it in an array so we can process everything the same.
         $type = $property_info->getType();
         if (substr($type, 0, 5) != 'list<') {
           $v1_value = isset($v1_value) ? [$v1_value] : NULL;

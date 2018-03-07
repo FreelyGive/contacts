@@ -1,9 +1,11 @@
 .contact-dedupe-match {
-    color: green;
+  color: green;
 }
+
 .contact-dedupe-conflict {
-    color: red;
+  color: red;
 }
+
 .contact-dedupe-link {
-    float: right;
+  float: right;
 }

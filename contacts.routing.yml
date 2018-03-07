@@ -128,4 +128,3 @@ contacts.dedup:
     _permission: 'manage contacts dashboard'
   options:
     theme: '' # Do not automatically apply the contacts theme (see DashboardNegotiator)
-

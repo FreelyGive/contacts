@@ -6,7 +6,6 @@ use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Render\Element;
 use Symfony\Component\EventDispatcher\Event;
 
-
 /**
  * Event raised to retrieve list of properties shown during merging.
  *
@@ -28,20 +27,14 @@ class GetPropertiesToShowOnDedupScreenEvent extends Event {
     $this->properties = array(
       NULL => array(
         '#weight' => -99,
-//        'party_hat' => array(
-//          'render field' => TRUE,
-//        ),
         'mail' => array(
           'render field' => TRUE,
           'compare' => TRUE,
         ),
         'profile_crm_indiv:entity:crm_gender' => [
           'render field' => TRUE,
-          'compare' => TRUE
-        ]
-//        'party_indiv_to_org' => array(
-//          'use label' => TRUE,
-//        ),
+          'compare' => TRUE,
+        ],
       ),
     );
   }
@@ -58,7 +51,7 @@ class GetPropertiesToShowOnDedupScreenEvent extends Event {
    *   - render field: If the property is a field, setting this to TRUE will
    *     render the property via the Field API.
    *   - compare: A boolean indicating whether to run a comparison or a callable
-   *     for a custom comparison function. See callback_opencrm_dedupe_compare().
+   *     for a custom comparison function (anonymous function recommended)
    *   - strip html: TRUE if HTML should be stripped from the basic comparison.
    *     Defaults to TRUE.
    */
@@ -114,6 +107,5 @@ class GetPropertiesToShowOnDedupScreenEvent extends Event {
     $dispatcher->dispatch(GetPropertiesToShowOnDedupScreenEvent::EVENT_NAME, $event);
     return $event;
   }
-
 
 }
