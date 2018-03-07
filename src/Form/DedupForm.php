@@ -143,10 +143,11 @@ class DedupForm extends FormBase {
     }
     else {
       // TODO: label/value switch not implemented yet.
+      // @codingStandardsIgnoreStart
       // $method = $info['use label'] ? 'label' : 'value';
       // $v1_value = $v1->hasField($final_part) && isset($v1->{$final_part}) ? $v1->{$final_part}->{$method}() : NULL;
       // $v2_value = $v2 && $v2->value() && isset($v2->{$final_part}) ? $v2->{$final_part}->{$method}() : NULL;
-
+      // @codingStandardsIgnoreEnd
       $v1_value = $v1->hasField($final_part) && isset($v1->{$final_part}) ? $v1->{$final_part}->value : NULL;
       $v2_value = $v2->hasField($final_part) && isset($v2->{$final_part}) ? $v2->{$final_part}->value : NULL;
 
@@ -370,10 +371,12 @@ class DedupForm extends FormBase {
       ];
 
       // TODO Batch process not yet implemented.
+      // @codingStandardsIgnoreStart
       /*// If we want to process immediately, add our batch submission handler.
       if (variable_get('opencrm_dedupe_batch', 1)) {
         $form['merge']['actions']['submit']['#submit'][] = 'opencrm_dedupe_party_merge_form_batch';
       }*/
+      // @codingStandardsIgnoreEnd
     }
 
   }
