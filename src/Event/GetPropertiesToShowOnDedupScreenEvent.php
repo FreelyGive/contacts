@@ -24,19 +24,19 @@ class GetPropertiesToShowOnDedupScreenEvent extends Event {
    * GetPropertiesToShowOnDedupScreenEvent constructor.
    */
   public function __construct() {
-    $this->properties = array(
-      NULL => array(
+    $this->properties = [
+      NULL => [
         '#weight' => -99,
-        'mail' => array(
+        'mail' => [
           'render field' => TRUE,
           'compare' => TRUE,
-        ),
+        ],
         'profile_crm_indiv:entity:crm_gender' => [
           'render field' => TRUE,
           'compare' => TRUE,
         ],
-      ),
-    );
+      ],
+    ];
   }
 
   /**
@@ -62,17 +62,17 @@ class GetPropertiesToShowOnDedupScreenEvent extends Event {
 
     foreach ($this->properties as &$properties) {
       // Set a default weight on the group.
-      $properties += array('#weight' => $weight++ / 100);
+      $properties += ['#weight' => $weight++ / 100];
 
       // Set up our defaults on the properties.
       foreach (Element::children($properties) as $property) {
-        $properties[$property] += array(
+        $properties[$property] += [
           '#weight' => $weight++ / 100,
           'use label' => FALSE,
           'render field' => FALSE,
           'compare' => TRUE,
           'strip html' => TRUE,
-        );
+        ];
       }
 
       // Sort the propreties.

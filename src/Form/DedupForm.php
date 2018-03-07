@@ -19,7 +19,7 @@ class DedupForm extends FormBase {
 
   protected $renderer;
   protected $messenger;
-  protected $date_formatter;
+  protected $dateFormatter;
 
   /**
    * DedupForm constructor.
@@ -27,7 +27,7 @@ class DedupForm extends FormBase {
   public function __construct(RendererInterface $renderer, MessengerInterface $messenger, DateFormatterInterface $date_formatter) {
     $this->renderer = $renderer;
     $this->messenger = $messenger;
-    $this->date_formatter = $date_formatter;
+    $this->dateFormatter = $date_formatter;
   }
 
   /**
@@ -169,7 +169,7 @@ class DedupForm extends FormBase {
             foreach ($$value as &$item) {
               switch ($type) {
                 case 'date':
-                  $item = $this->date_formatter->format($item);
+                  $item = $this->dateFormatter->format($item);
                   break;
               }
             }
