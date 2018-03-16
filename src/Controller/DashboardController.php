@@ -296,4 +296,42 @@ class DashboardController extends ControllerBase {
     return $response;
   }
 
+  /**
+   * Update the order of tabs after sorting.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function ajaxUpdateTabs() {
+    $tabs = \Drupal::request()->request->get('tabs');
+
+    $json = [];
+    $previous = -101;
+    foreach (array_filter($tabs) as $tab) {
+      /* @var \Drupal\contacts\Entity\ContactTab $tab */
+      $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+      $current_weight = $tab->get('weight');
+
+      // Where possible preserve the existing tab weight.
+      if ($previous < $current_weight) {
+        $new = $current_weight;
+      }
+      else {
+        $new = $previous + 5;
+      }
+
+      $tab->set('weight', $new);
+      $tab->save();
+      $json[] = ['id' => $tab->id(), 'weight' => $new];
+      $previous = $new;
+    }
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
+    return $response;
+  }
+
 }
