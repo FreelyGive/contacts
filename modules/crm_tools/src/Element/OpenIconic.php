@@ -69,6 +69,9 @@ class OpenIconic extends RenderElement {
     $element['#attributes']['class'][] = 'role-icon';
     $element['#attributes']['style'][] = 'background-color:' . HtmlUtility::escape($element['#color']) . ';';
     $element['#attached']['library'][] = 'crm_tools/open-iconic';
+    $module_handler = \Drupal::service('module_handler');
+    $path = $module_handler->getModule('crm_tools')->getPath();
+    $element['#attached']['drupalSettings']['contacts']['openIconic']['path'] = '/' . $path . '/includes/open-iconic.svg';
 
     if (!empty($element['#size'])) {
       if (is_numeric($element['#size'])) {
@@ -91,7 +94,7 @@ class OpenIconic extends RenderElement {
       '#prefix' => '<svg' . $attributes . '>',
       '#suffix' => '</svg>',
       '#attributes' => [
-        'xlink:href' => base_path() . drupal_get_path('module', 'crm_tools') . '/includes/open-iconic.svg#' . $icon,
+        'xlink:href' => "#$icon",
         'class' => ["icon-$icon"],
       ],
     ];

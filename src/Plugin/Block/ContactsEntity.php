@@ -205,14 +205,24 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
   public function processManageMode(array &$variables) {
     $definition = $this->getPluginDefinition();
 
-    $variables['attributes']['data-contacts-manage-entity-type'] = $variables['entity'] = $definition['_entity_type_id'];
-    $variables['attributes']['data-contacts-manage-entity-bundle'] = $variables['bundle'] = $definition['_bundle_id'];
-
-    $variables['footer']['links'] = [
+    $variables['content']['links'] = [
       '#theme' => 'item_list',
       '#list_type' => 'ul',
       '#items' => $this->getManageLinks(),
     ];
+
+    // @todo Consider moving this out of ContactsEntity for other blocks.
+    if (!empty($definition['_required_hats'])) {
+      $hats = [];
+      // @todo Show hat icons instead of labels.
+      foreach ($definition['_required_hats'] as $hat) {
+        $hats[] = [
+          '#theme' => 'crm_tools_hat',
+          '#role' => $hat,
+        ];
+      }
+      $variables['footer']['visible_hats'] = $hats;
+    }
   }
 
   /**
@@ -385,6 +395,9 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     // Output an edit link if relevant.
     if ($link = $this->getEditLink(self::EDIT_LINK_CONTENT)) {
       $build['edit'] = $link->toRenderable();
+    }
+    elseif ($link = $this->getEditLink(self::EDIT_LINK_TITLE)) {
+      $build['#title_edit'] = $link;
     }
 
     // Get the view builder.

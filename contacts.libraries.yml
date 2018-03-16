@@ -57,6 +57,7 @@ dashboard.manage:
     - core/drupalSettings
     - core/underscore
     - core/jquery.once
+    - core/jquery.ui.sortable
     - contacts/drupal.ajax
     - contacts/contacts.toolbar
 

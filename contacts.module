@@ -74,9 +74,7 @@ function template_preprocess_contacts_manage_block(array &$variables) {
 
   list($variables['block_plugin'], $variables['identifier']) = explode(PluginBase::DERIVATIVE_SEPARATOR, $variables['id'], 2);
 
-  $variables['attributes']['data-contacts-manage-block-id'] = $variables['id'];
   $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
-  $variables['attributes']['data-contacts-manage-block-mode'] = $variables['mode'];
   $variables['attributes']['data-contacts-manage-block-tab'] = $variables['tab']->id();
 
   switch ($variables['mode']) {
