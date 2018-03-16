@@ -106,7 +106,7 @@ function template_preprocess_contacts_manage_block(array &$variables) {
       '#fill' => '#5bc0de',
       '#color' => 'transparent',
       '#attributes' => ['class' => ['contacts-ui-icon', 'icon-right']],
-    ]
+    ],
   ];
 
   $variables['attributes'] = new Attribute($variables['attributes']);
