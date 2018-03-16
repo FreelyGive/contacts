@@ -6,11 +6,13 @@ use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\contacts\Form\DashboardBlockConfigureForm;
+use Drupal\contacts\Form\DashboardTabConfigureForm;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Layout\LayoutPluginManager;
 use Drupal\Core\Path\PathValidatorInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -28,6 +30,8 @@ use Symfony\Component\HttpFoundation\Response;
  * Controller routines for contact dashboard tabs and ajax.
  */
 class DashboardController extends ControllerBase {
+
+  use AjaxHelperTrait;
 
   /**
    * The tab manager.
@@ -65,6 +69,13 @@ class DashboardController extends ControllerBase {
   protected $contextHandler;
 
   /**
+   * The layout manager service.
+   *
+   * @var \Drupal\Core\Layout\LayoutPluginManager
+   */
+  protected $layoutManager;
+
+  /**
    * Construct the dashboard controller.
    *
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
@@ -81,8 +92,10 @@ class DashboardController extends ControllerBase {
    *   The context handler.
    * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
    *   The form builder service.
+   * @param \Drupal\Core\Layout\LayoutPluginManager $layout_manager
+   *   The layout manager service.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler, FormBuilderInterface $form_builder) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler, FormBuilderInterface $form_builder, LayoutPluginManager $layout_manager) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
     $this->state = $state;
@@ -90,6 +103,7 @@ class DashboardController extends ControllerBase {
     $this->pathValidator = $path_validator;
     $this->contextHandler = $context_handler;
     $this->formBuilder = $form_builder;
+    $this->layoutManager = $layout_manager;
   }
 
   /**
@@ -103,7 +117,8 @@ class DashboardController extends ControllerBase {
       $container->get('request_stack'),
       $container->get('path.validator'),
       $container->get('context.handler'),
-      $container->get('form_builder')
+      $container->get('form_builder'),
+      $container->get('plugin.manager.core.layout')
     );
   }
 
@@ -125,6 +140,14 @@ class DashboardController extends ControllerBase {
       'user' => $user->id(),
       'subpage' => $subpage,
     ]);
+
+    // Return as non-ajax.
+    if (!$this->isAjax()) {
+      return $this->redirect('page_manager.page_view_contacts_dashboard_contact', [
+        'user' => $user->id(),
+        'subpage' => $subpage,
+      ]);
+    }
 
     $block = $this->blockManager->createInstance('tabs:contacts_dashboard');
 
@@ -200,6 +223,47 @@ class DashboardController extends ControllerBase {
   }
 
   /**
+   * Adds AJAX command to response to show default tab offcanvas content.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to get content for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function ajaxManageModeRefresh(ContactTab $tab) {
+    $blocks = $this->tabManager->getBlocks($tab);
+
+    $layout = $tab->get('layout') ?: 'contacts_tab_content.stacked';
+    $layout = $this->layoutManager->createInstance($layout, []);
+
+    // @todo Once manage mode is decoupled from user context add tabs here.
+    $content['content'] = [
+      '#prefix' => '<div id="contacts-tabs-content" class="contacts-tabs-content flex-fill">',
+      '#suffix' => '</div>',
+      '#type' => 'contact_tab_content',
+      '#tab' => $tab,
+      '#layout' => $layout,
+      '#subpage' => $tab->getPath(),
+      '#blocks' => $blocks,
+      '#manage_mode' => TRUE,
+      '#attributes' => ['class' => ['dash-content']],
+    ];
+
+    $content['messages'] = [
+      '#type' => 'status_messages',
+      '#weight' => -99,
+    ];
+
+    // Create AJAX Response object.
+    $response = new AjaxResponse();
+    $response->addCommand(new HtmlCommand('#contacts-tabs-content', $content));
+
+    // Return ajax response.
+    return $response;
+  }
+
+  /**
    * Provides a title callback to get the block's admin label.
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
@@ -234,6 +298,19 @@ class DashboardController extends ControllerBase {
     $block_config = $tab->getBlock($block_name);
     $block = $this->blockManager->createInstance($block_config['id'], $block_config);
     return $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
+  }
+
+  /**
+   * Renders the off Canvas configure form for a Dashboard block.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
+   *
+   * @return array
+   *   The renderable block config form.
+   */
+  public function offCanvasTab(ContactTab $tab) {
+    return $this->formBuilder->getForm(DashboardTabConfigureForm::class, $tab);
   }
 
   /**
@@ -279,6 +356,44 @@ class DashboardController extends ControllerBase {
     $response->setContent(json_encode($response_data));
     $response->headers->set('Content-Type', 'application/json');
     $response->setStatusCode(Response::HTTP_OK);
+    return $response;
+  }
+
+  /**
+   * Update the order of tabs after sorting.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response.
+   */
+  public function ajaxUpdateTabs() {
+    $tabs = \Drupal::request()->request->get('tabs');
+
+    $json = [];
+    $previous = -101;
+    foreach (array_filter($tabs) as $tab) {
+      /* @var \Drupal\contacts\Entity\ContactTab $tab */
+      $tab = $this->entityTypeManager()->getStorage('contact_tab')->load($tab);
+      $current_weight = $tab->get('weight');
+
+      // Where possible preserve the existing tab weight.
+      if ($previous < $current_weight) {
+        $new = $current_weight;
+      }
+      else {
+        $new = $previous + 5;
+      }
+
+      $tab->set('weight', $new);
+      $tab->save();
+      $json[] = ['id' => $tab->id(), 'weight' => $new];
+      $previous = $new;
+    }
+
+    $response = new Response();
+    $response->setContent(json_encode($json));
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setStatusCode(Response::HTTP_OK);
+
     return $response;
   }
 

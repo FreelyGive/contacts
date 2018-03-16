@@ -54,16 +54,47 @@
       }
     });
 
-    var url = $(context).find('[data-contacts-manage-update-url]').data('contacts-manage-update-url'),
-      postData = {
-        regions: regions,
-        tab: tab
-      };
+    var url = $(context).find('[data-contacts-manage-update-url]').data('contacts-manage-update-url');
+    var postData = {
+      regions: regions,
+      tab: tab
+    };
 
     $.ajax({
       type: 'POST',
       url: url,
       data: $.param(postData)
+    }).done(function (data) {
+      console.log(data);
+    });
+  }
+
+  /**
+   * Update the Dashboard tabs after re-ordering.
+   *
+   * @param context
+   *   The context of the tabs.
+   */
+  function updateDashboardTabs(context) {
+    var $dragArea = $(context).find('.contacts-ajax-tabs');
+
+    if ($dragArea.length === 0) {
+      return;
+    }
+
+    var tabs = $dragArea.sortable("toArray", {attribute: 'data-contacts-drag-tab-id'});
+
+    console.log(tabs);
+
+    var url = '/admin/contacts/ajax/update-tabs';
+    var postData = {
+      tabs: tabs
+    };
+
+    $.ajax({
+      type: 'POST',
+      url: url,
+      data: postData
     }).done(function (data) {
       console.log(data);
     });
@@ -123,7 +154,7 @@
   /**
    * Add sorting of dashboard blocks in manage mode.
    */
-  Drupal.behaviors.contactsDashboardManageDrag = {
+  Drupal.behaviors.contactsDashboardManageDragBlocks = {
     attach: function attach(context) {
 
       var $dragAreas = $(context).find('.drag-area');
@@ -144,6 +175,34 @@
 
               var tab = ui.item.closest('[data-contacts-manage-block-tab]').data('contacts-manage-block-tab');
               updateDashboardDrag(tab, context);
+            }
+          }
+        });
+      });
+    }
+  };
+
+  /**
+   * Add sorting of dashboard tabs in manage mode.
+   */
+  Drupal.behaviors.contactsDashboardManageDragTabs = {
+    attach: function attach(context) {
+
+      var $dragAreas = $(context).find('.contacts-ajax-tabs');
+
+      if ($dragAreas.length === 0) {
+        return;
+      }
+
+      $dragAreas.each(function () {
+        $(this).sortable({
+
+          placeholder: "nav-item nav-link tab-area-placeholder",
+          handle: '.drag-handle',
+          update: function update(event, ui) {
+            var itemRegion = ui.item.closest('.contacts-ajax-tabs');
+            if (event.target === itemRegion[0]) {
+              updateDashboardTabs(context);
             }
           }
         });
