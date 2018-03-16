@@ -6,6 +6,7 @@ use Drupal\contacts\Ajax\ContactsTab;
 use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\contacts\Form\DashboardBlockConfigureForm;
+use Drupal\contacts\Form\DashboardTabConfigureForm;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
@@ -234,6 +235,19 @@ class DashboardController extends ControllerBase {
     $block_config = $tab->getBlock($block_name);
     $block = $this->blockManager->createInstance($block_config['id'], $block_config);
     return $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
+  }
+
+  /**
+   * Renders the off Canvas configure form for a Dashboard block.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
+   *
+   * @return array
+   *   The renderable block config form.
+   */
+  public function offCanvasTab(ContactTab $tab) {
+    return $this->formBuilder->getForm(DashboardTabConfigureForm::class, $tab);
   }
 
   /**

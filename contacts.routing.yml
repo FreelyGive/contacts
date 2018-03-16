@@ -54,3 +54,15 @@ contacts.block.off_canvas_form:
         type: entity:contact_tab
   requirements:
     _permission: 'administer blocks'
+
+contacts.tab.off_canvas_form:
+  path: '/admin/contacts/ajax/manage-off-canvas-tab/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasTab'
+    _title: 'Edit tab'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'administer blocks'

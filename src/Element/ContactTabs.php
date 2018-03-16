@@ -57,6 +57,7 @@ class ContactTabs extends RenderElement {
       '#theme' => 'contacts_dash_tabs',
       '#weight' => -1,
       '#tabs' => [],
+      '#manage_mode' => $element['#manage_mode'],
       '#attached' => [
         'library' => ['contacts/tabs'],
       ],
