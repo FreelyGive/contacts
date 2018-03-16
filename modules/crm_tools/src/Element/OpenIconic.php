@@ -43,6 +43,7 @@ class OpenIconic extends RenderElement {
       '#attributes' => [],
       '#icon' => 'person',
       '#color' => '#000000',
+      '#size' => '25px',
       '#fill' => '#ffffff',
     ];
   }
@@ -66,7 +67,6 @@ class OpenIconic extends RenderElement {
    */
   public static function preRenderOpenIconic(array $element) {
     $element['#attributes']['viewBox'] = '0 0 8 8';
-    $element['#attributes']['class'][] = 'role-icon';
     $element['#attributes']['style'][] = 'background-color:' . HtmlUtility::escape($element['#color']) . ';';
     $element['#attached']['library'][] = 'crm_tools/open-iconic';
     $module_handler = \Drupal::service('module_handler');

@@ -20,7 +20,7 @@ use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
-use Drupal\contacts\Form\DashboardBlockConfigureForm;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Implements hook_theme().
@@ -47,7 +47,6 @@ function contacts_theme() {
       'variables' => [
         'id' => NULL,
         'tab' => NULL,
-        'mode' => NULL,
         'subpage' => NULL,
         'block' => [],
         'attributes' => [],
@@ -77,28 +76,38 @@ function template_preprocess_contacts_manage_block(array &$variables) {
   $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
   $variables['attributes']['data-contacts-manage-block-tab'] = $variables['tab']->id();
 
-  switch ($variables['mode']) {
-    case 'manage':
-      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
-      $variables['content']['description'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'strong',
-        '#value' => $variables['description'],
-        '#prefix' => '<div>',
-        '#suffix' => '</div>',
-      ];
+  $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+  $variables['content']['description'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'strong',
+    '#value' => $variables['description'],
+    '#prefix' => '<div>',
+    '#suffix' => '</div>',
+  ];
 
-      if ($variables['block'] instanceof DashboardBlockInterface) {
-        $variables['block']->processManageMode($variables);
-      }
-      break;
-
-    case 'configure':
-      $variables['label'] = 'Configure block';
-      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['tab'], $variables['block']);
-      $variables['content']['configure_form'] = $form;
-      break;
+  if ($variables['block'] instanceof DashboardBlockInterface) {
+    $variables['block']->processManageMode($variables);
   }
+
+  // UI icons for manage mode.
+  $variables['ui'] = [
+    'drag' => [
+      '#type' => 'open_iconic',
+      '#size' => '20',
+      '#icon' => 'move',
+      '#fill' => '#000',
+      '#color' => 'transparent',
+      '#attributes' => ['class' => ['contacts-ui-icon', 'icon-left']],
+    ],
+    'configure' => [
+      '#type' => 'open_iconic',
+      '#size' => '20',
+      '#icon' => 'cog',
+      '#fill' => '#5bc0de',
+      '#color' => 'transparent',
+      '#attributes' => ['class' => ['contacts-ui-icon', 'icon-right']],
+    ],
+  ];
 
   $variables['attributes'] = new Attribute($variables['attributes']);
 }
@@ -219,6 +228,19 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
   }
+
+  // Render user roles in summary block.
+  $roles = user_roles();
+  uasort($roles, 'contacts_sort_roles');
+  $roles = array_intersect(array_keys($roles), $user->getRoles());
+  $variables['hats'] = [];
+
+  foreach ($roles as $role) {
+    $variables['hats'][] = [
+      '#theme' => 'crm_tools_hat',
+      '#role' => $role,
+    ];
+  }
 }
 
 /**
@@ -253,7 +275,35 @@ function contacts_dashboard_block_edit_link_pre_render(array $element) {
  */
 function contacts_entity_type_build(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-  $entity_types['profile']->setFormClass('crm_dashboard', ContactsProfileForm::class);
+  $entity_types['profile']->setFormClass('default', ContactsProfileForm::class);
+  $entity_types['profile']->setFormClass('contacts_dashboard', ContactsProfileForm::class);
+  $entity_types['profile']->setFormClass('user_dashboard', ContactsProfileForm::class);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for profile_type.
+ *
+ * Set up entity displays for contacts and user dashboards.
+ */
+function contacts_profile_type_insert($entity) {
+  /* @var \Drupal\profile\Entity\ProfileTypeInterface $entity */
+  $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+
+  foreach (['contacts_dashboard', 'user_dashboard'] as $mode) {
+    $values = [
+      'id' => implode('.', ['profile', $entity->id(), $mode]),
+      'targetEntityType' => 'profile',
+      'bundle' => $entity->id(),
+      'mode' => $mode,
+      'status' => TRUE,
+    ];
+
+    $view_display = $view_storage->create($values);
+    $view_display->save();
+    $form_display = $form_storage->create($values);
+    $form_display->save();
+  }
 }
 
 /**
@@ -318,6 +368,29 @@ function contacts_toolbar() {
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
   $items['administration']['#attached']['library'][] = 'contacts/contacts.toolbar';
+}
+
+/**
+ * Implements hook_user_format_name_alter().
+ */
+function contacts_user_format_name_alter(&$name, AccountInterface $account) {
+  // Display the name for individuals.
+  if (in_array('crm_indiv', $account->getRoles()) && !empty($account->profile_crm_indiv)) {
+    $profile = $account->profile_crm_indiv->entity;
+
+    if ($profile) {
+      $name = $profile->crm_name->value;
+    }
+  }
+
+  // Display the name for organisations.
+  if (in_array('crm_org', $account->getRoles()) && !empty($account->profile_crm_org)) {
+    $profile = $account->profile_crm_org->entity;
+
+    if ($profile) {
+      $name = $profile->crm_org_name->value;
+    }
+  }
 }
 
 /**
