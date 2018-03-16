@@ -4,4 +4,9 @@
   <h2>{{ name }}</h2>
   {% if email %}<div class="contact-email">{{ email }}</div>{% endif %}
   {% if phone %}<div class="contact-phone">{{ phone }}</div>{% endif %}
+  {% if hats %}
+    <div class="contact-hats">
+      {{ hats }}
+    </div>
+  {% endif %}
 </div>
