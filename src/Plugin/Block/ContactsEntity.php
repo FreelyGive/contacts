@@ -236,10 +236,20 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#default_value' => $this->configuration['mode'],
     ];
 
+    // If entity has bundles get bundle specific display modes.
+    if ($this->pluginDefinition['_bundle_key']) {
+      $view_mode_options = $this->entityDisplayRepository->getViewModeOptionsByBundle($this->pluginDefinition['_entity_type_id'], $this->pluginDefinition['_bundle_id']);
+      $form_mode_options = $this->entityDisplayRepository->getFormModeOptionsByBundle($this->pluginDefinition['_entity_type_id'], $this->pluginDefinition['_bundle_id']);
+    }
+    else {
+      $view_mode_options = $this->entityDisplayRepository->getViewModeOptions($this->pluginDefinition['_entity_type_id']);
+      $form_mode_options = $this->entityDisplayRepository->getFormModeOptions($this->pluginDefinition['_entity_type_id']);
+    }
+
     // @todo figure out how we can get the parent form structure.
     $form['view_mode'] = [
       '#type' => 'select',
-      '#options' => $this->entityDisplayRepository->getViewModeOptions($this->pluginDefinition['_entity_type_id']),
+      '#options' => $view_mode_options,
       '#title' => $this->t('View mode'),
       '#default_value' => $this->configuration['view_mode'],
       '#states' => [
@@ -253,7 +263,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
     $form['operation'] = [
       '#type' => 'select',
-      '#options' => $this->entityDisplayRepository->getFormModeOptions($this->pluginDefinition['_entity_type_id']),
+      '#options' => $form_mode_options,
       '#title' => $this->t('Form mode'),
       '#default_value' => $this->configuration['operation'],
     ];
