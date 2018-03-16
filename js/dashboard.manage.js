@@ -12,6 +12,7 @@
       name = $block.data('contacts-manage-block-name'),
       url = [['/admin/contacts/ajax/manage-off-canvas', tab, name].join('/'), destination].join('?');
 
+    // @todo Build link url as part of rendering but keep it hidden.
     $block.addClass('manage-wrapper');
     var link = $block.find('.manage-trigger');
     if (link.length !== 0) {

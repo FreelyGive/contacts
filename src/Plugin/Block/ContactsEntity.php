@@ -211,6 +211,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       '#items' => $this->getManageLinks(),
     ];
 
+    // @todo Consider moving this out of ContactsEntity for other blocks.
     if (!empty($definition['_required_hats'])) {
       $hats = [];
       // @todo Show hat icons instead of labels.
