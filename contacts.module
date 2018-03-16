@@ -47,7 +47,6 @@ function contacts_theme() {
       'variables' => [
         'id' => NULL,
         'tab' => NULL,
-        'mode' => NULL,
         'subpage' => NULL,
         'block' => [],
         'attributes' => [],
@@ -77,27 +76,17 @@ function template_preprocess_contacts_manage_block(array &$variables) {
   $variables['attributes']['data-contacts-manage-block-name'] = $configuration['name'];
   $variables['attributes']['data-contacts-manage-block-tab'] = $variables['tab']->id();
 
-  switch ($variables['mode']) {
-    case 'manage':
-      $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
-      $variables['content']['description'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'strong',
-        '#value' => $variables['description'],
-        '#prefix' => '<div>',
-        '#suffix' => '</div>',
-      ];
+  $variables['label'] = $variables['label'] ?: $variables['block']->label(FALSE);
+  $variables['content']['description'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'strong',
+    '#value' => $variables['description'],
+    '#prefix' => '<div>',
+    '#suffix' => '</div>',
+  ];
 
-      if ($variables['block'] instanceof DashboardBlockInterface) {
-        $variables['block']->processManageMode($variables);
-      }
-      break;
-
-    case 'configure':
-      $variables['label'] = 'Configure block';
-      $form = \Drupal::formBuilder()->getForm(DashboardBlockConfigureForm::class, $variables['tab'], $variables['block']);
-      $variables['content']['configure_form'] = $form;
-      break;
+  if ($variables['block'] instanceof DashboardBlockInterface) {
+    $variables['block']->processManageMode($variables);
   }
 
   $variables['attributes'] = new Attribute($variables['attributes']);
