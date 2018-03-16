@@ -124,8 +124,8 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     return [
       'mode' => self::MODE_VIEW,
       'create' => NULL,
-      'operation' => 'crm_dashboard',
-      'view_mode' => 'crm_dashboard',
+      'operation' => 'contacts_dashboard',
+      'view_mode' => 'contacts_dashboard',
       'edit_link' => $this->pluginDefinition['_has_forms'] ? self::EDIT_LINK_CONTENT : FALSE,
       'edit_id' => 'edit',
     ] + parent::defaultConfiguration();

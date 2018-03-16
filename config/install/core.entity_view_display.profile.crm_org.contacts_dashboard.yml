@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.profile.crm_org.crm_org_address
+    - field.field.profile.crm_org.crm_org_name
+    - field.field.profile.crm_org.crm_phone
+    - profile.type.crm_org
+  module:
+    - address
+id: profile.crm_org.contacts_dashboard
+targetEntityType: profile
+bundle: crm_org
+mode: contacts_dashboard
+content:
+  crm_org_address:
+    weight: 2
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: address_default
+  crm_org_name:
+    weight: 0
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  crm_phone:
+    type: string
+    weight: 1
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden: {  }
