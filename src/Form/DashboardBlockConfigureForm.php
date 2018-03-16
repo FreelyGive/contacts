@@ -3,6 +3,8 @@
 namespace Drupal\contacts\Form;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Controller\DashboardRebuildTrait;
+use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -13,6 +15,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * The configuration form for dashboard blocks.
  */
 class DashboardBlockConfigureForm extends FormBase {
+
+  use AjaxFormHelperTrait;
+  use DashboardRebuildTrait;
 
   /**
    * The block plugin being configured.
@@ -56,10 +61,13 @@ class DashboardBlockConfigureForm extends FormBase {
    *   The entity type manager.
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
    *   The contacts tab manager.
+   * @param \Drupal\Core\DependencyInjection\ClassResolverInterface $class_resolver
+   *   The class resolver service.
    */
-  public function __construct(EntityTypeManager $entity_type_manager, ContactsTabManager $tab_manager) {
+  public function __construct(EntityTypeManager $entity_type_manager, ContactsTabManager $tab_manager, ClassResolverInterface $class_resolver) {
     $this->entityTypeManager = $entity_type_manager;
     $this->tabManager = $tab_manager;
+    $this->classResolver = $class_resolver;
   }
 
   /**
@@ -68,7 +76,8 @@ class DashboardBlockConfigureForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('contacts.tab_manager')
+      $container->get('contacts.tab_manager'),
+      $container->get('class_resolver')
     );
   }
 
@@ -104,17 +113,33 @@ class DashboardBlockConfigureForm extends FormBase {
       unset($form['settings']['context_mapping']);
     }
 
-    $form['submit'] = [
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => 'Save',
+      '#button_type' => 'primary',
     ];
 
-    $form['cancel'] = [
+    $form['actions']['cancel'] = [
       '#type' => 'submit',
       '#value' => 'Cancel',
-      '#submit' => [[$this, 'cancelBlock']],
+      '#submit' => [],
       '#limit_validation_errors' => [],
     ];
+
+    $form['actions']['remove'] = [
+      '#type' => 'submit',
+      '#value' => 'Remove',
+      '#submit' => [[$this, 'removeBlock']],
+      '#limit_validation_errors' => [],
+    ];
+
+    // Add ajax to actions.
+    if ($this->isAjax()) {
+      $form['actions']['submit']['#ajax']['callback'] = '::ajaxSubmit';
+      $form['actions']['cancel']['#ajax']['callback'] = '::ajaxSubmit';
+      $form['actions']['remove']['#ajax']['callback'] = '::ajaxSubmit';
+    }
 
     return $form;
   }
@@ -131,6 +156,11 @@ class DashboardBlockConfigureForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    if ($trigger['#value'] == 'Cancel') {
+      return;
+    }
+
     $sub_form_state = SubformState::createForSubform($form['settings'], $form, $form_state);
     $this->block->submitConfigurationForm($form, $sub_form_state);
     $this->tab->setBlock($this->blockName, $this->block->getConfiguration());
@@ -138,15 +168,20 @@ class DashboardBlockConfigureForm extends FormBase {
   }
 
   /**
-   * Form submission handler; removes block from tab.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
    */
-  public function cancelBlock(array &$form, FormStateInterface $form_state) {
-    // Do nothing.
+  public function removeBlock(array &$form, FormStateInterface $form_state) {
+    $blocks = $this->tab->getBlocks();
+    unset($blocks[$this->blockName]);
+    $this->tab->setBlocks($blocks);
+    $this->tab->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function successfulAjaxSubmit(array $form, FormStateInterface $form_state) {
+    return $this->rebuildAndReturn($this->tab);
   }
 
 }

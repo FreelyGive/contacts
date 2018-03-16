@@ -3,6 +3,7 @@
 namespace Drupal\contacts\Form;
 
 use Drupal\contacts\ContactsTabManager;
+use Drupal\contacts\Controller\DashboardRebuildTrait;
 use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormBase;
@@ -13,6 +14,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * The configuration form for dashboard blocks.
  */
 class DashboardTabConfigureForm extends FormBase {
+
+  use AjaxFormHelperTrait;
+  use DashboardRebuildTrait;
 
   /**
    * The dashboard tab.
@@ -106,6 +110,13 @@ class DashboardTabConfigureForm extends FormBase {
       '#limit_validation_errors' => [],
     ];
 
+    // Add ajax to actions.
+    if ($this->isAjax()) {
+      $form['actions']['submit']['#ajax']['callback'] = '::ajaxSubmit';
+      $form['actions']['cancel']['#ajax']['callback'] = '::ajaxSubmit';
+      $form['actions']['remove']['#ajax']['callback'] = '::ajaxSubmit';
+    }
+
     $form['messages'] = [
       '#type' => 'status_messages',
       '#weight' => -99,
@@ -136,6 +147,17 @@ class DashboardTabConfigureForm extends FormBase {
    */
   public function removeTab(array &$form, FormStateInterface $form_state) {
     $this->tab->delete();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function successfulAjaxSubmit(array $form, FormStateInterface $form_state) {
+    $trigger = $form_state->getTriggeringElement();
+    if ($trigger['#name'] == 'remove') {
+      $this->tab = $this->tabManager->getTab('summary');
+    }
+    return $this->rebuildAndReturn($this->tab);
   }
 
 }
