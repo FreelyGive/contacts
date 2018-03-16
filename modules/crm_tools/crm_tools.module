@@ -72,7 +72,8 @@ function template_preprocess_crm_tools_hat(array &$variables) {
   if ($role->getThirdPartySetting('crm_tools', 'crm_tools_is_hat', FALSE)) {
     $variables['icon'] = [
       '#type' => 'open_iconic',
-      '#size' => '10',
+      '#size' => '15',
+      '#attributes' => ['class' => ['role-icon']],
     ];
     if ($role->getThirdPartySetting('crm_tools', 'crm_tools_icon', FALSE)) {
       $variables['icon']['#icon'] = $role->getThirdPartySetting('crm_tools', 'crm_tools_icon');
@@ -192,7 +193,7 @@ function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_st
           ]))->toString(),
       ]),
       '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_icon', 'person'),
-      '#size' => 20,
+      '#size' => 25,
       '#attached' => [
         'library' => ['crm_tools/open-iconic-preview'],
         'drupalSettings' => [

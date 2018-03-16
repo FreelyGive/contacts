@@ -20,7 +20,7 @@ use Drupal\views\Entity\View;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
-use Drupal\contacts\Form\DashboardBlockConfigureForm;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Implements hook_theme().
@@ -88,6 +88,26 @@ function template_preprocess_contacts_manage_block(array &$variables) {
   if ($variables['block'] instanceof DashboardBlockInterface) {
     $variables['block']->processManageMode($variables);
   }
+
+  // UI icons for manage mode.
+  $variables['ui'] = [
+    'drag' => [
+      '#type' => 'open_iconic',
+      '#size' => '20',
+      '#icon' => 'move',
+      '#fill' => '#000',
+      '#color' => 'transparent',
+      '#attributes' => ['class' => ['contacts-ui-icon', 'icon-left']],
+    ],
+    'configure' => [
+      '#type' => 'open_iconic',
+      '#size' => '20',
+      '#icon' => 'cog',
+      '#fill' => '#5bc0de',
+      '#color' => 'transparent',
+      '#attributes' => ['class' => ['contacts-ui-icon', 'icon-right']],
+    ]
+  ];
 
   $variables['attributes'] = new Attribute($variables['attributes']);
 }
@@ -207,6 +227,19 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       $variables['image'] = $default_image_element;
       $variables['image']['#uri'] = 'contacts://images/default-indiv.png';
     }
+  }
+
+  // Render user roles in summary block.
+  $roles = user_roles();
+  uasort($roles, 'contacts_sort_roles');
+  $roles = array_intersect(array_keys($roles), $user->getRoles());
+  $variables['hats'] = [];
+
+  foreach ($roles as $role) {
+    $variables['hats'][] = [
+      '#theme' => 'crm_tools_hat',
+      '#role' => $role,
+    ];
   }
 }
 
@@ -335,6 +368,29 @@ function contacts_toolbar() {
 function contacts_toolbar_alter(&$items) {
   // Move the User tab to the right.
   $items['administration']['#attached']['library'][] = 'contacts/contacts.toolbar';
+}
+
+/**
+ * Implements hook_user_format_name_alter().
+ */
+function contacts_user_format_name_alter(&$name, AccountInterface $account) {
+  // Display the name for individuals.
+  if (in_array('crm_indiv', $account->getRoles()) && !empty($account->profile_crm_indiv)) {
+    $profile = $account->profile_crm_indiv->entity;
+
+    if ($profile) {
+      $name = $profile->crm_name->value;
+    }
+  }
+
+  // Display the name for organisations.
+  if (in_array('crm_org', $account->getRoles()) && !empty($account->profile_crm_org)) {
+    $profile = $account->profile_crm_org->entity;
+
+    if ($profile) {
+      $name = $profile->crm_org_name->value;
+    }
+  }
 }
 
 /**
