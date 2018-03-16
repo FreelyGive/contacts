@@ -123,7 +123,6 @@ class DashboardBlockConfigureForm extends FormBase {
     $form['actions']['cancel'] = [
       '#type' => 'submit',
       '#value' => 'Cancel',
-      '#submit' => [],
       '#limit_validation_errors' => [],
     ];
 

@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @Block(
  *   id = "contacts_entity",
- *   category = @Translation("Contacts"),
+ *   category = @Translation("Dashboard Blocks"),
  *   deriver = "Drupal\contacts\Plugin\Deriver\ContactsEntityBlockDeriver",
  *   dashboard_block = TRUE,
  * )
@@ -175,6 +175,11 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return FALSE;
     }
 
+    // If we are already in edit mode, don't show a link.
+    if ($this->getMode() == 'edit') {
+      return FALSE;
+    }
+
     if (empty($this->getContextValue('user')) || empty($this->getContextValue('subpage'))) {
       return FALSE;
     }
@@ -229,6 +234,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    * {@inheritdoc}
    */
   public function blockForm($form, FormStateInterface $form_state) {
+    // @todo Can we set the default mode to MODE_VIEW_NEW?
     $form['mode'] = [
       '#type' => 'select',
       '#options' => [self::MODE_FORM => 'Form', self::MODE_VIEW => 'View'],
@@ -499,40 +505,110 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     $operations = [];
     // Add manage fields and display links if this entity type is the bundle
     // of another and that type has field UI enabled.
-    if ($bundle_type && $entity_definition->get('field_ui_base_route')) {
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
-        $operations['manage-fields'] = [
-          '#type' => 'link',
-          '#title' => t('Manage fields'),
-          '#weight' => 15,
-          '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
-      }
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
-        $operations['manage-form-display'] = [
-          '#type' => 'link',
-          '#title' => t('Manage form display'),
-          '#weight' => 20,
-          '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
-      }
-      if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
-        $operations['manage-display'] = [
-          '#type' => 'link',
-          '#title' => t('Manage display'),
-          '#weight' => 25,
-          '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
-            $bundle_type => $bundle_id,
-          ]),
-        ];
+    if ($bundle_type) {
+      $link_options = [
+        'attributes' => ['target' => '_blank'],
+      ];
+
+      // @todo Solve generic entity access permission issue.
+      $operations['manage-entity'] = [
+        '#type' => 'link',
+        '#title' => t('Edit profile type'),
+        '#weight' => 10,
+        '#url' => Url::fromRoute("entity.{$bundle_type}.edit_form", [
+          $bundle_type => $bundle_id,
+        ], $link_options),
+      ];
+
+      if ($entity_definition->get('field_ui_base_route')) {
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' fields')) {
+          $operations['manage-fields'] = [
+            '#type' => 'link',
+            '#title' => t('Manage fields'),
+            '#weight' => 15,
+            '#url' => Url::fromRoute("entity.{$entity_id}.field_ui_fields", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' form display')) {
+          $operations['manage-form-display'] = [
+            '#type' => 'link',
+            '#title' => t('Manage form display'),
+            '#weight' => 20,
+            '#url' => Url::fromRoute("entity.entity_form_display.{$entity_id}.default", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
+        if ($this->currentUser->hasPermission('administer ' . $entity_id . ' display')) {
+          $operations['manage-display'] = [
+            '#type' => 'link',
+            '#title' => t('Manage display'),
+            '#weight' => 25,
+            '#url' => Url::fromRoute("entity.entity_view_display.{$entity_id}.default", [
+              $bundle_type => $bundle_id,
+            ], $link_options),
+          ];
+        }
       }
     }
 
     return $operations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getManageMeta() {
+    $meta = [
+      '#type' => 'details',
+      '#open' => TRUE,
+      '#title' => 'About this block',
+    ];
+
+    $definition = $this->getPluginDefinition();
+    $entity_type_definition = $this->entityTypeManager->getDefinition($definition['_entity_type_id']);
+    $entity_bundle_type = $entity_type_definition->getBundleEntityType();
+    if ($entity_bundle_type && $definition['_bundle_id']) {
+      $bundle_entity = $this->entityTypeManager->getStorage($entity_bundle_type)->load($definition['_bundle_id']);
+    }
+
+    $hats = [];
+
+    if (isset($bundle_entity)) {
+      $roles = user_roles();
+      uasort($roles, 'contacts_sort_roles');
+      $roles = array_intersect(array_keys($roles), $bundle_entity->getRoles());
+      // @todo Show hat icons instead of labels.
+      foreach ($roles as $role) {
+        $hats[] = [
+          '#theme' => 'crm_tools_hat',
+          '#role' => $role,
+        ];
+      }
+    }
+
+    $meta['needed_hats'] = [
+      '#theme' => 'item_list',
+      '#items' => $hats,
+      '#title' => 'Allowed for users with hats:',
+    ];
+
+    $tabs = \Drupal::service('contacts.tab_manager')->getTabsWithBlock($this->getPluginId());
+    $meta['placed_tabs'] = [
+      '#theme' => 'item_list',
+      '#items' => $tabs,
+      '#title' => 'Currently placed on tabs:',
+    ];
+
+    $meta['manage_links'] = [
+      '#theme' => 'item_list',
+      '#items' => $this->getManageLinks(),
+      '#title' => 'Manage:',
+    ];
+
+    return $meta;
   }
 
 }

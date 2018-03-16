@@ -77,6 +77,7 @@ class OpenIconic extends RenderElement {
       if (is_numeric($element['#size'])) {
         $element['#size'] .= 'px';
       }
+
       $element['#attributes']['style'][] = 'height:' . HtmlUtility::escape($element['#size']) . ';';
       $element['#attributes']['style'][] = 'width:' . HtmlUtility::escape($element['#size']) . ';';
     }

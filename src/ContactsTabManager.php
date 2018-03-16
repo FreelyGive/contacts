@@ -4,6 +4,7 @@ namespace Drupal\contacts;
 
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\contacts\Entity\ContactTabInterface;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
@@ -216,6 +217,71 @@ class ContactsTabManager implements ContactsTabManagerInterface {
         }
       }
     }
+  }
+
+  /**
+   * Build the block context mapping.
+   *
+   * @param \Drupal\contacts\Entity\ContactTabInterface $tab
+   *   The tab entity the blocks are on.
+   * @param \Drupal\Core\Block\BlockPluginInterface $block
+   *   Blocks to apply the contexts to.
+   */
+  public function buildBlockContextMapping(ContactTabInterface $tab, BlockPluginInterface $block) {
+    $relationships = $tab->getRelationships();
+
+    $definition = $block->getPluginDefinition();
+    $conf = $block->getConfiguration();
+
+    if (empty($definition['_tab_relationships'])) {
+      return;
+    }
+
+    foreach ($definition['_tab_relationships'] as $source => $contexts) {
+      foreach ($contexts as $label => $context) {
+        if (!isset($relationships[$context])) {
+          $relationships[$context] = [
+            'id' => "typed_data_entity_relationship:entity:{$source}:{$context}",
+            'name' => $context,
+            'source' => $source,
+          ];
+        }
+
+        $conf['context_mapping'][$label] = $context;
+      }
+    }
+
+    // @todo Check if it needs user.
+    $conf['context_mapping']['user'] = 'user';
+
+    $tab->setRelationships($relationships);
+    $block->setConfiguration($conf);
+  }
+
+  /**
+   * Gets a list of tabs that have a block in them.
+   *
+   * @param string $block_id
+   *   The id of the block being searched for.
+   *
+   * @return array
+   *   Array of tab labels keyed by tab id.
+   */
+  public function getTabsWithBlock($block_id) {
+    $tabs = $this->getTabs();
+
+    $found = [];
+    foreach ($tabs as $id => $tab) {
+      $blocks = $this->getBlocks($tab);
+
+      foreach ($blocks as $block) {
+        if ($block->getPluginId() == $block_id) {
+          $found[$id] = $tab->label();
+        }
+      }
+    }
+
+    return $found;
   }
 
   /**

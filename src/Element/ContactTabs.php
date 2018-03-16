@@ -72,6 +72,11 @@ class ContactTabs extends RenderElement {
         ]),
       ];
 
+      // Add the drag icon.
+      if ($element['#manage_mode']) {
+        $element['content']['#tabs'][$tab_id]['link_attributes']['class'][] = 'manage-tab';
+      }
+
       // Swap links for AJAX request links.
       if ($element['#ajax']) {
         $element['content']['#tabs'][$tab_id]['link_attributes']['data-ajax-url'] = Url::fromRoute('contacts.ajax_subpage', [
@@ -84,6 +89,7 @@ class ContactTabs extends RenderElement {
 
       // Add tab id to attributes.
       $element['content']['#tabs'][$tab_id]['attributes']['data-contacts-drag-tab-id'] = $tab_id;
+      $element['content']['#tabs'][$tab_id]['link_attributes']['data-contacts-tab-id'] = $tab_id;
 
       // Add active class to current tab.
       if ($tab['path'] == $element['#subpage']) {

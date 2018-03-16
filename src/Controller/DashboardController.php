@@ -7,7 +7,11 @@ use Drupal\contacts\ContactsTabManager;
 use Drupal\contacts\Entity\ContactTab;
 use Drupal\contacts\Form\DashboardBlockConfigureForm;
 use Drupal\contacts\Form\DashboardTabConfigureForm;
+use Drupal\contacts\Plugin\DashboardBlockInterface;
+use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\InvokeCommand;
+use Drupal\Core\Ajax\OpenOffCanvasDialogCommand;
 use Drupal\Core\Block\BlockManager;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -18,7 +22,9 @@ use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,6 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DashboardController extends ControllerBase {
 
   use AjaxHelperTrait;
+  use StringTranslationTrait;
 
   /**
    * The tab manager.
@@ -46,6 +53,13 @@ class DashboardController extends ControllerBase {
    * @var \Drupal\Core\Block\BlockManager
    */
   protected $blockManager;
+
+  /**
+   * The state service.
+   *
+   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   */
+  protected $state;
 
   /**
    * The current request.
@@ -76,6 +90,13 @@ class DashboardController extends ControllerBase {
   protected $layoutManager;
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Construct the dashboard controller.
    *
    * @param \Drupal\contacts\ContactsTabManager $tab_manager
@@ -94,8 +115,10 @@ class DashboardController extends ControllerBase {
    *   The form builder service.
    * @param \Drupal\Core\Layout\LayoutPluginManager $layout_manager
    *   The layout manager service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
    */
-  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler, FormBuilderInterface $form_builder, LayoutPluginManager $layout_manager) {
+  public function __construct(ContactsTabManager $tab_manager, BlockManager $block_manager, StateInterface $state, RequestStack $request_stack, PathValidatorInterface $path_validator, ContextHandlerInterface $context_handler, FormBuilderInterface $form_builder, LayoutPluginManager $layout_manager, RendererInterface $renderer) {
     $this->tabManager = $tab_manager;
     $this->blockManager = $block_manager;
     $this->state = $state;
@@ -104,6 +127,7 @@ class DashboardController extends ControllerBase {
     $this->contextHandler = $context_handler;
     $this->formBuilder = $form_builder;
     $this->layoutManager = $layout_manager;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -118,7 +142,8 @@ class DashboardController extends ControllerBase {
       $container->get('path.validator'),
       $container->get('context.handler'),
       $container->get('form_builder'),
-      $container->get('plugin.manager.core.layout')
+      $container->get('plugin.manager.core.layout'),
+      $container->get('renderer')
     );
   }
 
@@ -180,13 +205,72 @@ class DashboardController extends ControllerBase {
       '#weight' => -99,
     ];
 
+    // Load the tab.
+    $tab = $this->tabManager->getTabByPath($subpage);
+
     // Create AJAX Response object.
     $response = new AjaxResponse();
-    $response->addCommand(new ContactsTab($subpage, $url->toString()));
+    $response->addCommand(new ContactsTab($tab->id(), $url->toString()));
     $response->addCommand(new HtmlCommand('#contacts-tabs', $content));
+
+    $this->offCanvasCommand($response, $tab);
 
     // Return ajax response.
     return $response;
+  }
+
+  /**
+   * Creates a new ajax response for page update triggered by off canvas.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab being updated.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
+  public function offCanvasUpdate(ContactTab $tab) {
+    $response = new AjaxResponse();
+    $this->offCanvasCommand($response, $tab);
+    return $response;
+  }
+
+  /**
+   * Adds AJAX command to response to show default tab offcanvas content.
+   *
+   * @param \Drupal\Core\Ajax\AjaxResponse $response
+   *   Response to add command to.
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to get content for.
+   */
+  public function offCanvasCommand(AjaxResponse $response, ContactTab $tab) {
+    // Open/close the off-canvas tray.
+    if ($this->state()->get('manage_mode')) {
+      $main_content = $this->buildDefaultOffCanvas($tab);
+
+      $content = $this->renderer->renderRoot($main_content);
+      $main_content['#attached']['library'][] = 'core/drupal.dialog.off_canvas';
+      $response->setAttachments($main_content['#attached']);
+
+      // If the main content doesn't provide a title, use the title resolver.
+      $title = isset($main_content['#title']) ? $main_content['#title'] : '';
+      $response->addCommand(new OpenOffCanvasDialogCommand($title, $content, []));
+    }
+    else {
+      $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    }
+  }
+
+  /**
+   * Adds AJAX command to response to show default tab offcanvas content.
+   *
+   * @param \Drupal\Core\Ajax\AjaxResponse $response
+   *   Response to add command to.
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to get content for.
+   */
+  public function updateTabCommand(AjaxResponse $response, ContactTab $tab) {
+    // Open/close the off-canvas tray.
+    $response->addCommand(new InvokeCommand('[data-contacts-tab-id="' . $tab->id() . '"]', 'click'));
   }
 
   /**
@@ -210,6 +294,7 @@ class DashboardController extends ControllerBase {
 
     /* @var \Drupal\Core\Url $url_object */
     $url_object = $this->pathValidator->getUrlIfValid($fake_request->getRequestUri());
+
     if ($url_object) {
       $this->state()->set('manage_mode', !$manage_mode);
 
@@ -284,6 +369,37 @@ class DashboardController extends ControllerBase {
   }
 
   /**
+   * Renders the off Canvas configure form for a new block.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The the tab entity that contains the block.
+   * @param string $plugin_id
+   *   The plugin id to create a new block from.
+   * @param string|null $region
+   *   The region to add the block to..
+   *
+   * @return array
+   *   The renderable block config form.
+   */
+  public function offCanvasBlockAdd(ContactTab $tab, $plugin_id, $region = NULL) {
+    $config = [];
+
+    if ($region) {
+      $config['region'] = $region;
+    }
+
+    /* @var \Drupal\Core\Block\BlockPluginInterface $block */
+    $block = $this->blockManager->createInstance($plugin_id, $config);
+    $this->tabManager->buildBlockContextMapping($tab, $block);
+
+    $block_config = $block->getConfiguration();
+    $block_config['create'] = TRUE;
+    $name = $tab->addBlock($plugin_id, $block_config);
+
+    return $this->offCanvasBlock($tab, $name);
+  }
+
+  /**
    * Renders the off Canvas configure form for a Dashboard block.
    *
    * @param \Drupal\contacts\Entity\ContactTab $tab
@@ -297,7 +413,14 @@ class DashboardController extends ControllerBase {
   public function offCanvasBlock(ContactTab $tab, $block_name) {
     $block_config = $tab->getBlock($block_name);
     $block = $this->blockManager->createInstance($block_config['id'], $block_config);
-    return $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
+    $content = [];
+
+    $content['form '] = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
+
+    if ($block instanceof DashboardBlockInterface) {
+      $content['meta'] = $block->getManageMeta();
+    }
+    return $content;
   }
 
   /**
@@ -310,7 +433,12 @@ class DashboardController extends ControllerBase {
    *   The renderable block config form.
    */
   public function offCanvasTab(ContactTab $tab) {
-    return $this->formBuilder->getForm(DashboardTabConfigureForm::class, $tab);
+    $content = [];
+
+    $content['form '] = $this->formBuilder->getForm(DashboardTabConfigureForm::class, $tab);
+
+    $content['meta'] = $tab->getManageMeta();
+    return $content;
   }
 
   /**
@@ -395,6 +523,69 @@ class DashboardController extends ControllerBase {
     $response->setStatusCode(Response::HTTP_OK);
 
     return $response;
+  }
+
+  /**
+   * The default off canvas information in manage mode.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to add the block to.
+   *
+   * @return array
+   *   A render array.
+   */
+  public function buildDefaultOffCanvas(ContactTab $tab) {
+    $output['#title'] = $this->t('Welcome to Manage Mode');
+
+    $output['content'] = ['#type' => 'container'];
+    $output['content']['title'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h2',
+      '#value' => $this->t('@label tab', ['@label' => $tab->label()]),
+    ];
+
+    $link_options = [
+      'attributes' => ['target' => '_blank'],
+      'query' => ['destination' => $this->getUrlGenerator()->generateFromRoute('<current>')],
+    ];
+    $output['content']['links'] = [
+      '#theme' => 'item_list',
+      '#items' => [
+        'add_tab' => [
+          '#type' => 'link',
+          '#title' => t('Add Tab'),
+          '#weight' => 15,
+          '#url' => Url::fromRoute("entity.contact_tab.add_form", [], $link_options),
+        ],
+        'add_profile' => [
+          '#type' => 'link',
+          '#title' => t('Add Profile Type'),
+          '#weight' => 20,
+          '#url' => Url::fromRoute("entity.profile_type.add_form", [], $link_options),
+        ],
+        'manage_profiles' => [
+          '#type' => 'link',
+          '#title' => t('Manage Profile Types'),
+          '#weight' => 25,
+          '#url' => Url::fromRoute("entity.profile_type.collection", [], $link_options),
+        ],
+        'add_role' => [
+          '#type' => 'link',
+          '#title' => t('Add Contact Role'),
+          '#weight' => 30,
+          '#url' => Url::fromRoute("user.role_add", [], $link_options),
+        ],
+        'manage_roles' => [
+          '#type' => 'link',
+          '#title' => t('Manage Roles'),
+          '#weight' => 35,
+          '#url' => Url::fromRoute("entity.user_role.collection", [], $link_options),
+        ],
+      ],
+      '#title' => 'Create:',
+    ];
+
+    return $output;
   }
 
 }

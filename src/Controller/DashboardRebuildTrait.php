@@ -3,7 +3,6 @@
 namespace Drupal\contacts\Controller;
 
 use Drupal\contacts\Entity\ContactTab;
-use Drupal\Core\Ajax\CloseDialogCommand;
 
 /**
  * Provides AJAX responses to rebuild the Layout Builder.
@@ -36,7 +35,8 @@ trait DashboardRebuildTrait {
    */
   protected function rebuildAndReturn(ContactTab $tab) {
     $response = $this->rebuildDashboard($tab);
-    $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    $this->dashboardContoller->offCanvasCommand($response, $tab);
+    $this->dashboardContoller->updateTabCommand($response, $tab);
     return $response;
   }
 
