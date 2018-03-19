@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\entity_merge\Merger;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,14 +21,16 @@ class DedupForm extends FormBase {
   protected $renderer;
   protected $messenger;
   protected $dateFormatter;
+  protected $merger;
 
   /**
    * DedupForm constructor.
    */
-  public function __construct(RendererInterface $renderer, MessengerInterface $messenger, DateFormatterInterface $date_formatter) {
+  public function __construct(RendererInterface $renderer, MessengerInterface $messenger, DateFormatterInterface $date_formatter, Merger $merger) {
     $this->renderer = $renderer;
     $this->messenger = $messenger;
     $this->dateFormatter = $date_formatter;
+    $this->merger = $merger;
   }
 
   /**
@@ -37,7 +40,8 @@ class DedupForm extends FormBase {
     return new static(
       $container->get('renderer'),
       $container->get('messenger'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('entity_merge.merger')
     );
   }
 
@@ -417,6 +421,13 @@ class DedupForm extends FormBase {
       $primary_contact_id = $form_state->getValue("primary_party");
       $secondary_contact_id = $form_state->getValue("secondary_party");
       \Drupal::messenger()->addStatus("Running merge for $primary_contact_id and $secondary_contact_id");
+
+
+      $primary = User::load($primary_contact_id);
+      $secondary = User::load($secondary_contact_id);
+
+      $this->merger->merge($primary,$secondary);
+
       $form_state->setRebuild();
     }
     else {
