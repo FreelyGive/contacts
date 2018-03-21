@@ -59,9 +59,6 @@ class PartyUser extends D7User {
 
     $query->leftJoin('users', 'u', 'pae.eid = u.uid');
     $query->condition('p.pid', 1, '>');
-    //$query->range(0, 10);
-
-    //drush_print_r($query->__toString());
 
     return $query;
   }
