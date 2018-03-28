@@ -534,7 +534,7 @@ function contacts_preprocess_views_view_unformatted(&$variables) {
  * Implements hook_views_post_render().
  */
 function contacts_views_post_render(ViewExecutable $view, &$output, CachePluginBase $cache) {
-  if ($output['#view']->id() == 'contacts_dashboard_indexed') {
+  if (array_key_exists('#view', $output) && $output['#view']->id() == 'contacts_dashboard_indexed') {
     $output['#attached']['library'][] = 'contacts/listings';
   }
 }
