@@ -65,8 +65,8 @@ class LoginController implements ContainerInjectionInterface {
       '#attributes' => ['class' => ['row']],
     ];
     // @todo Check if registration page is accessible.
-    $content['forms']['register'] = $this->registerForm();
     $content['forms']['login'] = $this->loginForm();
+    $content['forms']['register'] = $this->registerForm();
 
     return $content;
   }
@@ -82,12 +82,11 @@ class LoginController implements ContainerInjectionInterface {
 
     return [
       '#type' => 'container',
-      '#attributes' => ['class' => ['col-md-5']],
+      '#attributes' => ['class' => ['unified-login', 'login', 'col-md-5', 'px-lg-4']],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#value' => 'Login',
-        '#attributes' => ['class' => ['unified-login', 'login']],
       ],
       'form' => $form
     ];
@@ -105,12 +104,11 @@ class LoginController implements ContainerInjectionInterface {
 
     return [
       '#type' => 'container',
-      '#attributes' => ['class' => ['order-md-first', 'col-md-7']],
+      '#attributes' => ['class' => ['unified-login', 'register', 'flex-md-first', 'col-md-7', 'pr-lg-4', 'pb-4']],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#value' => 'Register',
-        '#attributes' => ['class' => ['unified-login', 'register']],
       ],
       'form' => $form
     ];
