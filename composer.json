@@ -13,7 +13,7 @@
     "php": "^7.0",
     "cweagans/composer-patches": "~1.0",
     "drupal/core": "^8.5",
-    "drupal/profile": "1.x-dev",
+    "drupal/profile": "~1.0",
     "drupal/address": "~1.0-rc4",
     "drupal/page_manager": "~1.0-alpha24",
     "drupal/panels": "^4.0",
