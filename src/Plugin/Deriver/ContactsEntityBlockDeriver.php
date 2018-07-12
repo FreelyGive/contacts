@@ -81,11 +81,11 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
 
           // Basic definition.
           $this->derivatives[$derivative_key] = $base_plugin_definition;
-          $this->derivatives[$derivative_key]['admin_label'] = $this->t('Contacts entity form (@label)', ['@label' => $entity_type->getLabel()]);
+          $this->derivatives[$derivative_key]['admin_label'] = $this->t('@label block', ['@label' => $entity_type->getLabel()]);
 
           // If we are using bundles add note the bundle label.
           if ($use_bundles && !empty($bundle_types[$bundle])) {
-            $this->derivatives[$derivative_key]['admin_label'] = $this->t('Contacts entity form (@type:@bundle)', [
+            $this->derivatives[$derivative_key]['admin_label'] = $this->t('@bundle @type block', [
               '@type' => $entity_type->getLabel(),
               '@bundle' => $bundle_types[$bundle]->label(),
             ]);
@@ -111,6 +111,7 @@ class ContactsEntityBlockDeriver extends DeriverBase implements ContainerDeriver
             /* @var \Drupal\profile\Entity\ProfileTypeInterface $profile_type */
             $profile_type = $this->entityTypeManager->getStorage('profile_type')->load($bundle);
             $this->derivatives[$derivative_key]['_required_hats'] = array_filter($profile_type->getRoles());
+            $this->derivatives[$derivative_key]['_tab_relationships']['user']['entity'] = "profile_{$bundle}";
           }
         }
       }

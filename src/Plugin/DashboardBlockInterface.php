@@ -36,4 +36,12 @@ interface DashboardBlockInterface {
    */
   public function processManageMode(array &$variables);
 
+  /**
+   * Build metadata about the block.
+   *
+   * @return array
+   *   Render array of metadata.
+   */
+  public function getManageMeta();
+
 }

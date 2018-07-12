@@ -36,10 +36,39 @@ contacts.ajax.manage_mode:
   requirements:
     _permission: 'manage contacts dashboard'
 
+contacts.ajax.manage_mode_refresh:
+  path: '/admin/contacts/ajax/manage-mode-refresh/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxManageModeRefresh'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'manage contacts dashboard'
+
+contacts.ajax.update_offcanvas:
+  path: '/admin/contacts/ajax/update-offcanvas/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasUpdate'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'manage contacts dashboard'
+
 contacts.ajax.update_blocks:
   path: '/admin/contacts/ajax/update-layout'
   defaults:
     _controller: '\Drupal\contacts\Controller\DashboardController::ajaxUpdateBlocks'
+  requirements:
+    _permission: 'manage contacts dashboard'
+
+contacts.ajax.update_tabs:
+  path: '/admin/contacts/ajax/update-tabs'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::ajaxUpdateTabs'
   requirements:
     _permission: 'manage contacts dashboard'
 
@@ -54,3 +83,39 @@ contacts.block.off_canvas_form:
         type: entity:contact_tab
   requirements:
     _permission: 'administer blocks'
+
+contacts.tab.off_canvas_form:
+  path: '/admin/contacts/ajax/manage-off-canvas-tab/{tab}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasTab'
+    _title: 'Edit tab'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'administer blocks'
+
+contacts.manage.off_canvas_choose:
+  path: '/admin/contacts/ajax/off-canvas/choose-block/{tab}/{region}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\ChooseBlockController::build'
+    _title: 'Choose a block to add'
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'manage contacts dashboard'
+
+contacts.manage.off_canvas_add:
+  path: '/admin/contacts/ajax/add-off-canvas/{tab}/{plugin_id}/{region}'
+  defaults:
+    _controller: '\Drupal\contacts\Controller\DashboardController::offCanvasBlockAdd'
+    region: NULL
+  options:
+    parameters:
+      tab:
+        type: entity:contact_tab
+  requirements:
+    _permission: 'manage contacts dashboard'

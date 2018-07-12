@@ -19,6 +19,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: address_default
+    region: content
   crm_org_name:
     weight: 0
     label: inline
@@ -26,6 +27,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   crm_phone:
     type: string
     weight: 1
@@ -33,4 +35,5 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
 hidden: {  }

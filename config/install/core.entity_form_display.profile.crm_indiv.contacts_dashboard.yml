@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.profile.contacts_dashboard
+    - field.field.profile.crm_indiv.crm_address
+    - field.field.profile.crm_indiv.crm_dob
+    - field.field.profile.crm_indiv.crm_gender
+    - field.field.profile.crm_indiv.crm_name
+    - field.field.profile.crm_indiv.crm_phone
+    - profile.type.crm_indiv
+id: profile.crm_indiv.contacts_dashboard
+targetEntityType: profile
+bundle: crm_indiv
+mode: contacts_dashboard
+content:
+  crm_name:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  crm_address: true
+  crm_dob: true
+  crm_gender: true
+  crm_phone: true

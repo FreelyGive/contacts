@@ -28,7 +28,7 @@ use Drupal\Core\Session\AccountInterface;
 function contacts_theme() {
   return [
     'contacts_dash_tabs' => [
-      'variables' => ['tabs' => []],
+      'variables' => ['tabs' => [], 'manage_mode' => NULL],
       'template' => 'contacts-dash-tabs',
     ],
     'contacts_dash_summary' => [
@@ -130,7 +130,37 @@ function template_preprocess_contacts_dash_tabs(array &$variables) {
     ],
   ];
 
-  foreach ($variables['tabs'] as &$tab) {
+  foreach ($variables['tabs'] as $tab_id => &$tab) {
+    if ($variables['manage_mode']) {
+      $tab['drag'] = [
+        '#type' => 'open_iconic',
+        '#size' => '15',
+        '#icon' => 'move',
+        '#color' => 'transparent',
+        '#fill' => '#000',
+        '#attributes' => [
+          'class' => ['mr-1', 'drag-handle'],
+        ],
+      ];
+
+      $tab['edit'] = [
+        '#type' => 'open_iconic',
+        '#size' => '15',
+        '#icon' => 'cog',
+        '#color' => 'transparent',
+        '#fill' => '#5bc0de',
+        '#attributes' => [
+          'class' => ['use-ajax', 'mr-2'],
+          'data-ajax-url' => Url::fromRoute('contacts.tab.off_canvas_form',
+            [
+              'tab' => $tab_id,
+            ]
+          )->toString(),
+          'data-dialog-type' => 'dialog',
+          'data-dialog-renderer' => 'off_canvas',
+        ],
+      ];
+    }
     $tab['attributes'] = !empty($tab['attributes']) ? new Attribute($tab['attributes']) : new Attribute();
     $tab['link_attributes'] = !empty($tab['link_attributes']) ? new Attribute($tab['link_attributes']) : new Attribute();
   }
@@ -241,6 +271,7 @@ function template_preprocess_contacts_dash_summary(array &$variables) {
       '#role' => $role,
     ];
   }
+
 }
 
 /**

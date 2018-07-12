@@ -2,6 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - core.entity_view_mode.profile.contacts_dashboard
     - field.field.profile.crm_notes.crm_notes
     - profile.type.crm_notes
 id: profile.crm_notes.contacts_dashboard
@@ -15,4 +16,5 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
 hidden: {  }

@@ -2,6 +2,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - core.entity_view_mode.profile.contacts_dashboard
     - field.field.profile.crm_indiv.crm_address
     - field.field.profile.crm_indiv.crm_dob
     - field.field.profile.crm_indiv.crm_gender
@@ -23,6 +24,7 @@ content:
     label: above
     settings: {  }
     third_party_settings: {  }
+    region: content
   crm_dob:
     type: datetime_default
     weight: 2
@@ -31,12 +33,14 @@ content:
       timezone_override: ''
       format_type: html_date
     third_party_settings: {  }
+    region: content
   crm_gender:
     type: list_default
     weight: 1
     label: inline
     settings: {  }
     third_party_settings: {  }
+    region: content
   crm_name:
     type: string
     weight: 0
@@ -44,6 +48,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   crm_phone:
     type: string
     weight: 3
@@ -51,4 +56,5 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
 hidden: {  }
