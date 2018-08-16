@@ -1,0 +1,3 @@
+contacts_user_dashboard_tab:
+  class: Drupal\Core\Menu\LocalTaskDefault
+  deriver: \Drupal\contacts_user_dashboard\Plugin\Derivative\UserDashboardLocalTask

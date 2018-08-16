@@ -1,0 +1,8 @@
+name: CRM User Dashboard
+description: "Useful features for building CRM User Dashboard."
+package: Tool
+type: module
+core: 8.x
+
+dependencies:
+  - contacts:contacts

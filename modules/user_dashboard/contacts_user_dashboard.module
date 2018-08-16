@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Module related hook implementations for the contacts user dashboard module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\contacts_user_dashboard\Plugin\Derivative\UserDashboardLocalTask;
+
+/**
+ * Implements hook_help().
+ */
+function contacts_user_dashboard_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the crm_tools module.
+    case 'help.page.contacts_user_dashboard':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module manages user tabs to allow for user dashboard configuration.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function contacts_user_dashboard_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'local_tasks_alter') {
+    $group = $implementations['contacts_user_dashboard'];
+    unset($implementations['contacts_user_dashboard']);
+    $implementations['contacts_user_dashboard'] = $group;
+  }
+}
+
+/**
+ * Implements hook_local_tasks_alter().
+ */
+function contacts_user_dashboard_local_tasks_alter(&$local_tasks) {
+  $container = \Drupal::getContainer();
+  $local_task = UserDashboardLocalTask::create($container, 'contacts_user_dashboard_tab');
+  $local_task->alterLocalTasks($local_tasks);
+}
