@@ -23,6 +23,35 @@ function contacts_user_dashboard_help($route_name, RouteMatchInterface $route_ma
 }
 
 /**
+ * Implements hook_theme().
+ */
+function contacts_user_dashboard_theme($existing, $type, $theme, $path) {
+  return [
+    'user_dashboard_summary' => [
+      'render element' => 'user_dashboard_summary',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for user_dashboard_summary templates.
+ *
+ * Default template: user-dashboard-summary.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing render information.
+ */
+function template_preprocess_user_dashboard_summary(&$variables) {
+  $variables['title'] = $variables['user_dashboard_summary']['#title'];
+  $variables['content'] = $variables['user_dashboard_summary']['#content'];
+
+  $variables['buttons'] = [];
+  foreach ($variables['user_dashboard_summary']['#buttons'] as $button) {
+    $variables['buttons'][] = $button;
+  }
+}
+
+/**
  * Implements hook_module_implements_alter().
  */
 function contacts_user_dashboard_module_implements_alter(&$implementations, $hook) {

@@ -4,6 +4,7 @@ namespace Drupal\contacts_user_dashboard\Element;
 
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element\RenderElement;
+use Drupal\Core\Url;
 
 /**
  * Provides a render element for any HTML tag, with properties and value.
@@ -41,6 +42,7 @@ class SummaryBlock extends RenderElement {
       '#pre_render' => [
         [$class, 'preRenderSummaryBlock'],
       ],
+      '#theme' => 'user_dashboard_summary',
       '#attributes' => [],
       '#buttons' => [],
     ];
@@ -64,34 +66,11 @@ class SummaryBlock extends RenderElement {
    *   A renderable array for a role icon.
    */
   public static function preRenderSummaryBlock(array $element) {
-    $element['content'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['col-md-6','pull-md-left','my-3'],
-      ],
-      'wrapper' => [
-        '#type' => 'container',
-        '#attributes' => [
-          'class' => ['shadow', 'bg-white', 'rounded', 'p-5'],
-        ],
-        'title' => [
-          '#type' => 'html_tag',
-          '#tag' => 'h3',
-          '#value' => $element['#title'],
-        ],
-        'content' => $element['#content'],
-      ],
-    ];
-
-    foreach ($element['#buttons'] as $button) {
-      $link = Link::createFromRoute(
-        $button['text'],
+    foreach ($element['#buttons'] as &$button) {
+      $button['link'] = Url::fromRoute(
         $button['route_name'],
-        $button['route_parameters'],
-        ['attributes' => ['class' => ['btn', 'btn-primary', 'mr-2']]]
-      )->toRenderable();
-
-      $element['content']['wrapper']['actions'][] = $link;
+        $button['route_parameters']
+      )->toString();
     }
 
     return $element;

@@ -49,6 +49,7 @@ class UserDashboardController extends ControllerBase {
    *   Render array for
    */
   public function userSummaryPage(UserInterface $user) {
+    // @todo Find better way to add row class.
     $content = [
       '#type' => 'container',
       '#attributes' => [
@@ -92,10 +93,7 @@ class UserDashboardController extends ControllerBase {
       '#content' => [
         '#type' => 'html_tag',
         '#tag' => 'div',
-        '#value' => 'No active bookings',
-        '#attributes' => [
-          'class' => ['my-3'],
-        ],
+        '#value' => "No active bookings.",
       ],
     ];
 
