@@ -3,13 +3,8 @@
 namespace Drupal\contacts_user_dashboard\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Datetime\DateFormatterInterface;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\user\Entity\User;
-use Drupal\user\UserDataInterface;
+use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\user\UserInterface;
-use Drupal\user\UserStorageInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,50 +13,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class UserDashboardController extends ControllerBase {
 
   /**
-   * The date formatter service.
+   * Constructs a UserDashboardController object.
    *
-   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   The entity type manager.
    */
-  protected $dateFormatter;
-
-  /**
-   * The user storage.
-   *
-   * @var \Drupal\user\UserStorageInterface
-   */
-  protected $userStorage;
-
-  /**
-   * The user data service.
-   *
-   * @var \Drupal\user\UserDataInterface
-   */
-  protected $userData;
-
-  /**
-   * A logger instance.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
-   * Constructs a UserController object.
-   *
-   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
-   *   The date formatter service.
-   * @param \Drupal\user\UserStorageInterface $user_storage
-   *   The user storage.
-   * @param \Drupal\user\UserDataInterface $user_data
-   *   The user data service.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   A logger instance.
-   */
-  public function __construct(DateFormatterInterface $date_formatter, UserStorageInterface $user_storage, UserDataInterface $user_data, LoggerInterface $logger) {
-    $this->dateFormatter = $date_formatter;
-    $this->userStorage = $user_storage;
-    $this->userData = $user_data;
-    $this->logger = $logger;
+  public function __construct(EntityTypeManager $entity_type_manager) {
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -69,19 +27,12 @@ class UserDashboardController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('date.formatter'),
-      $container->get('entity.manager')->getStorage('user'),
-      $container->get('user.data'),
-      $container->get('logger.factory')->get('user')
+      $container->get('entity_type.manager')
     );
   }
 
   /**
-   * Redirects users to their profile page.
-   *
-   * This controller assumes that it is only invoked for authenticated users.
-   * This is enforced for the 'user.page' route with the '_user_is_logged_in'
-   * requirement.
+   * Redirects users to their user dashboard page.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   Returns a redirect to the profile of the currently logged in user.
@@ -91,93 +42,81 @@ class UserDashboardController extends ControllerBase {
   }
 
   /**
-   * Redirects users to their profile page.
-   *
-   * This controller assumes that it is only invoked for authenticated users.
-   * This is enforced for the 'user.page' route with the '_user_is_logged_in'
-   * requirement.
+   * @param \Drupal\user\UserInterface $user
+   *   The user context.
    *
    * @return array
-   *   Returns a redirect to the profile of the currently logged in user.
+   *   Render array for
    */
   public function userSummaryPage(UserInterface $user) {
-    $content = [];
-
-    $view_builder = \Drupal::entityTypeManager()->getViewBuilder('user');
-
-    $content['user'] = [
+    $content = [
       '#type' => 'container',
       '#attributes' => [
-        'class' => ['col-md-6','pull-md-left','my-3'],
-      ],
-      'wrapper' => [
-        '#type' => 'container',
-        '#attributes' => [
-          'class' => ['p-3'],
-        ],
-        'title' => [
-          '#type' => 'html_tag',
-          '#tag' => 'h3',
-          '#value' => 'Your details',
-        ],
-        'content' => $view_builder->view($user, 'teaser'),
-        'actions' => [
-          [
-            [
-              '#type' => 'html_tag',
-              '#attributes' => ['class' => ['btn', 'btn-primary']],
-              '#tag' => 'span',
-              '#value' => 'Update details',
-            ],
-            [
-              '#type' => 'html_tag',
-              '#attributes' => ['class' => ['btn', 'btn-primary']],
-              '#tag' => 'span',
-              '#value' => 'Change password',
-            ]
+        'class' => ['row'],
+      ]
+    ];
+
+    $user_view_builder = \Drupal::entityTypeManager()->getViewBuilder('user');
+    $profile_view_builder = \Drupal::entityTypeManager()->getViewBuilder('profile');
+    $content['user'] = [
+      '#type' => 'user_dashboard_summary',
+      '#buttons' => [
+        [
+          'text' => $this->t('Update details'),
+          'route_name' => 'entity.profile.type.user_profile_form',
+          'route_parameters' => [
+            'user' => $user->id(),
+            'profile_type' => 'crm_indiv',
           ],
         ],
+        [
+          'text' => $this->t('Change password'),
+          'route_name' => 'entity.user.edit_form',
+          'route_parameters' => ['user' => $user->id()],
+        ],
       ],
-
+      '#title' => 'Your details',
+      '#content' => $user_view_builder->view($user, 'teaser'),
     ];
 
     $content['bookings'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['col-md-6','pull-md-right','my-3'],
+      '#type' => 'user_dashboard_summary',
+      '#buttons' => [
+        [
+          'text' => $this->t('View all bookings'),
+          'route_name' => 'view.contacts_events_events.page_1',
+          'route_parameters' => ['user' => $user->id()],
+        ],
       ],
-      'wrapper' => [
-        '#type' => 'container',
+      '#title' => 'Recent bookings',
+      '#content' => [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#value' => 'No active bookings',
         '#attributes' => [
-          'class' => ['p-3'],
+          'class' => ['my-3'],
         ],
-        'title' => [
-          '#type' => 'html_tag',
-          '#tag' => 'h3',
-          '#value' => 'Recent bookings',
-        ],
-        'content' => [
-          '#type' => 'html_tag',
-          '#tag' => 'div',
-          '#value' => 'No active bookings',
-          '#attributes' => [
-            'class' => ['my-3'],
-          ],
-        ],
-        'actions' => [
+      ],
+    ];
+
+    $profile = $user->profile_crm_communications->entity;
+    if ($profile) {
+      $content['comms'] = [
+        '#type' => 'user_dashboard_summary',
+        '#buttons' => [
           [
-            [
-              '#type' => 'html_tag',
-              '#attributes' => ['class' => ['btn', 'btn-primary']],
-              '#tag' => 'span',
-              '#value' => 'View all bookings',
+            'text' => $this->t('Update preferences'),
+            'route_name' => 'entity.profile.type.user_profile_form',
+            'route_parameters' => [
+              'user' => $user->id(),
+              'profile_type' => 'crm_communications',
             ],
           ],
         ],
-      ],
-
-    ];
-
+        '#title' => 'Communication preferences',
+        '#content' => $profile_view_builder->view($profile, 'teaser'),
+      ];
+    }
 
     return $content;
   }
