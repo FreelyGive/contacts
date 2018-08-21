@@ -68,6 +68,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
         'base_route' => 'entity.user.canonical',
       ] + $base_plugin_definition;
 
+    // @todo Move this to the relevant module.
     $this->derivatives['user_bookings.default'] = [
         'route_name' => 'view.contacts_events_events.page_1',
         'parent_id' => 'views_view:view.contacts_events_events.page_1',
@@ -92,25 +93,20 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    * Hide local tasks that we do not want to show users.
    */
   protected function hideLocalTasks(&$local_tasks) {
-    // @todo Abstract this into an event listener or hook.
     // @todo Automatically allow all derivatives of contacts_user_dashboard_tab.
-    $allowed = [
+    $allowed_items = [
       'contacts_user_dashboard_tab:user_edit_form.default',
       'contacts_user_dashboard_tab:user_summary',
-      'contacts_user_dashboard_tab:user_bookings.default',
       'contacts_user_dashboard.summary',
-      'gdpr.collected_user_data',
-      'gdpr.collected_user_data_default',
-      'gdpr_consent.agreements_tab',
-      'view.gdpr_tasks_my_data_requests.page_1',
-      'views_view:view.contacts_events_events.page_1',
       'entity.profile.user_profile_form:profile.type.crm_indiv',
-      'entity.profile.user_profile_form:profile.type.crm_communications',
       'entity.user.edit_form',
     ];
 
+    // Alter hook to add to the task items.
+    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_allowed', $allowed_items);
+
     foreach (array_keys($this->dashboardTasks) as $task) {
-      if (in_array($task, $allowed)) {
+      if (in_array($task, $allowed_items)) {
         continue;
       }
       unset($local_tasks[$task]);
@@ -121,13 +117,13 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    * Rename certain local tasks.
    */
   protected function renameLocalTasks(&$local_tasks) {
-    // @todo Abstract this into an event listener or hook.
-    $rename = [
-      'entity.user.edit_form' => $this->t('Personal details'),
-      'entity.profile.user_profile_form:profile.type.crm_indiv' => $this->t('Contact & details'),
-    ];
+    $rename_items = [];
 
-    foreach ($rename as $route_name => $title) {
+    // Alter hook to add to the task items.
+    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_rename', $rename_items);
+
+
+    foreach ($rename_items as $route_name => $title) {
       if (isset($local_tasks[$route_name])) {
         $local_tasks[$route_name]['title'] = $title;
       }
@@ -138,14 +134,12 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    * Move local tasks.
    */
   protected function moveLocalTasks(&$local_tasks) {
+    $move_items = [];
 
-    // @todo Abstract this into an event listener or hook.
-    $move = [
-      'entity.profile.user_profile_form:profile.type.crm_indiv' => 'entity.user.edit_form',
-      'entity.profile.user_profile_form:profile.type.crm_communications' => 'entity.user.edit_form',
-    ];
+    // Alter hook to add to the task items.
+    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_move', $move_items);
 
-    foreach ($move as $route_name => $new_base_route) {
+    foreach ($move_items as $route_name => $new_base_route) {
       if (isset($local_tasks[$route_name])) {
         $local_tasks[$route_name]['parent_id'] = $new_base_route;
       }
