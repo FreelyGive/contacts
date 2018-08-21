@@ -41,7 +41,7 @@ function contacts_user_dashboard_theme($existing, $type, $theme, $path) {
  * @param array $variables
  *   An associative array containing render information.
  */
-function template_preprocess_user_dashboard_summary(&$variables) {
+function template_preprocess_user_dashboard_summary(array &$variables) {
   $variables['title'] = $variables['user_dashboard_summary']['#title'];
   $variables['content'] = $variables['user_dashboard_summary']['#content'];
 

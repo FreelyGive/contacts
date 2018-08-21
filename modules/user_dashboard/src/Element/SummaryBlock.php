@@ -2,7 +2,6 @@
 
 namespace Drupal\contacts_user_dashboard\Element;
 
-use Drupal\Core\Link;
 use Drupal\Core\Render\Element\RenderElement;
 use Drupal\Core\Url;
 

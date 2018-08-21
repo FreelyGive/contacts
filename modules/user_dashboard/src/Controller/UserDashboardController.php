@@ -42,6 +42,8 @@ class UserDashboardController extends ControllerBase {
   }
 
   /**
+   * Summary page for user dashboard.
+   *
    * @param \Drupal\user\UserInterface $user
    *   The user context.
    *
@@ -54,7 +56,7 @@ class UserDashboardController extends ControllerBase {
       '#type' => 'container',
       '#attributes' => [
         'class' => ['row'],
-      ]
+      ],
     ];
 
     $user_view_builder = \Drupal::entityTypeManager()->getViewBuilder('user');
@@ -80,6 +82,7 @@ class UserDashboardController extends ControllerBase {
       '#content' => $user_view_builder->view($user, 'teaser'),
     ];
 
+    // @todo Move this to the events module.
     $content['bookings'] = [
       '#type' => 'user_dashboard_summary',
       '#buttons' => [

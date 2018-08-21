@@ -30,7 +30,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
   protected $dashboardTasks = [];
 
   /**
-   * Constructs a \Drupal\contacts_user_dashboard\Plugin\Derivative\UserDashboardLocalTask instance.
+   * Constructs a UserDashboardLocalTask instance.
    *
    * @param \Drupal\Core\Routing\RouteProviderInterface $route_provider
    *   The route provider.
@@ -55,26 +55,26 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     $this->derivatives = [];
 
     $this->derivatives['user_summary'] = [
-        'route_name' => 'contacts_user_dashboard.summary',
-        'title' => $this->t('Summary'),
-        'base_route' => 'entity.user.canonical',
-        'weight' => -99,
-      ] + $base_plugin_definition;
+      'route_name' => 'contacts_user_dashboard.summary',
+      'title' => $this->t('Summary'),
+      'base_route' => 'entity.user.canonical',
+      'weight' => -99,
+    ] + $base_plugin_definition;
 
      $this->derivatives['user_edit_form.default'] = [
-        'route_name' => 'entity.user.edit_form',
-        'parent_id' => 'entity.user.edit_form',
-        'title' => $this->t('Name & login'),
-        'base_route' => 'entity.user.canonical',
-      ] + $base_plugin_definition;
+      'route_name' => 'entity.user.edit_form',
+      'parent_id' => 'entity.user.edit_form',
+      'title' => $this->t('Name & login'),
+      'base_route' => 'entity.user.canonical',
+    ] + $base_plugin_definition;
 
     // @todo Move this to the relevant module.
     $this->derivatives['user_bookings.default'] = [
-        'route_name' => 'view.contacts_events_events.page_1',
-        'parent_id' => 'views_view:view.contacts_events_events.page_1',
-        'title' => $this->t('Bookings'),
-        'base_route' => 'entity.user.canonical',
-      ] + $base_plugin_definition;
+      'route_name' => 'view.contacts_events_events.page_1',
+      'parent_id' => 'views_view:view.contacts_events_events.page_1',
+      'title' => $this->t('Bookings'),
+      'base_route' => 'entity.user.canonical',
+    ] + $base_plugin_definition;
 
     return $this->derivatives;
   }
@@ -122,7 +122,6 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     // Alter hook to add to the task items.
     \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_rename', $rename_items);
 
-
     foreach ($rename_items as $route_name => $title) {
       if (isset($local_tasks[$route_name])) {
         $local_tasks[$route_name]['title'] = $title;
@@ -155,7 +154,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    * @return bool|null
    *   Whether to filter the task.
    */
-  protected function filterTasks($task) {
+  protected function filterTasks(array $task) {
     if (isset($task['base_route'])) {
       return $task['base_route'] == 'entity.user.canonical';
     }
