@@ -19,6 +19,7 @@ class RouteEnhancer implements EnhancerInterface {
    *   The current route.
    *
    * @return bool
+   *   Apply the enhancer.
    */
   protected function applies(Route $route) {
     return $route->getPath() == '/user/login';

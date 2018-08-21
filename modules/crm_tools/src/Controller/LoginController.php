@@ -11,13 +11,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a controller to unify login and registration pages.
- *
- * @internal
  */
 class LoginController implements ContainerInjectionInterface {
 
   /**
-   * The block manager.
+   * The form builder.
    *
    * @var \Drupal\Core\Form\FormBuilder
    */
@@ -26,7 +24,7 @@ class LoginController implements ContainerInjectionInterface {
   /**
    * The entity form builder.
    *
-   * @var \Drupal\Core\Entity\EntityFormBuilderInterface
+   * @var \Drupal\Core\Entity\EntityFormBuilder
    */
   protected $entityFormBuilder;
 
@@ -34,7 +32,9 @@ class LoginController implements ContainerInjectionInterface {
    * ChooseBlockController constructor.
    *
    * @param \Drupal\Core\Form\FormBuilder $form_builder
-   *   The block manager.
+   *   The form builder.
+   * @param \Drupal\Core\Entity\EntityFormBuilder $entity_form_builder
+   *   The entity form builder.
    */
   public function __construct(FormBuilder $form_builder, EntityFormBuilder $entity_form_builder) {
     $this->formBuilder = $form_builder;
@@ -84,14 +84,14 @@ class LoginController implements ContainerInjectionInterface {
       '#type' => 'container',
       '#attributes' => [
         'data-unified-login' => 'login',
-        'class' => ['unified-login', 'login']
+        'class' => ['unified-login', 'login'],
       ],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#value' => 'Login',
       ],
-      'form' => $form
+      'form' => $form,
     ];
   }
 
@@ -109,14 +109,14 @@ class LoginController implements ContainerInjectionInterface {
       '#type' => 'container',
       '#attributes' => [
         'data-unified-login' => 'register',
-        'class' => ['unified-login', 'register']
+        'class' => ['unified-login', 'register'],
       ],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#value' => 'Register',
       ],
-      'form' => $form
+      'form' => $form,
     ];
   }
 
