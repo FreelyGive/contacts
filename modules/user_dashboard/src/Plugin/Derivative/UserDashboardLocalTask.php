@@ -105,6 +105,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
       'view.gdpr_tasks_my_data_requests.page_1',
       'views_view:view.contacts_events_events.page_1',
       'entity.profile.user_profile_form:profile.type.crm_indiv',
+      'entity.profile.user_profile_form:profile.type.crm_communications',
       'entity.user.edit_form',
     ];
 
@@ -141,6 +142,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     // @todo Abstract this into an event listener or hook.
     $move = [
       'entity.profile.user_profile_form:profile.type.crm_indiv' => 'entity.user.edit_form',
+      'entity.profile.user_profile_form:profile.type.crm_communications' => 'entity.user.edit_form',
     ];
 
     foreach ($move as $route_name => $new_base_route) {
