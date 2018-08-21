@@ -82,7 +82,10 @@ class LoginController implements ContainerInjectionInterface {
 
     return [
       '#type' => 'container',
-      '#attributes' => ['class' => ['unified-login', 'login', 'col-md-5', 'px-lg-4']],
+      '#attributes' => [
+        'data-unified-login' => 'login',
+        'class' => ['unified-login', 'login']
+      ],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
@@ -104,7 +107,10 @@ class LoginController implements ContainerInjectionInterface {
 
     return [
       '#type' => 'container',
-      '#attributes' => ['class' => ['unified-login', 'register', 'flex-md-first', 'col-md-7', 'pr-lg-4', 'pb-4']],
+      '#attributes' => [
+        'data-unified-login' => 'register',
+        'class' => ['unified-login', 'register']
+      ],
       'title' => [
         '#type' => 'html_tag',
         '#tag' => 'h2',
