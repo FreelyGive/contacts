@@ -1,0 +1,7 @@
+contacts_user_dashboard.summary:
+  path: '/user/{user}/summary'
+  defaults:
+    _controller: '\Drupal\contacts_user_dashboard\Controller\UserDashboardController::userSummaryPage'
+    _title: 'My account'
+  requirements:
+    _user_is_logged_in: 'TRUE'

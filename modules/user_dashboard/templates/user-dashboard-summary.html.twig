@@ -1,0 +1,9 @@
+<div {{ attributes }}>
+    <div {{ content_attributes }}>
+        <h3>{{ title }}</h3>
+        {{ content }}
+        {% for key, button in buttons %}
+            <a href="{{ button.link }}">{{ button.text }}</a>
+        {% endfor %}
+    </div>
+</div>
