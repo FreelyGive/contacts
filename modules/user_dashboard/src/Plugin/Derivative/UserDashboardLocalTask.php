@@ -3,6 +3,7 @@
 namespace Drupal\contacts_user_dashboard\Plugin\Derivative;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
+use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -23,6 +24,13 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
   protected $routeProvider;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
    * The list of tasks relevant to the user dashboard.
    *
    * @var array
@@ -34,9 +42,12 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    *
    * @param \Drupal\Core\Routing\RouteProviderInterface $route_provider
    *   The route provider.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler.
    */
-  public function __construct(RouteProviderInterface $route_provider) {
+  public function __construct(RouteProviderInterface $route_provider, ModuleHandler $module_handler) {
     $this->routeProvider = $route_provider;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -44,7 +55,8 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    */
   public static function create(ContainerInterface $container, $base_plugin_id) {
     return new static(
-      $container->get('router.route_provider')
+      $container->get('router.route_provider'),
+      $container->get('module_handler')
     );
   }
 
@@ -52,29 +64,24 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    $this->derivatives = [];
+    $derivatives = [];
 
-    $this->derivatives['user_summary'] = [
+    $derivatives['user_summary'] = [
       'route_name' => 'contacts_user_dashboard.summary',
       'title' => $this->t('Summary'),
       'base_route' => 'entity.user.canonical',
       'weight' => -99,
     ] + $base_plugin_definition;
 
-     $this->derivatives['user_edit_form.default'] = [
+    $derivatives['user_edit_form.default'] = [
       'route_name' => 'entity.user.edit_form',
       'parent_id' => 'entity.user.edit_form',
       'title' => $this->t('Name & login'),
       'base_route' => 'entity.user.canonical',
     ] + $base_plugin_definition;
 
-    // @todo Move this to the relevant module.
-    $this->derivatives['user_bookings.default'] = [
-      'route_name' => 'view.contacts_events_events.page_1',
-      'parent_id' => 'views_view:view.contacts_events_events.page_1',
-      'title' => $this->t('Bookings'),
-      'base_route' => 'entity.user.canonical',
-    ] + $base_plugin_definition;
+    $additional = $this->moduleHandler->invokeAll('contacts_user_dashboard_local_tasks', [$base_plugin_definition]);
+    $this->derivatives = array_merge($derivatives, $additional);
 
     return $this->derivatives;
   }
@@ -103,7 +110,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     ];
 
     // Alter hook to add to the task items.
-    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_allowed', $allowed_items);
+    $this->moduleHandler->alter('contacts_user_dashboard_local_tasks_allowed', $allowed_items);
 
     foreach (array_keys($this->dashboardTasks) as $task) {
       if (in_array($task, $allowed_items)) {
@@ -120,7 +127,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     $rename_items = [];
 
     // Alter hook to add to the task items.
-    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_rename', $rename_items);
+    $this->moduleHandler->alter('contacts_user_dashboard_local_tasks_rename', $rename_items);
 
     foreach ($rename_items as $route_name => $title) {
       if (isset($local_tasks[$route_name])) {
@@ -136,7 +143,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     $move_items = [];
 
     // Alter hook to add to the task items.
-    \Drupal::moduleHandler()->alter('contacts_user_dashboard_local_tasks_move', $move_items);
+    $this->moduleHandler->alter('contacts_user_dashboard_local_tasks_move', $move_items);
 
     foreach ($move_items as $route_name => $new_base_route) {
       if (isset($local_tasks[$route_name])) {
