@@ -12,6 +12,7 @@ dependencies:
   module:
     - address
     - datetime
+    - name
     - options
 id: profile.crm_indiv.contacts_dashboard
 targetEntityType: profile
@@ -42,13 +43,21 @@ content:
     third_party_settings: {  }
     region: content
   crm_name:
-    type: string
+    type: name_default
     weight: 0
+    region: content
     label: inline
     settings:
-      link_to_entity: false
+      format: default
+      markup: false
+      output: default
+      multiple: default
+      multiple_delimiter: ', '
+      multiple_and: text
+      multiple_delimiter_precedes_last: never
+      multiple_el_al_min: '3'
+      multiple_el_al_first: '1'
     third_party_settings: {  }
-    region: content
   crm_phone:
     type: string
     weight: 3

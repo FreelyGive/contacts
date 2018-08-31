@@ -133,10 +133,10 @@ display:
           expose:
             label: ''
           plugin_id: search_api
-        crm_name:
-          id: crm_name
+        family:
+          id: family
           table: search_api_index_contacts_index
-          field: crm_name
+          field: family
           relationship: none
           group_type: group
           admin_label: ''
@@ -196,6 +196,7 @@ display:
         fields: false
         footer: true
         header: false
+        cache: false
       fields: {  }
       exposed_block: true
       header:
@@ -209,6 +210,8 @@ display:
           empty: false
           content: '@start - @end of @total'
           plugin_id: result
+      cache:
+        type: none
     cache_metadata:
       max-age: -1
       contexts:

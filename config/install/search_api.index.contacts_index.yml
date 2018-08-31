@@ -53,11 +53,21 @@ field_settings:
         - profile
       config:
         - field.storage.profile.crm_gender
-  crm_name:
-    label: 'Individual » Profile » Name'
+  given:
+    label: 'Individual » Profile » Name » Given'
     datasource_id: 'entity:user'
-    property_path: 'profile_crm_indiv:entity:crm_name'
-    type: text
+    property_path: 'profile_crm_indiv:entity:crm_name:given'
+    type: string
+    dependencies:
+      module:
+        - profile
+      config:
+        - field.storage.profile.crm_name
+  family:
+    label: 'Individual » Profile » Name » Family'
+    datasource_id: 'entity:user'
+    property_path: 'profile_crm_indiv:entity:crm_name:family'
+    type: string
     dependencies:
       module:
         - profile
@@ -219,15 +229,14 @@ datasource_settings:
       default: true
       selected: {  }
 processor_settings:
-  rendered_item: {  }
   add_url: {  }
   aggregated_field: {  }
   ignorecase:
+    all_fields: false
     fields:
       - mail
       - roles
       - crm_gender
-      - crm_name
       - indiv_postal_code
       - indiv_address_line1
       - indiv_address_line2
@@ -236,18 +245,23 @@ processor_settings:
       - indiv_country_code
       - indiv_administrative_area
       - crm_org_name
+      - org_country_code
+      - org_administrative_area
+      - org_locality
+      - org_dependent_locality
       - org_postal_code
       - org_address_line1
       - org_address_line2
-      - org_locality
-      - org_dependent_locality
-      - org_country_code
-      - org_administrative_area
+      - given
+      - family
     weights:
       preprocess_index: -10
       preprocess_query: -10
+    all_fields: false
+  rendered_item: {  }
 tracker_settings:
-  default: {  }
+  default:
+    indexing_order: fifo
 options:
   index_directly: true
   cron_limit: 50

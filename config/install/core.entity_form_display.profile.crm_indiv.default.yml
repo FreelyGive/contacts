@@ -11,6 +11,7 @@ dependencies:
   module:
     - address
     - datetime
+    - name
 id: profile.crm_indiv.default
 targetEntityType: profile
 bundle: crm_indiv
@@ -19,6 +20,7 @@ content:
   crm_address:
     type: address_default
     weight: 4
+    region: content
     settings:
       default_country: null
     third_party_settings: {  }
@@ -33,18 +35,19 @@ content:
   crm_gender:
     type: options_select
     weight: 3
+    region: content
     settings: {  }
     third_party_settings: {  }
   crm_name:
-    type: string_textfield
+    type: name_default
     weight: 0
-    settings:
-      size: 60
-      placeholder: ''
+    region: content
+    settings: {  }
     third_party_settings: {  }
   crm_phone:
     type: string_textfield
     weight: 1
+    region: content
     settings:
       size: 60
       placeholder: ''

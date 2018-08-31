@@ -153,7 +153,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     $this->drupalGet('admin/contacts');
     $session = $this->assertSession();
     $session->statusCodeEquals(200);
-    $session->elementTextContains('css', '.page-title', 'Contacts');
+    $session->elementTextContains('css', 'h1', 'Contacts');
 
     // Sort our contacts.
     usort($contacts, [static::class, 'sortContacts']);
@@ -175,10 +175,10 @@ class ContactsDashboardTest extends BrowserTestBase {
       $values['roles'] = implode(', ', array_intersect_key($roles, array_fill_keys($contact->getRoles(), TRUE)));
       $values['email'] = $contact->getEmail();
       $values['image'] = $contact->user_picture[0] ? $contact->user_picture[0]->entity->getFileUri() : FALSE;
+      $values['label'] = $contact->getDisplayName();
 
       if ($contact->hasRole('crm_indiv')) {
         $profile = $contact->profile_crm_indiv->entity;
-        $values['label'] = $profile->crm_name->value;
         $values['city'] = $profile->crm_address->locality;
         if (!$values['image']) {
           $values['image'] = 'contacts://images/default-indiv.png';
@@ -186,14 +186,12 @@ class ContactsDashboardTest extends BrowserTestBase {
       }
       elseif ($contact->hasRole('crm_org')) {
         $profile = $contact->profile_crm_org->entity;
-        $values['label'] = $profile->crm_org_name->value;
         $values['city'] = $profile->crm_org_address->locality;
         if (!$values['image']) {
           $values['image'] = 'contacts://images/default-org.png';
         }
       }
       else {
-        $values['label'] = $contact->getDisplayName();
         $values['city'] = FALSE;
         if (!$values['image']) {
           $values['image'] = 'contacts://images/default-indiv.png';
