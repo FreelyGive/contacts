@@ -218,12 +218,20 @@ class DashboardController extends ControllerBase {
     return $response;
   }
 
+  /**
+   * Adds AJAX command to response to show default tab offcanvas content.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab to get content for.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
   public function offCanvasUpdate(ContactTab $tab) {
     $response = new AjaxResponse();
     $this->offCanvasCommand($response, $tab);
     return $response;
   }
-
 
   /**
    * Adds AJAX command to response to show default tab offcanvas content.
@@ -261,7 +269,7 @@ class DashboardController extends ControllerBase {
    */
   public function updateTabCommand(AjaxResponse $response, ContactTab $tab) {
     // Open/close the off-canvas tray.
-    $response->addCommand(new InvokeCommand('[data-contacts-tab-id="'.$tab->id().'"]', 'click'));
+    $response->addCommand(new InvokeCommand('[data-contacts-tab-id="' . $tab->id() . '"]', 'click'));
   }
 
   /**
@@ -297,6 +305,15 @@ class DashboardController extends ControllerBase {
     return FALSE;
   }
 
+  /**
+   * Generate an AJAX content update for a tab.
+   *
+   * @param \Drupal\contacts\Entity\ContactTab $tab
+   *   The tab entity to refresh.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The response commands.
+   */
   public function ajaxManageModeRefresh(ContactTab $tab) {
     $blocks = $this->tabManager->getBlocks($tab);
 
@@ -542,8 +559,6 @@ class DashboardController extends ControllerBase {
     return $response;
   }
 
-
-
   /**
    * The default off canvas information in manage mode.
    *
@@ -562,15 +577,6 @@ class DashboardController extends ControllerBase {
       '#tag' => 'h2',
       '#value' => $this->t('@label tab', ['@label' => $tab->label()]),
     ];
-
-//    $output['content']['tab'] = [
-//      '#type' => 'details',
-//      '#open' => TRUE,
-//      '#title' => $tab->label(),
-//    ];
-
-
-    ;
 
     $link_options = [
       'attributes' => ['target' => '_blank'],
@@ -615,4 +621,5 @@ class DashboardController extends ControllerBase {
 
     return $output;
   }
+
 }

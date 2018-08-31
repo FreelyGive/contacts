@@ -144,7 +144,6 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
     return $this;
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -178,7 +177,6 @@ class ContactTab extends ConfigEntityBase implements ContactTabInterface {
 
       $name = $new_name;
     }
-
 
     // Make sure the name is set properly.
     $block['id'] = $id;

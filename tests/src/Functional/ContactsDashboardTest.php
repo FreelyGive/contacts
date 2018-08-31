@@ -66,7 +66,7 @@ class ContactsDashboardTest extends BrowserTestBase {
     // Generate a random image.
     $filesystem = $this->container->get('file_system');
     $tmp_file = $filesystem->tempnam('temporary://', 'contactImage_');
-    $destination = $tmp_file . '.jpg';
+    $destination = $tmp_file . '.png';
     file_unmanaged_move($tmp_file, $destination, FILE_CREATE_DIRECTORY);
     $path = $this->getRandomGenerator()->image($filesystem->realpath($destination), '100x100', '100x100');
     $image = File::create();
