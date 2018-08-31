@@ -9,21 +9,46 @@ dependencies:
     - field.field.profile.crm_indiv.crm_name
     - field.field.profile.crm_indiv.crm_phone
     - profile.type.crm_indiv
+  module:
+    - address
+    - datetime
+    - name
 id: profile.crm_indiv.contacts_dashboard
 targetEntityType: profile
 bundle: crm_indiv
 mode: contacts_dashboard
 content:
+  crm_address:
+    type: address_default
+    weight: 4
+    region: content
+    settings:
+      default_country: null
+    third_party_settings: {  }
+  crm_dob:
+    type: datetime_default
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  crm_gender:
+    type: options_select
+    weight: 3
+    region: content
+    settings: {  }
+    third_party_settings: {  }
   crm_name:
-    type: string_textfield
+    type: name_default
     weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  crm_phone:
+    type: string_textfield
+    weight: 1
     region: content
     settings:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden:
-  crm_address: true
-  crm_dob: true
-  crm_gender: true
-  crm_phone: true
+hidden: {  }

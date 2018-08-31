@@ -410,7 +410,7 @@ function contacts_user_format_name_alter(&$name, AccountInterface $account) {
     $profile = $account->profile_crm_indiv->entity;
 
     if ($profile) {
-      $name = $profile->crm_name->value;
+      $name = $profile->crm_name->given . ' ' . $profile->crm_name->family;
     }
   }
 
@@ -495,7 +495,6 @@ function contacts_preprocess_user(&$variables) {
   if ($user->hasRole('crm_indiv')) {
     if ($profile = $user->profile_crm_indiv->entity) {
       $variables['profile'] = $profile;
-      $variables['label'] = $profile->crm_name->value;
       $variables['address'] = $profile->crm_address->locality;
     }
     if (empty($variables['image'])) {
@@ -507,7 +506,6 @@ function contacts_preprocess_user(&$variables) {
   elseif ($user->hasRole('crm_org')) {
     if ($profile = $user->profile_crm_org->entity) {
       $variables['profile'] = $profile;
-      $variables['label'] = $profile->crm_org_name->value;
       $variables['address'] = $profile->crm_org_address->locality;
     }
     if (empty($variables['image'])) {

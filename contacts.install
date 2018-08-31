@@ -6,6 +6,8 @@
   */
 
 use Drupal\Core\Installer\Exception\InstallerException;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
 
 /**
  * Implements hook_requirements().
@@ -87,5 +89,20 @@ function contacts_module_preinstall($module) {
         throw new InstallerException('Failed to install contacts theme.');
       }
     }
+  }
+}
+
+/**
+ * Update crm_name field.
+ *
+ * @see contacts_post_update_update_crm_indiv_field().
+ */
+function contacts_update_8001() {
+  if ($field_config = FieldConfig::load('profile.crm_indiv.crm_name')) {
+    $field_config->delete();
+  }
+
+  if ($field_storage = FieldStorageConfig::load('profile.crm_name')) {
+    $field_storage->delete();
   }
 }

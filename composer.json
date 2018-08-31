@@ -22,7 +22,8 @@
     "drupal/decoupled_auth": "1.x-dev",
     "drupal/contacts_theme": "1.x-dev",
     "drupal/ctools": "~3.0-beta1",
-    "drupal/color_field": "~2.0-rc1"
+    "drupal/color_field": "~2.0-rc1",
+    "drupal/name": "^1.0@RC"
   },
   "autoload": {
     "psr-4": {

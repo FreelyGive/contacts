@@ -4,6 +4,8 @@ dependencies:
   config:
     - field.storage.profile.crm_name
     - profile.type.crm_indiv
+  module:
+    - name
 id: profile.crm_indiv.crm_name
 field_name: crm_name
 entity_type: profile
@@ -11,8 +13,41 @@ bundle: crm_indiv
 label: Name
 description: ''
 required: false
-translatable: true
+translatable: false
 default_value: {  }
 default_value_callback: ''
-settings: {  }
-field_type: string
+settings:
+  size:
+    title: 6
+    given: 20
+    middle: 20
+    family: 20
+    generational: 5
+    credentials: 35
+  title_display:
+    title: description
+    given: description
+    middle: description
+    family: description
+    generational: description
+    credentials: description
+  field_type:
+    title: select
+    given: text
+    middle: text
+    family: text
+    generational: select
+    credentials: text
+  inline_css:
+    title: ''
+    given: ''
+    middle: ''
+    family: ''
+    generational: ''
+    credentials: ''
+  component_css: ''
+  component_layout: default
+  show_component_required_marker: false
+  credentials_inline: false
+  override_format: default
+field_type: name
