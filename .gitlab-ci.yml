@@ -1,0 +1,31 @@
+image: yanniboi/drupal
+
+variables:
+  MYSQL_USER: root
+  MYSQL_PASSWORD: password
+  MYSQL_DATABASE: contacts_test_runner
+
+cache:
+  paths:
+    - $CI_PROJECT_DIR/../drupal/vendor/
+
+# General set up of our environment and code.
+before_script:
+  - composer self-update
+#  - export COMPOSER_EXIT_ON_PATCH_FAILURE=1
+  - export DRUPAL_BUILD_ROOT="$(dirname "$CI_PROJECT_DIR")"
+  - ./.gitlab-ci/setup.sh
+  - cd $DRUPAL_BUILD_ROOT/drupal
+  - TESTDIR=$(pwd)
+
+code_review:
+  script:
+    - cd $TESTDIR
+    - $TESTDIR/vendor/bin/phpcs --config-set installed_paths $TESTDIR/vendor/drupal/coder/coder_sniffer
+    - $CI_PROJECT_DIR/.gitlab-ci/coder.sh
+
+phpunit:
+  script:
+    - cd $TESTDIR
+    - $CI_PROJECT_DIR/.gitlab-ci/phpunit.sh
+
