@@ -2,18 +2,16 @@
 
 /**
  * @file
- * Post update functions for Delay Repay Payments.
+ * Post update functions for Contacts.
  */
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 
-
-
 /**
- * Adds new completed date field to payment entity types.
+ * Adds the new crm_name field.
  */
-function contacts_post_update_update_crm_indiv_field() {
+function contacts_post_update_add_crm_name() {
   $values = [
     'langcode' => 'en',
     'status' => TRUE,
@@ -132,7 +130,7 @@ function contacts_post_update_update_crm_indiv_field() {
     'default_value_callback' => '',
     'settings' => [
       'size' => [
-        'title' =>  6,
+        'title' => 6,
         'given' => 20,
         'middle' => 20,
         'family' => 20,
@@ -174,4 +172,3 @@ function contacts_post_update_update_crm_indiv_field() {
   $field = FieldConfig::create($values);
   $field->save();
 }
-

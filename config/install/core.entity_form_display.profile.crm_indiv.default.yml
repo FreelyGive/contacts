@@ -39,9 +39,7 @@ content:
   crm_name:
     type: name_default
     weight: 0
-    settings:
-      size: 60
-      placeholder: ''
+    settings: {  }
     third_party_settings: {  }
   crm_phone:
     type: string_textfield

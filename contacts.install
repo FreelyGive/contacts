@@ -93,9 +93,9 @@ function contacts_module_preinstall($module) {
 }
 
 /**
- * Update crm_name field.
+ * Remove the existing name field.
  *
- * @see contacts_post_update_update_crm_indiv_field().
+ * @see contacts_post_update_add_crm_name()
  */
 function contacts_update_8001() {
   if ($field_config = FieldConfig::load('profile.crm_indiv.crm_name')) {
