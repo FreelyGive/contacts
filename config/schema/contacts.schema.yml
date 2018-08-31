@@ -23,6 +23,12 @@ contacts.block_plugin.*:
       label: 'Context assignments'
       sequence:
         - type: string
+    region:
+      type: string
+      label: 'Region'
+    weight:
+      type: integer
+      label: 'Weight'
 
 block.settings.contacts_entity:*:
   type: block_settings
@@ -45,9 +51,3 @@ block.settings.contacts_entity:*:
     edit_id:
       type: string
       label: 'Edit ID'
-    region:
-      type: string
-      label: 'Region'
-    weight:
-      type: integer
-      label: 'Weight'
