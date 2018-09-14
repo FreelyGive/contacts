@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * General hook implementations for Contacts Group.
+ */
+
+use Drupal\contacts_group\Plugin\Field\ContactsOrgGroupItemList;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\entity\BundleFieldDefinition;
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+function contacts_group_entity_base_field_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  if ($entity_type->id() == 'user') {
+    $fields['group'] = BaseFieldDefinition::create('entity_reference')
+      ->setName('group')
+      ->setLabel('Organisation group')
+      ->setComputed(TRUE)
+      ->setSetting('target_type', 'group')
+      ->setClass(ContactsOrgGroupItemList::class);
+
+    $fields['organisations'] = BaseFieldDefinition::create('group_membership')
+      ->setName('group_memberships')
+      ->setLabel('Group memberships')
+      ->setComputed(TRUE)
+      ->setSetting('target_type', 'group_content')
+      ->setSetting('group_type', 'contacts_org');
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_entity_field_storage_info().
+ */
+function contacts_group_entity_field_storage_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  if ($entity_type->id() == 'group') {
+    $fields['contacts_org'] = BundleFieldDefinition::create('entity_reference')
+      ->setTargetEntityTypeId('group')
+      ->setName('contacts_org')
+      ->setLabel(new TranslatableMarkup('Organisation'))
+      ->setDescription(new TranslatableMarkup('The organisation this group is for.'))
+      ->setSetting('target_type', 'user');
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_entity_bundle_field_info().
+ */
+function contacts_group_entity_bundle_field_info(EntityTypeInterface $entity_type, $bundle, array $base_field_definitions) {
+  $fields = [];
+
+  if ($entity_type->id() == 'group' && $bundle == 'contacts_org') {
+    $fields['contacts_org'] = BundleFieldDefinition::create('entity_reference')
+      ->setTargetEntityTypeId('group')
+      ->setTargetBundle('contacts_org')
+      ->setName('contacts_org')
+      ->setRequired(TRUE)
+      ->setReadOnly(TRUE)
+      ->setLabel(new TranslatableMarkup('Organisation'))
+      ->setDescription(new TranslatableMarkup('The organisation this group is for.'))
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default:user')
+      ->setSetting('handler_settings', [
+        'include_anonymous' => FALSE,
+        'filter' => [
+          'type' => 'role',
+          'role' => ['crm_org'],
+        ],
+        'auto_create' => FALSE,
+      ])
+      ->addConstraint('ContactsUniqueReference', [
+        'bundle' => TRUE,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'weight' => -1,
+      ])
+      ->setDisplayConfigurable('form', FALSE)
+      ->setDisplayConfigurable('view', TRUE);
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function contacts_group_form_group_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /* @var \Drupal\group\Entity\GroupInterface $group */
+  $group = $form_state->getFormObject()->getEntity();
+  if ($group->bundle() == 'contacts_org') {
+    $form['label']['#access'] = FALSE;
+    if (!$group->isNew()) {
+      $form['contacts_org']['widget'][0]['target_id']['#disabled'] = TRUE;
+    }
+    $form['#entity_builders'][] = 'contacts_group_form_group_form_contacts_org_entity_builder';
+  }
+}
+
+/**
+ * Entity builder callback for the group form.
+ */
+function contacts_group_form_group_form_contacts_org_entity_builder($entity_type_id, EntityInterface $entity, array $form, FormStateInterface $form_state) {
+  $entity->set('label', $entity->contacts_org->entity->label());
+}
+
+/**
+ * Implements hook_entity_field_access().
+ */
+function contacts_group_entity_field_access($operation, FieldDefinitionInterface $field_definition, AccountInterface $account, FieldItemListInterface $items = NULL) {
+  // Field access for organisation memberships.
+  if ($field_definition->getTargetEntityTypeId() == 'group_content' && $field_definition->getTargetBundle() == 'contacts_org-group_membership') {
+    // Deny access for all operations for roles and job title unless we know
+    // we're dealing with an individual member. Organisation members don't have
+    // roles or titles.
+    $field_names = ['indiv_role', 'group_roles', 'job_title'];
+    if (in_array($field_definition->getName(), $field_names)) {
+      if ($items) {
+        /* @var \Drupal\user\UserInterface $member */
+        $member = $items->getEntity()->getEntity();
+        return AccessResult::forbiddenIf(!$member || !$member->hasRole('crm_indiv'));
+      }
+    }
+  }
+  return AccessResult::neutral();
+}

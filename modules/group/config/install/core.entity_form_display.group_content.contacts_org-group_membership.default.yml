@@ -1,0 +1,37 @@
+uuid: 11d0c792-8695-454c-9fd7-53a843566e3c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.group_content.contacts_org-group_membership.group_roles
+    - field.field.group_content.contacts_org-group_membership.indiv_role
+    - group.content_type.contacts_org-group_membership
+id: group_content.contacts_org-group_membership.default
+targetEntityType: group_content
+bundle: contacts_org-group_membership
+mode: default
+content:
+  entity_id:
+    type: entity_reference_autocomplete
+    weight: 0
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    region: content
+    third_party_settings: {  }
+  group_roles:
+    type: options_buttons
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  indiv_role:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
+    region: content
+hidden:
+  path: true
+  uid: true

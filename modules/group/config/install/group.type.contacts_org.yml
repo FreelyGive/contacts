@@ -1,0 +1,12 @@
+uuid: 91efe0c7-ef50-41b2-8f58-dc8076aefde7
+langcode: en
+status: true
+dependencies:
+  module:
+    - contacts_group
+id: contacts_org
+label: Organisation
+description: ''
+creator_membership: false
+creator_wizard: true
+creator_roles: {  }

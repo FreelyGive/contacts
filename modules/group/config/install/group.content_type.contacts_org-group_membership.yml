@@ -1,0 +1,17 @@
+uuid: 1bcdc583-046a-4de5-8968-b18fd1403545
+langcode: en
+status: true
+dependencies:
+  config:
+    - group.type.contacts_org
+  module:
+    - user
+id: contacts_org-group_membership
+label: 'Organisation: Group membership'
+description: 'Adds users to groups as members.'
+group_type: contacts_org
+content_plugin: group_membership
+plugin_config:
+  group_cardinality: 0
+  entity_cardinality: 1
+  use_creation_wizard: true

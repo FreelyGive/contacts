@@ -1,0 +1,8 @@
+name: 'Contacts Group'
+type: module
+description: 'Group integration for managing relationships with Organisations.'
+core: 8.x
+package: 'Contacts'
+
+dependencies:
+  - group:group (>=8.x-1.0-rc2)

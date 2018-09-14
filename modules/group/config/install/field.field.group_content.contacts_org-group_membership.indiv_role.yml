@@ -1,0 +1,21 @@
+uuid: b89f5c23-2f33-4b4f-9df0-3856f9cbe6f8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.group_content.indiv_role
+    - group.content_type.contacts_org-group_membership
+  module:
+    - options
+id: group_content.contacts_org-group_membership.indiv_role
+field_name: indiv_role
+entity_type: group_content
+bundle: contacts_org-group_membership
+label: Role
+description: 'Please select your primary role.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,27 @@
+uuid: 18754617-a677-4440-a72c-9da4d53f53bd
+langcode: en
+status: true
+dependencies:
+  module:
+    - group
+    - options
+id: group_content.indiv_role
+field_name: indiv_role
+entity_type: group_content
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: employee
+      label: Employee
+    -
+      value: volunteer
+      label: Volunteer
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
