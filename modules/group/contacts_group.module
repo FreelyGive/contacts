@@ -5,6 +5,7 @@
  * General hook implementations for Contacts Group.
  */
 
+use Drupal\contacts_group\Form\ContactOrgRelationshipForm;
 use Drupal\contacts_group\Plugin\Field\ContactsOrgGroupItemList;
 use Drupal\contacts_group\Plugin\Validation\Constraint\GroupContentCardinality;
 use Drupal\Core\Access\AccessResult;
@@ -17,6 +18,14 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\entity\BundleFieldDefinition;
+
+/**
+ * Implements hook_entity_type_build().
+ */
+function contacts_group_entity_type_build(array &$entity_types) {
+  /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  $entity_types['group_content']->setFormClass('contacts-org', ContactOrgRelationshipForm::class);
+}
 
 /**
  * Implements hook_entity_base_field_info().
@@ -148,4 +157,17 @@ function contacts_group_entity_field_access($operation, FieldDefinitionInterface
  */
 function contacts_group_validation_constraint_alter(array &$definitions) {
   $definitions['GroupContentCardinality']['class'] = GroupContentCardinality::class;
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block.
+ */
+function contacts_group_preprocess_block(&$variables) {
+  // The title still shows for the relationship view, even if argument
+  // validation should hide the view.
+  if ($variables['base_plugin_id'] == 'views_block' && substr($variables['derivative_plugin_id'], 0, 13) == 'contacts_orgs') {
+    if (!isset($variables['content']['#view'])) {
+      unset($variables['label']);
+    }
+  }
 }

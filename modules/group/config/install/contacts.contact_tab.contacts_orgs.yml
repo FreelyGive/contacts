@@ -1,0 +1,56 @@
+uuid: e901c6ac-7d1e-4431-a274-05f00686b64e
+langcode: en
+status: true
+dependencies: {  }
+id: contacts_orgs
+label: Organisations
+path: orgs
+layout: contacts_tab_content.stacked
+weight: null
+relationships: {  }
+blocks:
+  views_block_contacts_orgs_orgs:
+    name: views_block_contacts_orgs_orgs
+    id: 'views_block:contacts_orgs-orgs'
+    weight: 0
+    region: top
+    label: 'Organisations'
+    provider: views
+    label_display: 'visible'
+    views_label: 'Organisations'
+  contacts_org_form_orgs:
+    name: contacts_org_form
+    id: 'contacts_org_relationship_form'
+    weight: 1
+    region: top
+    label: ''
+    provider: contacts_group
+    label_display: visible
+    query_key: 'org'
+    provides: 'member'
+    member_roles: null
+    context_mapping:
+      user: user
+  views_block_contacts_orgs_member_orgs:
+    name: views_block_contacts_orgs_member_orgs
+    id: 'views_block:contacts_orgs-member_orgs'
+    weight: 0
+    region: bottom
+    label: 'Member organisations'
+    provider: views
+    label_display: 'visible'
+    views_label: 'Member Organisations'
+  contacts_org_form_member_orgs:
+    name: contacts_org_form
+    id: 'contacts_org_relationship_form'
+    weight: 1
+    region: bottom
+    label: ''
+    provider: contacts_group
+    label_display: visible
+    query_key: 'member'
+    provides: 'group'
+    member_roles:
+      - 'crm_org'
+    context_mapping:
+      user: user
