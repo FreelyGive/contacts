@@ -189,17 +189,11 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       'subpage' => $this->getContextValue('subpage'),
     ];
 
-    $query = ['edit' => $this->configuration['edit_id']];
-    $link = Link::createFromRoute('Edit', 'page_manager.page_view_contacts_dashboard_contact', $params, [
-      'query' => $query,
-      'attributes' => [
-        'class' => ['use-ajax'],
-        'data-ajax-progress' => 'fullscreen',
-        'data-ajax-url' => Url::fromRoute('contacts.ajax_subpage', $params, [
-          'query' => $query,
-        ])->toString(),
-      ],
-    ]);
+    $options = ['query' => ['edit' => $this->configuration['edit_id']]];
+    $link = Link::createFromRoute('Edit',
+      'page_manager.page_view_contacts_dashboard_contact',
+      $params,
+      $options);
 
     return $link;
   }

@@ -55,6 +55,7 @@ class AccessDeniedSubscriber implements EventSubscriberInterface {
   public function onException(GetResponseForExceptionEvent $event) {
     $exception = $event->getException();
     if ($exception instanceof AccessDeniedHttpException) {
+      // @todo: Switch over to using the dashboard helper.
       $route = RouteMatch::createFromRequest($event->getRequest());
       if ($route->getRouteName() === 'contacts.ajax_subpage') {
         $response = new AjaxResponse();

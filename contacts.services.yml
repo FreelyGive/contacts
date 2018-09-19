@@ -1,4 +1,7 @@
 services:
+  contacts.dashboard:
+    class: Drupal\contacts\Dashboard
+    arguments: ['@current_route_match', 'page_manager.page_view_contacts_dashboard_contact', 'contacts.ajax_subpage']
   contacts.breadcrumb_builder:
     class: Drupal\contacts\BreadcrumbBuilder
     tags:
