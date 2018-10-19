@@ -165,7 +165,9 @@ function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_st
         'color_field' => [
           'color_field_widget_box' => [
             'settings' => [
-              'default_colors' => array_keys(crm_tools_get_hat_palette()),
+              'crm-tools-hat-color' => [
+                'default_colors' => array_keys(crm_tools_get_hat_palette()),
+              ],
             ],
           ],
         ],
@@ -176,7 +178,7 @@ function crm_tools_form_user_role_form_alter(&$form, FormStateInterface $form_st
       '#type' => 'textfield',
       '#default_value' => $role->getThirdPartySetting('crm_tools', 'crm_tools_color'),
       '#attributes' => ['class' => ['visually-hidden']],
-      '#suffix' => '<div class="color-field-widget-box-form"></div>',
+      '#suffix' => '<div id="crm-tools-hat-color" class="color-field-widget-box-form"></div>',
     ],
   ];
 
