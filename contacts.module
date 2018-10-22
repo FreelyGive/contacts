@@ -10,7 +10,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Component\Utility\Html;
 use Drupal\contacts\Form\ContactsProfileForm;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\contacts\Form\RegisterForm;
 use Drupal\Core\Render\Element;
 use Drupal\user\RoleInterface;
 use Drupal\views\ViewExecutable;
@@ -306,9 +306,12 @@ function contacts_dashboard_block_edit_link_pre_render(array $element) {
  */
 function contacts_entity_type_build(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+
   $entity_types['profile']->setFormClass('default', ContactsProfileForm::class);
   $entity_types['profile']->setFormClass('contacts_dashboard', ContactsProfileForm::class);
   $entity_types['profile']->setFormClass('user_dashboard', ContactsProfileForm::class);
+
+  $entity_types['user']->setFormClass('register', RegisterForm::class);
 }
 
 /**
@@ -752,11 +755,4 @@ function contacts_preprocess_block(&$variables, $hook) {
       }
     }
   }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function contacts_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $form['account']['roles']['#default_value'][] = 'crm_indiv';
 }

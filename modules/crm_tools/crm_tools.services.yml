@@ -3,7 +3,3 @@ services:
     class: Drupal\crm_tools\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
-  crm_tools.route_enhancer:
-    class: Drupal\crm_tools\Routing\RouteEnhancer
-    tags:
-      - { name: route_enhancer }
