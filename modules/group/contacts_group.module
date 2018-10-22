@@ -6,6 +6,7 @@
  */
 
 use Drupal\contacts_group\Plugin\Field\ContactsOrgGroupItemList;
+use Drupal\contacts_group\Plugin\Validation\Constraint\GroupContentCardinality;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -140,4 +141,11 @@ function contacts_group_entity_field_access($operation, FieldDefinitionInterface
     }
   }
   return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_validation_constraint_alter().
+ */
+function contacts_group_validation_constraint_alter(array &$definitions) {
+  $definitions['GroupContentCardinality']['class'] = GroupContentCardinality::class;
 }
