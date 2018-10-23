@@ -4,6 +4,7 @@ namespace Drupal\contacts_user_dashboard\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Extension\ModuleHandler;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,9 +18,12 @@ class UserDashboardController extends ControllerBase {
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler.
    */
-  public function __construct(EntityTypeManager $entity_type_manager) {
+  public function __construct(EntityTypeManager $entity_type_manager, ModuleHandler $module_handler) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -27,8 +31,9 @@ class UserDashboardController extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')
-    );
+      $container->get('entity_type.manager'),
+      $container->get('module_handler')
+   );
   }
 
   /**
@@ -59,8 +64,7 @@ class UserDashboardController extends ControllerBase {
       ],
     ];
 
-    $user_view_builder = \Drupal::entityTypeManager()->getViewBuilder('user');
-    $profile_view_builder = \Drupal::entityTypeManager()->getViewBuilder('profile');
+    $user_view_builder = $this->entityTypeManager->getViewBuilder('user');
     $content['user'] = [
       '#type' => 'user_dashboard_summary',
       '#buttons' => [
@@ -79,45 +83,11 @@ class UserDashboardController extends ControllerBase {
         ],
       ],
       '#title' => 'Your details',
-      '#content' => $user_view_builder->view($user, 'teaser'),
+      '#content' => $user_view_builder->view($user, 'user_dashboard'),
     ];
 
-    // @todo Move this to the events module.
-    $content['bookings'] = [
-      '#type' => 'user_dashboard_summary',
-      '#buttons' => [
-        [
-          'text' => $this->t('View all bookings'),
-          'route_name' => 'view.contacts_events_events.page_1',
-          'route_parameters' => ['user' => $user->id()],
-        ],
-      ],
-      '#title' => 'Recent bookings',
-      '#content' => [
-        '#type' => 'html_tag',
-        '#tag' => 'div',
-        '#value' => "No active bookings.",
-      ],
-    ];
-
-    $profile = $user->profile_crm_communications->entity;
-    if ($profile) {
-      $content['comms'] = [
-        '#type' => 'user_dashboard_summary',
-        '#buttons' => [
-          [
-            'text' => $this->t('Update preferences'),
-            'route_name' => 'entity.profile.type.user_profile_form',
-            'route_parameters' => [
-              'user' => $user->id(),
-              'profile_type' => 'crm_communications',
-            ],
-          ],
-        ],
-        '#title' => 'Communication preferences',
-        '#content' => $profile_view_builder->view($profile, 'teaser'),
-      ];
-    }
+    // Alter hook to add to the summary blocks.
+    $this->moduleHandler->alter('contacts_user_dashboard_user_summary_blocks', $content, $user);
 
     return $content;
   }

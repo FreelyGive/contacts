@@ -73,13 +73,6 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
       'weight' => -99,
     ] + $base_plugin_definition;
 
-    $derivatives['user_edit_form.default'] = [
-      'route_name' => 'entity.user.edit_form',
-      'parent_id' => 'entity.user.edit_form',
-      'title' => $this->t('Name & login'),
-      'base_route' => 'entity.user.canonical',
-    ] + $base_plugin_definition;
-
     $additional = $this->moduleHandler->invokeAll('contacts_user_dashboard_local_tasks', [$base_plugin_definition]);
     $this->derivatives = array_merge($derivatives, $additional);
 
@@ -94,6 +87,7 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     $this->hideLocalTasks($local_tasks);
     $this->renameLocalTasks($local_tasks);
     $this->moveLocalTasks($local_tasks);
+    $this->orderLocalTasks($local_tasks);
   }
 
   /**
@@ -102,9 +96,8 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
   protected function hideLocalTasks(&$local_tasks) {
     // @todo Automatically allow all derivatives of contacts_user_dashboard_tab.
     $allowed_items = [
-      'contacts_user_dashboard_tab:user_edit_form.default',
-      'contacts_user_dashboard_tab:user_summary',
       'contacts_user_dashboard.summary',
+      'contacts_user_dashboard_tab:user_summary',
       'entity.profile.user_profile_form:profile.type.crm_indiv',
       'entity.user.edit_form',
     ];
@@ -148,6 +141,22 @@ class UserDashboardLocalTask extends DeriverBase implements ContainerDeriverInte
     foreach ($move_items as $route_name => $new_base_route) {
       if (isset($local_tasks[$route_name])) {
         $local_tasks[$route_name]['parent_id'] = $new_base_route;
+      }
+    }
+  }
+
+  /**
+   * Order local tasks.
+   */
+  protected function orderLocalTasks(&$local_tasks) {
+    $order_items = [];
+
+    // Alter hook to add to the task items.
+    $this->moduleHandler->alter('contacts_user_dashboard_local_tasks_order', $order_items);
+
+    foreach ($order_items as $route_name => $route_weight) {
+      if (isset($local_tasks[$route_name])) {
+        $local_tasks[$route_name]['weight'] = $route_weight;
       }
     }
   }

@@ -307,10 +307,8 @@ function contacts_dashboard_block_edit_link_pre_render(array $element) {
  */
 function contacts_entity_type_build(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-
   $entity_types['profile']->setFormClass('default', ContactsProfileForm::class);
   $entity_types['profile']->setFormClass('contacts_dashboard', ContactsProfileForm::class);
-  $entity_types['profile']->setFormClass('user_dashboard', ContactsProfileForm::class);
 
   $entity_types['user']->setFormClass('register', RegisterForm::class);
 }
@@ -318,27 +316,25 @@ function contacts_entity_type_build(array &$entity_types) {
 /**
  * Implements hook_ENTITY_TYPE_insert() for profile_type.
  *
- * Set up entity displays for contacts and user dashboards.
+ * Set up entity displays for contacts dashboard.
  */
 function contacts_profile_type_insert($entity) {
   /* @var \Drupal\profile\Entity\ProfileTypeInterface $entity */
   $view_storage = \Drupal::entityTypeManager()->getStorage('entity_view_display');
   $form_storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
 
-  foreach (['contacts_dashboard', 'user_dashboard'] as $mode) {
-    $values = [
-      'id' => implode('.', ['profile', $entity->id(), $mode]),
-      'targetEntityType' => 'profile',
-      'bundle' => $entity->id(),
-      'mode' => $mode,
-      'status' => TRUE,
-    ];
+  $values = [
+    'id' => implode('.', ['profile', $entity->id(), 'contacts_dashboard']),
+    'targetEntityType' => 'profile',
+    'bundle' => $entity->id(),
+    'mode' => 'contacts_dashboard',
+    'status' => TRUE,
+  ];
 
-    $view_display = $view_storage->create($values);
-    $view_display->save();
-    $form_display = $form_storage->create($values);
-    $form_display->save();
-  }
+  $view_display = $view_storage->create($values);
+  $view_display->save();
+  $form_display = $form_storage->create($values);
+  $form_display->save();
 }
 
 /**
