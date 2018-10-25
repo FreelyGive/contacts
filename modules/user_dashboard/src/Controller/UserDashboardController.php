@@ -39,11 +39,19 @@ class UserDashboardController extends ControllerBase {
   /**
    * Redirects users to their user dashboard page.
    *
+   * @param \Drupal\user\UserInterface $user
+   *   The user context.
+   *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   Returns a redirect to the profile of the currently logged in user.
    */
-  public function userPage() {
-    return $this->redirect('contacts_user_dashboard.summary', ['user' => $this->currentUser()->id()]);
+  public function userPage(UserInterface $user = NULL) {
+    if ($user) {
+      return $this->redirect('contacts_user_dashboard.summary', ['user' => $user->id()]);
+    }
+    else {
+      return $this->redirect('contacts_user_dashboard.summary', ['user' => $this->currentUser()->id()]);
+    }
   }
 
   /**
