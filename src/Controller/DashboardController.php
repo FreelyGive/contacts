@@ -413,7 +413,7 @@ class DashboardController extends ControllerBase {
     $content = [];
 
     $content['form '] = $this->formBuilder->getForm(DashboardBlockConfigureForm::class, $tab, $block);
-    $content['meta'] = $block->getManageMeta();
+    $content['meta'] = method_exists($block, 'getManageMeta') ? $block->getManageMeta() : [];
     return $content;
   }
 
