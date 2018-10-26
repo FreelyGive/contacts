@@ -3,4 +3,7 @@ svg.role-icon {
   margin-bottom: -3px;
   padding: 2px;
   fill: white;
+  height: 1.2em;
+  width: 1.2em;
+  vertical-align: middle;
 }

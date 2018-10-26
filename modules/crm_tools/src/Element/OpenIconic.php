@@ -43,7 +43,7 @@ class OpenIconic extends RenderElement {
       '#attributes' => [],
       '#icon' => 'person',
       '#color' => '#000000',
-      '#size' => '25px',
+      '#size' => NULL,
       '#fill' => '#ffffff',
     ];
   }
@@ -77,8 +77,8 @@ class OpenIconic extends RenderElement {
       if (is_numeric($element['#size'])) {
         $element['#size'] .= 'px';
       }
-      $element['#attributes']['style'][] = 'height:' . HtmlUtility::escape($element['#size']) . ';';
-      $element['#attributes']['style'][] = 'width:' . HtmlUtility::escape($element['#size']) . ';';
+      $element['#attributes']['style'][] = 'height:' . HtmlUtility::escape($element['#size']) . '!important;';
+      $element['#attributes']['style'][] = 'width:' . HtmlUtility::escape($element['#size']) . '!important;';
     }
 
     if (!empty($element['#fill'])) {
