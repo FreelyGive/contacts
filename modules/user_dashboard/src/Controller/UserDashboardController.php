@@ -33,7 +33,7 @@ class UserDashboardController extends ControllerBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('module_handler')
-   );
+    );
   }
 
   /**
