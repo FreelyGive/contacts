@@ -384,9 +384,14 @@ function contacts_toolbar() {
       ],
     ],
     '#attached' => [
-      'library' => ['contacts/dashboard.manage'],
+      'library' => [
+        'contacts/dashboard.manage',
+        'crm_tools/open-iconic',
+      ],
     ],
   ];
+  $path = \Drupal::moduleHandler()->getModule('crm_tools')->getPath();
+  $items['contacts_manage']['#attached']['drupalSettings']['contacts']['openIconic']['path'] = '/' . $path . '/includes/open-iconic.svg';
 
   return $items;
 }
