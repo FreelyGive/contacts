@@ -176,7 +176,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
     }
 
     // If we are already in edit mode, don't show a link.
-    if ($this->getMode() == 'edit') {
+    if ($this->getMode() == 'update') {
       return FALSE;
     }
 
@@ -299,7 +299,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       }
     }
 
-    if ($this->getMode($entity) == 'edit') {
+    if ($this->getMode($entity) == 'update') {
       return $this->buildForm($entity);
     }
     return $this->buildView($entity);
@@ -312,7 +312,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
    *   The entity. If not provided, we will get it from the context.
    *
    * @return string
-   *   The mode to use, either 'view' or 'edit'.
+   *   The mode to use, either 'view' or 'update'.
    */
   protected function getMode(EntityInterface $entity = NULL) {
     $definition = $this->getPluginDefinition();
@@ -328,12 +328,12 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
 
     // Show a form if we are form only.
     if ($config['mode'] == self::MODE_FORM) {
-      return 'edit';
+      return 'update';
     }
 
     // If we have requested this to be editable, show the form.
     if ($this->useEditLink() && $this->request->query->get('edit') == $this->configuration['edit_id']) {
-      return 'edit';
+      return 'update';
     }
 
     // View if the entity is not new or we want to view new entities.
@@ -341,7 +341,7 @@ class ContactsEntity extends BlockBase implements ContainerFactoryPluginInterfac
       return 'view';
     }
 
-    return 'edit';
+    return 'update';
   }
 
   /**
