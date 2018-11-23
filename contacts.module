@@ -5,6 +5,7 @@
  * Module related hook implementations for the contacts module.
  */
 
+use Drupal\commerce_order\Form\OrderForm;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Html;
@@ -15,6 +16,7 @@ use Drupal\contacts\Plugin\DashboardBlockInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Template\Attribute;
 use Drupal\Core\Url;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
@@ -766,4 +768,31 @@ function contacts_preprocess_block(&$variables, $hook) {
  */
 function contacts_link_alter(&$variables) {
   Dashboard::fastHookLinkAlter($variables, 'contacts.dashboard');
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Point the commerce back end forms to Contacts rather that People.
+ */
+function contacts_form_commerce_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form_object = $form_state->getFormObject();
+  if (!($form_object instanceof OrderForm)) {
+    return;
+  }
+
+  /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+  $order = $form_state->getFormObject()->getEntity();
+  $customer = $order->getCustomer();
+  if (!isset($form['uid']) && !$customer->isAnonymous()) {
+    $customer_link = Link::createFromRoute($customer->label(), 'page_manager.page_view_contacts_dashboard_contact', ['user' => $customer->id()])->toString();
+    $label = new TranslatableMarkup('Customer');
+    $form['customer']['uid'] = [
+      '#type' => 'item',
+      '#wrapper_attributes' => [
+        'class' => [Html::cleanCssIdentifier(strtolower($label)), 'container-inline'],
+      ],
+      '#markup' => '<h4 class="label inline">' . $label . '</h4> ' . $customer_link,
+    ];
+  }
 }
