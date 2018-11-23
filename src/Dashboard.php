@@ -181,6 +181,9 @@ class Dashboard {
     if ($url) {
       $params = $url->getRouteParameters();
       $options = $url->getOptions();
+      unset($options['query']['_wrapper_format']);
+      if (isset($options['query']['_format'])) {
+      }
     }
     else {
       $param_bag = $this->routeMatch->getParameters();
@@ -287,6 +290,16 @@ class Dashboard {
         $variables['options']['query']['destination'] = $this->getFullUrl()->toString();
       }
     }
+
+    // Update destinations on links to always use the non-AJAX links. We only
+    // need to do this if we're currently on the AJAX dashboard.
+    if (isset($variables['options']['query']['destination']) && $this->isDashboardAjax()) {
+      $destination = Url::fromUserInput($variables['options']['query']['destination']);
+      if ($this->isDashboardAjax($destination)) {
+        $variables['options']['query']['destination'] = $this->getFullUrl($destination)->toString();
+      }
+    }
+
   }
 
 }
