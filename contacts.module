@@ -13,6 +13,7 @@ use Drupal\contacts\Dashboard;
 use Drupal\contacts\Form\ContactsProfileForm;
 use Drupal\contacts\Form\RegisterForm;
 use Drupal\contacts\Plugin\DashboardBlockInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
@@ -775,7 +776,7 @@ function contacts_link_alter(&$variables) {
  *
  * Point the commerce back end forms to Contacts rather that People.
  */
-function contacts_form_commerce_order_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function contacts_form_commerce_order_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form_object = $form_state->getFormObject();
   if (!($form_object instanceof OrderForm)) {
     return;
