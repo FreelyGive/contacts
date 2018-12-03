@@ -28,7 +28,7 @@ blocks:
     label_display: visible
     query_key: 'org'
     provides: 'member'
-    member_roles: null
+    member_roles: {  }
     context_mapping:
       user: user
   views_block_contacts_orgs_member_orgs:

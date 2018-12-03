@@ -110,7 +110,7 @@ class ContactOrgRelationshipFormBlock extends BlockBase implements ContainerFact
     return [
       'query_key' => 'org',
       'provides' => 'member',
-      'member_roles' => NULL,
+      'member_roles' => [],
       'show_add' => TRUE,
       'add_title' => NULL,
     ] + parent::defaultConfiguration();

@@ -1,0 +1,19 @@
+contacts_org_relationship_form:
+  type: block_settings
+  label: 'Org Relationship Form'
+  mapping:
+    query_key:
+      type: string
+      lable: 'Query key'
+    provides:
+      type: string
+      label: 'Provides'
+    member_roles:
+      type: sequence
+      sequence:
+        type: string
+        label: 'Member roles'
+
+block.settings.contacts_org_relationship_form:
+  type: contacts_org_relationship_form
+
